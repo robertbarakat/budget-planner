@@ -26,7 +26,7 @@ Gestionale personale per P.IVA forfettaria: budget annuo previsto + consuntivo r
 
 ## Regole
 - Rispondi in italiano, breve e diretto, senza spiegazioni superflue.
-- Un ticket Jira (progetto [CHIAVE], barakarob.atlassian.net) per ogni lavoro; cita la chiave nei commit e nei branch.
+- Un ticket Jira (progetto BP, barakarob.atlassian.net) per ogni lavoro; cita la chiave nei commit e nei branch.
 - Non applicare migrazioni al progetto Supabase, non fare deploy e non scrivere su Google Sheets senza conferma.
 - Regole fiscali: segnala ogni dubbio. Vanno confermate dal commercialista.
 - Non toccare cartelle fuori dal compito della sessione.

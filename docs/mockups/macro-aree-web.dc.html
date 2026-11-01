@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Macro-aree web</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font-family:inherit}
+a{color:inherit;text-decoration:none}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 1040px; box-sizing: border-box; background: #F3F5F7; color: #14212B; font-family: 'IBM Plex Sans', system-ui, sans-serif; display: flex; flex-wrap: wrap; align-items: stretch">
+
+  <nav aria-label="Navigazione" style="flex: 1 1 220px; max-width: 240px; min-width: 200px; background: #FFFFFF; border-right: 1px solid #DDE3E8; padding: 24px 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 10px 20px 10px">
+      <div style="width: 28px; height: 28px; border-radius: 8px; background: #0B6E6A"></div>
+      <span style="font-size: 17px; font-weight: 600">Budget e cassa</span>
+    </div>
+    <a href="FlussoCassa.dc.html" style="padding: 10px 12px; border-radius: 10px; color: #14212B; font-size: 14px">Flusso di cassa</a>
+    <a href="MacroAree.dc.html" style="padding: 10px 12px; border-radius: 10px; background: #E3F1F0; color: #0B4F4C; font-size: 14px; font-weight: 600">Macro-aree</a>
+    <a href="MacroAree.dc.html" style="padding: 10px 12px; border-radius: 10px; color: #14212B; font-size: 14px">Movimenti</a>
+    <a href="MacroAree.dc.html" style="padding: 10px 12px; border-radius: 10px; color: #14212B; font-size: 14px">Previsione e driver</a>
+    <a href="MacroAree.dc.html" style="padding: 10px 12px; border-radius: 10px; color: #14212B; font-size: 14px">Tasse</a>
+    <a href="MacroAree.dc.html" style="padding: 10px 12px; border-radius: 10px; color: #14212B; font-size: 14px">Ricorrenze</a>
+    <a href="MacroAree.dc.html" style="padding: 10px 12px; border-radius: 10px; color: #14212B; font-size: 14px">Conti</a>
+    <a href="MacroAree.dc.html" style="padding: 10px 12px; border-radius: 10px; color: #14212B; font-size: 14px">Mappatura categorie</a>
+    <div style="flex: 1; min-height: 24px"></div>
+    <div style="border: 1px solid #DDE3E8; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px">
+      <span style="font-size: 12px; font-weight: 600">Export su Google Sheets</span>
+      <span style="font-size: 12px; color: #55646F">Ogni settimana · ultimo invio [data]</span>
+      <button style="height: 36px; border-radius: 8px; border: 1px solid #0B6E6A; background: #FFFFFF; color: #0B6E6A; font-size: 13px; font-weight: 600; cursor: pointer">Esporta ora</button>
+    </div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 28px 32px 40px 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 22px">
+
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <h1 style="margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.3px">Macro-aree 2026</h1>
+        <span style="font-size: 14px; color: #55646F">Totali annui per area, con l'andamento mese per mese</span>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 18px; font-size: 12px; color: #55646F">
+        <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #B23A0A"></span>Uscita reale</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #E7B9A6"></span>Uscita prevista</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #1B4FD1"></span>Entrata reale</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #A9BDF0"></span>Entrata prevista</span>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px">
+      <div style="background: #FFFFFF; border: 1px solid #DDE3E8; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+        <span style="font-size: 12px; color: #55646F">Introiti</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 500; color: #1B4FD1">{{totIn}}</span>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #DDE3E8; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+        <span style="font-size: 12px; color: #55646F">Uscite totali</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 500; color: #B23A0A">{{totOut}}</span>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #DDE3E8; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+        <span style="font-size: 12px; color: #55646F">Saldo</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 500">{{saldo}}</span>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px">
+      <sc-for list="{{areas}}" as="a" hint-placeholder-count="7">
+        <section style="background: #FFFFFF; border: 1px solid #DDE3E8; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px">
+            <h2 style="margin: 0; font-size: 15px; font-weight: 600">{{a.name}}</h2>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 500; {{a.totalStyle}}">{{a.total}}</span>
+          </div>
+          <div style="display: flex; align-items: flex-end; gap: 4px; height: 64px">
+            <sc-for list="{{a.bars}}" as="b" hint-placeholder-count="12">
+              <div style="flex: 1; border-radius: 3px 3px 0 0; {{b.style}}"></div>
+            </sc-for>
+          </div>
+          <div style="display: flex; gap: 4px; font-size: 10px; color: #55646F">
+            <span style="flex: 1; text-align: center">G</span><span style="flex: 1; text-align: center">F</span><span style="flex: 1; text-align: center">M</span><span style="flex: 1; text-align: center">A</span><span style="flex: 1; text-align: center">M</span><span style="flex: 1; text-align: center">G</span><span style="flex: 1; text-align: center">L</span><span style="flex: 1; text-align: center">A</span><span style="flex: 1; text-align: center">S</span><span style="flex: 1; text-align: center">O</span><span style="flex: 1; text-align: center">N</span><span style="flex: 1; text-align: center">D</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="height: 6px; border-radius: 3px; background: #E4E9ED"><div style="height: 6px; border-radius: 3px; background: #14212B; {{a.shareStyle}}"></div></div>
+            <span style="font-size: 12px; color: #55646F">{{a.shareText}}</span>
+          </div>
+        </section>
+      </sc-for>
+    </div>
+
+    <section style="background: #FFFFFF; border: 1px solid #DDE3E8; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px">
+        <h2 style="margin: 0; font-size: 17px; font-weight: 600">Dettaglio Case</h2>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 500; color: #B23A0A">{{casaTotal}}</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px">
+        <sc-for list="{{houses}}" as="h" hint-placeholder-count="3">
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #DDE3E8; padding-bottom: 8px">
+              <h3 style="margin: 0; font-size: 14px; font-weight: 600">{{h.name}}</h3>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 500; color: #B23A0A">{{h.total}}</span>
+            </div>
+            <sc-for list="{{h.lines}}" as="l" hint-placeholder-count="5">
+              <div style="display: flex; flex-direction: column; gap: 4px">
+                <div style="display: flex; justify-content: space-between; font-size: 13px">
+                  <span>{{l.label}}</span>
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #55646F">{{l.value}}</span>
+                </div>
+                <div style="height: 5px; border-radius: 3px; background: #E4E9ED"><div style="height: 5px; border-radius: 3px; background: #B23A0A; {{l.barStyle}}"></div></div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1040}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const nf = new Intl.NumberFormat('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const eur = (v) => (v < 0 ? '−€ ' : '€ ') + nf.format(Math.abs(v));
+    const sum = (a) => a.reduce((s, x) => s + x, 0);
+    const closedUntil = 9;
+
+    const data = {
+      introiti: [6403.9, 9415.7, 11562.6, 7123.3, 2328.3, 7103.3, 6803.3, 7151.3, 7403.3, 3503.3, 6658.3, 6963.3],
+      case: [-1091.03, -1422.03, -1306.53, -1713.47, -1306.97, -1551.47, -1101.47, -1189.97, -1133.57, -1700.44, -1459.17, -2079.67],
+      sport: [-76.39, -76.39, -103.47, -27.08, -27.08, -27.08, -27.08, -27.08, -440.24, 0, 0, 0],
+      media: [-145.98, -145.98, -250.98, -161.14, -107.84, -109.83, -109.83, -209.83, -120.57, -114.57, -114.57, -114.57],
+      electronics: [-372.51, -372.51, -372.51, -242.51, -242.51, -227.07, -114.89, -182.54, -182.54, -180.61, -180.61, -180.61],
+      various: [-1129, -1940.91, -1000, -530.14, -1000, -1000, -4700, -2400, -6750, -1000, -3350, -1000],
+      tasse: [0, 0, 0, 0, 0, -4707.05, -4715.52, -4731.05, -4746.59, -4762.12, -11913.21, -4793.16]
+    };
+    const defs = [
+      ['Introiti', 'introiti', true],
+      ['Case', 'case', false],
+      ['Sport', 'sport', false],
+      ['Media', 'media', false],
+      ['Electronics', 'electronics', false],
+      ['Various', 'various', false],
+      ['Tasse', 'tasse', false]
+    ];
+    const outKeys = ['case', 'sport', 'media', 'electronics', 'various', 'tasse'];
+    const totOut = sum(outKeys.map((k) => sum(data[k])));
+    const totIn = sum(data.introiti);
+
+    const areas = defs.map(([name, key, isIn]) => {
+      const arr = data[key];
+      const max = Math.max.apply(null, arr.map((v) => Math.abs(v))) || 1;
+      const bars = arr.map((v, i) => {
+        const h = Math.max(2, Math.round((Math.abs(v) / max) * 60));
+        const closed = i <= closedUntil;
+        const col = isIn ? (closed ? '#1B4FD1' : '#A9BDF0') : (closed ? '#B23A0A' : '#E7B9A6');
+        return { style: 'height: ' + h + 'px; background: ' + col + ';' };
+      });
+      const total = sum(arr);
+      const pct = isIn ? 100 : Math.round((Math.abs(total) / Math.abs(totOut)) * 1000) / 10;
+      return {
+        name,
+        total: eur(total),
+        totalStyle: isIn ? 'color: #1B4FD1;' : 'color: #B23A0A;',
+        bars,
+        shareStyle: 'width: ' + (isIn ? 100 : pct) + '%;',
+        shareText: isIn ? 'Entrate dell\'anno' : nf.format(pct) + '% delle uscite totali'
+      };
+    });
+
+    const mkHouse = (name, lines) => {
+      const total = sum(lines.map((l) => l[1]));
+      const max = Math.max.apply(null, lines.map((l) => Math.abs(l[1]))) || 1;
+      return {
+        name,
+        total: eur(total),
+        lines: lines.map((l) => ({
+          label: l[0],
+          value: Math.abs(l[1]) < 0.005 ? '–' : eur(l[1]),
+          barStyle: 'width: ' + Math.round((Math.abs(l[1]) / max) * 100) + '%;'
+        })),
+        raw: total
+      };
+    };
+    const houses = [
+      mkHouse('Garbatella', [['Mutuo', -7737], ['Condominio', -1090.1], ['Utenze', -600], ['Ama Roma', -306], ['Condizionatori', 0]]),
+      mkHouse('Alba Adriatica', [['Prestito', -1721.76], ['Condominio', -1103.77], ['Mobili', -1195.2], ['IMU', -884], ['Utenza', -770], ['Letti', -532.96], ['Tari', -269]]),
+      mkHouse('Manziana', [['Tari', -486], ['Luce', -360]])
+    ];
+
+    return {
+      totIn: eur(totIn),
+      totOut: eur(totOut),
+      saldo: eur(totIn + totOut),
+      areas,
+      houses,
+      casaTotal: eur(sum(houses.map((h) => h.raw)))
+    };
+  }
+}
+</script>
+</body>
+</html>

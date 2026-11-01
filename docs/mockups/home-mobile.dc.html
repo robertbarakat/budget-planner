@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Home mobile</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F3F5F7; color: #14212B; font-family: 'IBM Plex Sans', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden; position: relative">
+
+  <div style="padding: 20px 20px 0 20px; display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0">
+
+    <div style="display: flex; align-items: center; justify-content: space-between; height: 44px">
+      <button aria-label="Mese precedente" style="width: 44px; height: 44px; border: 0; background: transparent; color: #14212B; display: flex; align-items: center; justify-content: center; cursor: pointer">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <span style="font-size: 17px; font-weight: 600">Ottobre 2026</span>
+        <span style="font-size: 12px; color: #55646F">Mese aperto · dati reali al 21/10</span>
+      </div>
+      <button aria-label="Mese successivo" style="width: 44px; height: 44px; border: 0; background: transparent; color: #14212B; display: flex; align-items: center; justify-content: center; cursor: pointer">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+
+    <div style="background: #FFFFFF; border: 1px solid #DDE3E8; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span style="font-size: 12px; color: #55646F">Cassa prevista a fine mese</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 500; letter-spacing: -0.5px">€ 48.299,66</span>
+      </div>
+      <div style="display: flex; gap: 8px">
+        <div style="flex: 1; background: #F3F5F7; border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 11px; color: #55646F">Bancoposta</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #55646F">[saldo]</span>
+        </div>
+        <div style="flex: 1; background: #F3F5F7; border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 11px; color: #55646F">Cash</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #55646F">[saldo]</span>
+        </div>
+        <div style="flex: 1; background: #F3F5F7; border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 11px; color: #55646F">Postepay</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #55646F">[saldo]</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background: #FFFFFF; border: 1px solid #DDE3E8; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline">
+        <span style="font-size: 14px; font-weight: 600">Spese del mese</span>
+        <span style="font-size: 12px; color: #B23A0A; font-weight: 500">+ € 723,07 sul previsto</span>
+      </div>
+      <div style="height: 8px; border-radius: 4px; background: #E4E9ED; position: relative">
+        <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 100%; border-radius: 4px; background: #B23A0A"></div>
+        <div style="position: absolute; left: 91.5%; top: -3px; bottom: -3px; width: 2px; background: #14212B"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 12px; color: #55646F">
+        <span>Reale <span style="font-family: 'IBM Plex Mono', monospace; color: #14212B">€ 8.480,81</span></span>
+        <span>Previsto <span style="font-family: 'IBM Plex Mono', monospace; color: #14212B">€ 7.757,74</span></span>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <span style="font-size: 13px; font-weight: 600; color: #55646F; padding: 0 2px">Ultime registrazioni</span>
+      <div style="background: #FFFFFF; border: 1px solid #DDE3E8; border-radius: 16px; display: flex; flex-direction: column">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 16px; border-bottom: 1px solid #EDF0F3">
+          <div style="display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 500">Lavoro · Stampante Brother</span><span style="font-size: 12px; color: #55646F">21 ott · Bancoposta</span></div>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #B23A0A">−199,49</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 16px; border-bottom: 1px solid #EDF0F3">
+          <div style="display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 500">Bar</span><span style="font-size: 12px; color: #55646F">21 ott · Bancoposta</span></div>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #B23A0A">−3,00</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 16px; border-bottom: 1px solid #EDF0F3">
+          <div style="display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 500">Pizza</span><span style="font-size: 12px; color: #55646F">20 ott · Bancoposta</span></div>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #B23A0A">−14,90</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 16px">
+          <div style="display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 500">Prestiti · Prestito Alba Adriatica</span><span style="font-size: 12px; color: #55646F">20 ott · Bancoposta</span></div>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #B23A0A">−143,48</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <span style="font-size: 13px; font-weight: 600; color: #55646F; padding: 0 2px">Previste a novembre</span>
+      <div style="background: #FFFFFF; border: 1px solid #DDE3E8; border-radius: 16px; display: flex; flex-direction: column">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 16px; border-bottom: 1px solid #EDF0F3">
+          <span style="font-size: 14px">Mutuo Garbatella</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #B23A0A">−644,75</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 16px">
+          <span style="font-size: 14px">Imposte</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #B23A0A">−13.153,54</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="height: 72px; background: #FFFFFF; border-top: 1px solid #DDE3E8; display: flex; align-items: center; justify-content: space-around; padding: 0 12px; position: relative; flex-shrink: 0">
+    <button aria-label="Home" style="width: 64px; height: 56px; border: 0; background: transparent; color: #0B6E6A; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+      <span style="font-size: 11px; font-weight: 600">Home</span>
+    </button>
+    <button aria-label="Movimenti" style="width: 64px; height: 56px; border: 0; background: transparent; color: #55646F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>
+      <span style="font-size: 11px">Movimenti</span>
+    </button>
+    <div style="width: 64px"></div>
+    <button aria-label="Budget" style="width: 64px; height: 56px; border: 0; background: transparent; color: #55646F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+      <span style="font-size: 11px">Budget</span>
+    </button>
+    <button aria-label="Ricorrenze" style="width: 64px; height: 56px; border: 0; background: transparent; color: #55646F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+      <span style="font-size: 11px">Ricorrenze</span>
+    </button>
+    <button aria-label="Nuovo movimento" style="position: absolute; left: 167px; top: -26px; width: 56px; height: 56px; border-radius: 28px; border: 0; background: #0B6E6A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(11,110,106,0.35); cursor: pointer">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

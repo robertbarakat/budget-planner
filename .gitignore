@@ -1,0 +1,30 @@
+# Segreti e variabili d'ambiente
+.env
+.env.*
+!.env.example
+
+# Note personali per Claude Code
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Dati personali dell'import (non committare mai)
+docs/import-data/
+*.xlsx
+*.xls
+
+# Dipendenze e build
+node_modules/
+dist/
+build/
+coverage/
+.vercel/
+
+# Supabase locale
+database/supabase/.temp/
+database/supabase/.branches/
+
+# Sistema operativo e editor
+.DS_Store
+.idea/
+.vscode/
+*.log
