@@ -1,0 +1,1 @@
+-- Dati iniziali (conti, categorie, voci, macro-aree): arrivano con l'epic 2. Deve restare ripetibile.
