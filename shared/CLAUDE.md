@@ -15,5 +15,6 @@ Tipi condivisi e funzioni pure di calcolo, usate da frontend e backend.
 - INPS Gestione Separata: 26,07% sulla base (24% con altra copertura). Fonte: circolare INPS n. 8 del 3 febbraio 2026.
 - Imposta sostitutiva: 15% (5% start-up) su (base - contributi versati nell'anno, principio di cassa).
 - Acconti, saldo e rateizzazioni (rate con interessi) producono il calendario F24, che alimenta la riga "Imposte" del budget.
-- Percentuali e date degli acconti NON sono verificate: segnalale con un commento "DA VERIFICARE" nel codice.
-- Per ogni regola incerta, indica la fonte o scrivi che manca. Tutto va confermato dal commercialista.
+- Percentuali, importi e date degli acconti sono parametri per anno, presi dall'F24 del commercialista: mai costanti nel codice.
+- I contributi versati nell'anno sono deducibili anche se pagati a rate (indicazione dell'autore), parametro modificabile.
+- Per ogni altra regola incerta, indica la fonte o scrivi che manca. Il commercialista resta la verifica finale.

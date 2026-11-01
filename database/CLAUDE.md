@@ -4,8 +4,9 @@ Supabase Postgres. Migrazioni SQL in database/supabase/migrations. Directory di 
 
 ## Regole
 - Una migrazione per cambiamento, nome con data e descrizione. Mai modificare una migrazione già applicata: ne crei una nuova.
-- Prima di scrivere le migrazioni mostra lo schema (tabelle e relazioni) e aspetta il via.
-- Non applicare nulla al progetto Supabase senza conferma esplicita.
+- Dopo aver scritto una migrazione, applicala al progetto Supabase con il connettore e controlla gli advisor di sicurezza e performance. Finché il database è vuoto (prima dell'import storico) non serve conferma.
+- Dopo l'import storico, DROP, TRUNCATE e DELETE massivi richiedono il mio ok.
+- Descrivi lo schema aggiornato in docs/schema.md a ogni modifica.
 - Row level security attiva su ogni tabella, utente unico: ogni riga accessibile solo al proprietario.
 - Nomi in snake_case, inglese, coerenti con i tipi di shared/. Le etichette in italiano stanno nei dati, non nei nomi.
 - Importi in numeric(12,2), date in date, mai float. Vincoli (not null, check, foreign key) e indici dove servono.

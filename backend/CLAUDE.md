@@ -8,7 +8,7 @@ Funzioni Node/TypeScript su Vercel.
 - La logica di calcolo sta in shared/: qui solo orchestrazione. Non duplicarla.
 - Accesso al DB con il client Supabase; nessuna query che aggira le regole di accesso per riga, salvo funzioni amministrative esplicite e commentate.
 - Errori espliciti con codice HTTP corretto; messaggi per l'utente in italiano, log in inglese.
-- Cron di Vercel (vercel.json) per l'export settimanale su Google Sheets. Non attivarlo senza conferma.
+- Cron di Vercel (vercel.json) per l'export settimanale su Google Sheets. L'export scrive solo sul file creato per questo scopo, mai sul foglio "Budget 2026" esistente.
 
 ## Funzioni previste
 - Calcolo fiscale e calendario F24.

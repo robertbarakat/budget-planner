@@ -1,20 +1,37 @@
-# Shared
+# Budget Planner
 
-Tipi condivisi e funzioni pure di calcolo, usate da frontend e backend.
+Gestionale personale per P.IVA forfettaria: budget annuo previsto + consuntivo reale in tempo reale. Web app PWA (mobile + desktop), un solo DB. UI in italiano, valuta EUR.
+
+## Struttura
+- frontend/  React + Vite + TypeScript, Oxlint, CSS puro con custom properties (niente SCSS)
+- backend/   funzioni Node su Vercel
+- database/  Supabase Postgres, migrazioni in database/supabase/migrations
+- shared/    tipi e funzioni pure di calcolo (fiscale)
+- docs/      specifica, mockup, convenzioni
+
+## Leggi prima di lavorare
+- docs/specifica.md: modello dati, viste, regole fiscali
+- docs/mockups/: schermate di riferimento (colori, font, spazi)
+- docs/jira.md: come scrivere i ticket
+- il CLAUDE.md della cartella in cui lavori
+
+## Modello in breve
+- Conti (Bancoposta, Cash, Postepay) con saldo iniziale.
+- Categorie -> voce di budget -> macro-area.
+- Movimenti reali: spesa, entrata, trasferimento.
+- Righe di budget per voce + anno + mese (origine: manuale, driver ricavi, ricorrenza, fiscale).
+- Ricorrenze con importo modificabile a ogni scadenza.
+- Mese "chiuso" = si mostra il reale; altrimenti il previsto. Budget libero su qualsiasi anno e mese.
+- Viste: cronologica mese per mese con saldo progressivo; per categoria/macro-area (previsto vs reale); sul web anche matrice voci x mesi.
 
 ## Regole
-- Solo funzioni pure: nessun I/O, nessun accesso a rete, DB o data corrente (la data si passa come argomento).
-- Nessuna dipendenza da frontend/ o backend/.
-- Ogni funzione ha test Vitest, inclusi casi limite (anno senza incassi, rateizzazione, arrotondamenti).
-- Calcoli in centesimi interi per evitare errori di virgola mobile; formattazione solo ai bordi.
-- Parametri fiscali per anno (coefficiente, aliquote, scadenze) passati come argomento, mai costanti nel codice.
-- Tipi del DB generati da Supabase: non scriverli a mano.
-
-## Modulo fiscale (forfettario)
-- Base imponibile = incassi x coefficiente di redditività (67%).
-- INPS Gestione Separata: 26,07% sulla base (24% con altra copertura). Fonte: circolare INPS n. 8 del 3 febbraio 2026.
-- Imposta sostitutiva: 15% (5% start-up) su (base - contributi versati nell'anno, principio di cassa).
-- Acconti, saldo e rateizzazioni (rate con interessi) producono il calendario F24, che alimenta la riga "Imposte" del budget.
-- Percentuali, importi e date degli acconti sono parametri per anno, presi dall'F24 del commercialista: mai costanti nel codice.
-- I contributi versati nell'anno sono deducibili anche se pagati a rate (indicazione dell'autore), parametro modificabile.
-- Per ogni altra regola incerta, indica la fonte o scrivi che manca. Il commercialista resta la verifica finale.
+- Rispondi in italiano, breve e diretto, senza spiegazioni superflue.
+- Un ticket Jira (progetto BP, barakarob.atlassian.net) per ogni lavoro; cita la chiave nei commit e nei branch.
+- Usa i connettori (Supabase, Vercel, GitHub, Jira) direttamente: applica migrazioni, fai push e deploy senza chiedere conferma.
+- Chiedi conferma solo per: operazioni distruttive su dati reali dopo l'import storico (DROP, TRUNCATE, DELETE massivi, reset del database), force push, e qualsiasi scrittura sul foglio Google "Budget 2026" esistente (l'export scrive solo sul proprio file).
+- Flusso git: un branch per ticket; a lint, test e build passati, merge su main (squash) e push. Vercel pubblica da main.
+- Ignora i ticket con etichetta `rimandato`.
+- Mai stampare o committare chiavi e segreti.
+- Regole fiscali: segnala ogni dubbio. Vanno confermate dal commercialista.
+- Non toccare cartelle fuori dal compito della sessione.
+- Prima di dichiarare un lavoro finito: lint, test e build della cartella toccata.
