@@ -12,9 +12,10 @@ npx supabase db reset # riapplica migrazioni e seed in locale
 ```
 
 ## Collegare la CLI al progetto remoto
+Progetto: `budget-planner`, ref `joknxejlzsaogyuggzsy`, regione eu-west-1.
 ```bash
 npx supabase login
-npx supabase link --project-ref <PROJECT_REF>   # il ref è nell'URL del progetto: https://<ref>.supabase.co
+npx supabase link --project-ref joknxejlzsaogyuggzsy
 ```
 Nessuna migrazione va applicata al progetto remoto senza conferma (vedi `CLAUDE.md` per le regole dopo l'import storico).
 
