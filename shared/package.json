@@ -10,7 +10,7 @@
     }
   },
   "scripts": {
-    "lint": "oxlint",
+    "lint": "oxlint --deny-warnings",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "build": "tsc --noEmit"
