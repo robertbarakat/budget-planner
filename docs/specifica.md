@@ -1,6 +1,6 @@
 # Specifica – Budget Planner
 
-Stato: versione iniziale, da aggiornare quando una decisione cambia. Le voci marcate **DA CONFERMARE** non sono verificate.
+Stato: versione iniziale, da aggiornare quando una decisione cambia. Le decisioni prese sono nella sezione 10.
 
 ## 1. Obiettivo
 Gestionale personale per un libero professionista in regime forfettario (P.IVA). Tiene insieme:
@@ -17,7 +17,7 @@ Un solo utente. Web app PWA usata da telefono (inserimento rapido) e desktop (an
 - Backend: funzioni Node su Vercel; cron di Vercel per l'export settimanale.
 - Calcoli (fiscale, previsioni) in funzioni pure in shared/, testate con Vitest.
 - Gestione lavoro: Jira (barakarob.atlassian.net). Documentazione nel repo (docs/), non su Confluence.
-- Online-first. L'uso offline (coda di inserimenti) è rimandato: vedi decisioni aperte.
+- Solo online all'inizio. L'uso offline (coda di inserimenti sul telefono) non è un requisito iniziale: si valuta a fine progetto (epic 11).
 - Export su Google Sheets: unidirezionale DB -> Sheet, fase finale. L'app non legge dal foglio.
 
 ## 3. Modello dati
@@ -57,32 +57,45 @@ Flag per mese. Mese **chiuso**: le viste mostrano il reale. Mese **aperto** (cor
 1. **Cronologica (flusso di cassa)**: elenco mese per mese, con saldo progressivo. Mobile e web.
 2. **Per categoria / macro-area**: previsto vs reale, per mese e per anno. Dettaglio per voce.
 3. **Matrice web**: voci x mesi, con interruttore Misto / Previsto / Reale / Scostamento.
-4. **Home mobile**: cassa prevista a fine mese, saldi per conto, spese del mese reale vs previsto, ultime registrazioni, prossime scadenze.
+4. **Home mobile**: cassa prevista a fine mese (totale; il saldo di ogni conto si vede a richiesta, nel dettaglio), spese del mese reale vs previsto, ultime registrazioni, prossime scadenze.
 5. **Nuovo movimento (mobile)**: inserimento in pochi tocchi (tipo, importo, conto, categoria, data, commento).
 
 Schermate di riferimento in `docs/mockups/`. I dati nei mockup sono illustrativi; i colori, i font e le spaziature sono quelli da riprendere.
 
 ## 6. Previsione dei ricavi (driver)
-Ricavo previsto = **giorni lavorati x tariffa giornaliera** per cliente, spostato in avanti del **ritardo d'incasso** del cliente. Dal foglio "Budget 2026":
+Tutto parametrabile dall'app: nessun cliente, tariffa o ritardo è scritto nel codice.
 
+### Parametri
+- **Clienti**: anagrafica gestibile (aggiungere, rinominare, archiviare). Ogni cliente ha un **ritardo d'incasso** in mesi (modificabile).
+- **Tariffa giornaliera** per cliente, con **periodo di validità** (da mese / a mese): una tariffa può cambiare nel tempo (es. Bit2Win passa da 300 a 280) e i mesi passati mantengono la tariffa di allora.
+- **Giorni lavorati previsti** per cliente e mese, inseriti dall'utente (anche su più anni in anticipo) e modificabili in qualsiasi momento.
+
+### Calcolo
+- Ricavo maturato nel mese M = giorni lavorati di M x tariffa valida in M, per cliente.
+- Incasso previsto = ricavo maturato, spostato in avanti del ritardo del cliente: cade nel mese M + ritardo. Se cade in un altro anno, finisce nel budget di quell'anno (es. il "Riporto su 2027" del foglio).
+- Il driver genera righe di budget con origine `driver_ricavi`, una per cliente e mese di incasso.
+- Cambiando giorni, tariffa o ritardo, le righe `driver_ricavi` si rigenerano solo per i mesi **non chiusi**. I mesi chiusi non si toccano.
+- Quando arriva l'incasso reale, si registra come entrata collegata al cliente: l'app confronta incasso previsto e reale per cliente.
+
+### Dati di partenza (dal foglio "Budget 2026", confermati dall'autore)
 | Cliente | Tariffa giornaliera | Ritardo d'incasso |
 |---|---|---|
 | OneBlade | 250 | 2 mesi |
 | GDS | 250 | 1 mese |
 | Bit2Win | 300, poi 280 ("Discount") | 2 mesi |
 
-**DA CONFERMARE**: ritardi e tariffe. Esiste un "Riporto su 2027" nel foglio: gli incassi di fine anno cadono nell'anno successivo. Il driver genera righe di budget con origine `driver_ricavi`.
+Il mese da cui la tariffa di Bit2Win scende a 280 si imposta nell'app.
 
 ## 7. Modulo fiscale (separato dalle spese)
 Regime forfettario. Parametri **modificabili per anno**, mai fissi nel codice.
 - Base imponibile = incassi dell'anno x **coefficiente di redditività 67%**.
 - **INPS Gestione Separata**: 26,07% sulla base (24% se si ha altra copertura previdenziale). Fonte: circolare INPS n. 8 del 3 febbraio 2026, riportata da ecnews.
 - **Imposta sostitutiva**: 15% (5% se start-up) su (base imponibile - contributi versati nell'anno). Principio di cassa.
-- **Acconti e saldo**: percentuali e date **NON verificate**. Da verificare prima di implementare.
+- **Acconti e saldo**: percentuali, importi e date sono parametri per anno, ricavati dall'F24 del commercialista e inseriti nell'app. Non vanno fissati nel codice.
 - **Rateizzazione**: entità propria (rate con interessi; gli interessi si ricavano per differenza tra importo rateizzato e somma delle rate). Esempio dal foglio 2026: interessi 1.920,27 EUR, da riconciliare.
 - **Calendario F24**: scadenze con importi, che alimentano la riga "Imposte" del budget previsto.
 - Il primo anno di attività è il 2025 (nessun acconto dovuto per quell'anno).
-- Tutto va confermato dal commercialista. La deducibilità dei contributi pagati a rate è da verificare.
+- I contributi versati nell'anno sono deducibili anche se pagati a rate (indicazione dell'autore); resta un parametro modificabile. Il commercialista resta la verifica finale di tutte le regole.
 
 Differenza con la spesa: le imposte non si inseriscono a mano come spese, sono calcolate. Il versamento reale resta un movimento, collegato alla scadenza F24.
 
@@ -95,6 +108,7 @@ Differenza con la spesa: le imposte non si inseriscono a mano come spese, sono c
   - Dipende dal commento: Prestiti -> Prestito Alba / Mobili Alba (MondoConv) / Cofidis; Casa + "Denise" -> Travaux Jounieh.
   - Stipendio con cliente nel commento -> riga entrata per cliente.
 - Procedura: anteprima e report degli scarti prima di scrivere; poi scrittura in una transazione.
+- **Saldi iniziali per conto**: non si digitano a memoria. Il giorno dell'import l'utente inserisce il saldo attuale di ogni conto; il sistema ricava il saldo iniziale dell'anno = saldo attuale - movimenti importati. Controllo: la somma dei saldi iniziali 2026 deve dare 42.929,33 EUR (totale del foglio "Budget 2026"); in caso di scarto, mostrarlo.
 - Il file Excel contiene dati personali: non va committato (cartella `docs/import-data/` ignorata da git).
 
 ## 9. Export su Google Sheets (fase finale)
@@ -103,14 +117,16 @@ Differenza con la spesa: le imposte non si inseriscono a mano come spese, sono c
 - La scheda "Analytic" del vecchio foglio **non si replica**: l'export è guidato dai dati dell'app. Le "Imposte" delle macro-aree vanno riconciliate solo in quella fase.
 - L'accesso a Sheets avviene con un account di servizio le cui credenziali stanno solo nelle variabili d'ambiente.
 
-## 10. Decisioni aperte
-1. Offline: coda di inserimenti sul telefono oppure solo online?
-2. Saldo in tempo reale per singolo conto, oppure solo cassa totale?
-3. Saldi iniziali per conto al 1 gennaio: la somma deve dare 42.929,33 EUR (saldo iniziale totale 2026). Da confermare conto per conto.
-4. Ritardi d'incasso (2 / 1 / 2 mesi) e tariffe.
-5. Percentuali e date degli acconti.
-6. Deducibilità dei contributi pagati a rate.
-7. Imposte: versione della previsione (calcolata dal modulo fiscale, non più inserita a mano).
+## 10. Decisioni prese
+1. Offline: solo online all'inizio; l'offline si valuta a fine progetto.
+2. Saldi: la home mostra la cassa totale; il saldo di ogni conto si vede a richiesta.
+3. Saldi iniziali per conto: ricavati il giorno dell'import (vedi sezione 8), non digitati a memoria.
+4. Tariffe e ritardi d'incasso: confermati (sezione 6).
+5. Imposte: calcolate dal modulo fiscale, non inserite a mano.
+6. Acconti: parametri per anno presi dall'F24 del commercialista (sezione 7).
+7. Contributi pagati a rate: deducibili, parametro modificabile.
+
+Non ci sono decisioni aperte che blocchino l'avvio.
 
 ## 11. Ordine di sviluppo suggerito
 1. Fondamenta: ambienti, Supabase, Vercel, repo.
