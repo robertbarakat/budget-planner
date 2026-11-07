@@ -47,3 +47,9 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 
 ## Mesi chiusi (BP-18)
 `mesi_chiusi`: id, anno, mese (1–12), chiuso_il. `unique (anno, mese)`. Un mese è chiuso se esiste la riga; riaprirlo = eliminarla.
+
+## Sicurezza: RLS a utente unico (BP-19)
+- RLS attiva su tutte le tabelle; una policy `<tabella>_proprietario` per `authenticated` (lettura e scrittura, purché `auth.uid()` esista).
+- `anon`: privilegi revocati e nessuna policy, quindi nessun accesso.
+- Il signup è disattivato (docs/auth.md): l'unico utente è il proprietario.
+- Ogni nuova tabella deve abilitare RLS e aggiungere la policy nella propria migrazione.
