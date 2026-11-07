@@ -42,3 +42,6 @@ Se una nuova tabella serve al codice, aggiungi il suo alias in `src/domain.ts`.
 
 ## Incassi previsti (driver ricavi)
 `computeExpectedCollections(clients, workedDays)` calcola gli incassi previsti per cliente, anno e mese: giorni lavorati × tariffa valida nel mese di lavoro, spostati in avanti del ritardo d'incasso del cliente (anche nell'anno successivo). Centesimi interi; lavoro con giorni > 0 senza tariffa valida è un errore esplicito.
+
+## Valore di un mese per voce
+`computeMonthlyValues({ year, budgetItemIds, budgetEntries, transactions, closedMonths })` restituisce, per ogni voce e mese dell'anno, previsto, reale e valore mostrato (reale se il mese è chiuso, previsto altrimenti). Entrate positive, spese negative, trasferimenti esclusi; gli importi delle righe di budget sono già con segno.

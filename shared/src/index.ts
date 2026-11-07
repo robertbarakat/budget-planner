@@ -1,6 +1,14 @@
 export { eurosToCents, sumCents } from './cents.ts'
 export { computeAccountBalances } from './balances.ts'
 export { computeExpectedCollections } from './collections.ts'
+export { computeMonthlyValues } from './monthly-values.ts'
+export type {
+  ActualTransactionInput,
+  BudgetEntryInput,
+  ClosedMonthInput,
+  MonthlyValue,
+  MonthlyValuesInput,
+} from './monthly-values.ts'
 export type {
   ClientInput,
   ClientRateInput,

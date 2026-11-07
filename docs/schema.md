@@ -35,6 +35,7 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 `budget_entries`: id, budget_item_id, year, month (1–12), amount, source (enum `budget_entry_source`: `manual`, `revenue_driver`, `recurrence`, `tax`).
 
 - Budget libero: nessun vincolo di sequenza tra anni e mesi.
+- **Segno**: gli importi di `budget_entries.amount` sono con segno, come i valori mostrati nelle viste: entrate positive, spese negative. (I movimenti invece hanno importo sempre positivo e il segno deriva dal tipo.)
 - **Unicità**: nessun vincolo unico su voce+anno+mese(+source). Più righe coesistono sulla stessa voce e mese anche con la stessa origine (il driver ricavi genera una riga per cliente e mese di incasso). Chi genera le righe (driver, ricorrenze, fiscale) le sostituisce da sé sui soli mesi non chiusi.
 - FK voce `ON DELETE RESTRICT`; indice su (year, month, budget_item_id).
 
