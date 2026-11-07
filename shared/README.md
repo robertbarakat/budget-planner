@@ -39,3 +39,6 @@ Se una nuova tabella serve al codice, aggiungi il suo alias in `src/domain.ts`.
 
 ## Saldi per conto
 `computeAccountBalances(openingBalances, transactions)` restituisce il saldo di ogni conto e il totale (saldo iniziale + entrate − spese ± trasferimenti), tutto in centesimi interi. Gli importi del DB (euro, `numeric(12,2)`) si convertono con `eurosToCents` ai bordi.
+
+## Incassi previsti (driver ricavi)
+`computeExpectedCollections(clients, workedDays)` calcola gli incassi previsti per cliente, anno e mese: giorni lavorati × tariffa valida nel mese di lavoro, spostati in avanti del ritardo d'incasso del cliente (anche nell'anno successivo). Centesimi interi; lavoro con giorni > 0 senza tariffa valida è un errore esplicito.
