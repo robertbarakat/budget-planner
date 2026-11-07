@@ -38,11 +38,14 @@ describe('computeCashBalances', () => {
     // April (open):      budget +3,000.00 / -1,200.00                              -> flow +1,800.00 -> 17,050.00
     const budgetEntries = [1, 2, 3, 4].flatMap((month) => [
       { budgetItemId: 1, year: 2026, month, amountCents: 300_000 },
-      { budgetItemId: 2, year: 2026, month, amountCents: -120_000 },
+      { budgetItemId: 2, year: 2026, month, amountCents: 120_000 },
     ])
     const values = computeMonthlyValues({
       year: 2026,
-      budgetItemIds: [1, 2],
+      budgetItems: [
+        { budgetItemId: 1, kind: 'income' },
+        { budgetItemId: 2, kind: 'expense' },
+      ],
       budgetEntries,
       transactions: [
         { type: 'income', budgetItemId: 1, transactionDate: '2026-01-15', amountCents: 280_000 },

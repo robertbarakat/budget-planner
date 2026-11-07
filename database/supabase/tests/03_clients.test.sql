@@ -10,7 +10,7 @@ where n.nspname = 'public' and c.relname in ('clients', 'client_rates');
 
 -- Fixture
 insert into public.macro_areas (name) values ('t_macro');
-insert into public.budget_items (macro_area_id, name) select id, 't_income' from public.macro_areas where name = 't_macro';
+insert into public.budget_items (macro_area_id, name, kind) select id, 't_income', 'income' from public.macro_areas where name = 't_macro';
 insert into public.clients (name, budget_item_id, collection_delay_months)
   select 't_client', id, 2 from public.budget_items where name = 't_income';
 insert into public.client_rates (client_id, daily_rate, valid_from_year, valid_from_month)

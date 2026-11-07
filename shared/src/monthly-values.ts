@@ -1,6 +1,12 @@
-import type { TransactionType } from './domain.ts'
+import type { BudgetItemKind, TransactionType } from './domain.ts'
 
-/** A budget line (docs/specifica.md, section 3). Amounts are signed: income positive, expenses negative. */
+/** A budget item with its kind (income or expense), as stored in the database. */
+export interface BudgetItemInput {
+  budgetItemId: number
+  kind: BudgetItemKind
+}
+
+/** A budget line (docs/specifica.md, section 3). The amount is always positive: the sign comes from the item kind. */
 export interface BudgetEntryInput {
   budgetItemId: number
   year: number
@@ -26,7 +32,7 @@ export interface ClosedMonthInput {
 export interface MonthlyValuesInput {
   year: number
   /** Every budget item to report, archived ones included when they were used in the year. */
-  budgetItemIds: readonly number[]
+  budgetItems: readonly BudgetItemInput[]
   budgetEntries: readonly BudgetEntryInput[]
   transactions: readonly ActualTransactionInput[]
   closedMonths: readonly ClosedMonthInput[]
@@ -36,7 +42,7 @@ export interface MonthlyValue {
   budgetItemId: number
   year: number
   month: number
-  /** Sum of the budget lines of any origin on this item and month. */
+  /** Sum of the budget lines of any origin on this item and month, signed by the item kind. */
   budgetedCents: number
   /** Real income minus real expenses (transfers excluded). For an open month it is the partial real. */
   actualCents: number
@@ -51,21 +57,25 @@ export interface MonthlyValue {
  *
  * - closed month: the shown value is the real one; open month: the budgeted one, with the
  *   partial real returned next to it;
- * - income is positive and expenses negative; transfers never enter the totals;
+ * - income is positive and expenses negative: budget lines take the sign of their item kind, real
+ *   transactions the sign of their type; transfers never enter the totals;
  * - several budget lines (any origin) on the same item and month are summed;
  * - a month with no lines and no transactions is worth 0.
  *
  * Returns 12 entries per item, ordered by item (as given) and month. Data of other years is ignored.
- * References to unknown items are an error. Pure function, integer cents.
+ * References to unknown items and negative budget amounts are errors. Pure function, integer cents.
  */
 export function computeMonthlyValues(input: MonthlyValuesInput): MonthlyValue[] {
-  const { year, budgetItemIds, budgetEntries, transactions, closedMonths } = input
+  const { year, budgetItems, budgetEntries, transactions, closedMonths } = input
   if (!Number.isInteger(year)) {
     throw new RangeError(`Invalid year: ${year}`)
   }
-  const itemIds = new Set(budgetItemIds)
-  if (itemIds.size !== budgetItemIds.length) {
-    throw new RangeError('Duplicate budget item ids')
+  const kindOfItem = new Map<number, BudgetItemKind>()
+  for (const { budgetItemId, kind } of budgetItems) {
+    if (kindOfItem.has(budgetItemId)) {
+      throw new RangeError('Duplicate budget item ids')
+    }
+    kindOfItem.set(budgetItemId, kind)
   }
 
   const budgeted = new Map<string, number>()
@@ -77,11 +87,16 @@ export function computeMonthlyValues(input: MonthlyValuesInput): MonthlyValue[] 
   for (const entry of budgetEntries) {
     assertMonth(entry.month)
     assertCents(entry.amountCents)
-    if (!itemIds.has(entry.budgetItemId)) {
+    if (entry.amountCents < 0) {
+      throw new RangeError(`Budget amount must not be negative: ${entry.amountCents}`)
+    }
+    const kind = kindOfItem.get(entry.budgetItemId)
+    if (kind === undefined) {
       throw new RangeError(`Budget line refers to an unknown item: ${entry.budgetItemId}`)
     }
     if (entry.year === year) {
-      add(budgeted, key(entry.budgetItemId, entry.month), entry.amountCents)
+      const signed = kind === 'income' ? entry.amountCents : -entry.amountCents
+      add(budgeted, key(entry.budgetItemId, entry.month), signed)
     }
   }
 
@@ -95,7 +110,7 @@ export function computeMonthlyValues(input: MonthlyValuesInput): MonthlyValue[] 
       continue
     }
     const { budgetItemId } = transaction
-    if (budgetItemId === null || !itemIds.has(budgetItemId)) {
+    if (budgetItemId === null || !kindOfItem.has(budgetItemId)) {
       throw new RangeError(`Transaction refers to an unknown or missing item: ${budgetItemId}`)
     }
     if (transactionYear === year) {
@@ -113,7 +128,7 @@ export function computeMonthlyValues(input: MonthlyValuesInput): MonthlyValue[] 
   }
 
   const result: MonthlyValue[] = []
-  for (const budgetItemId of budgetItemIds) {
+  for (const { budgetItemId } of budgetItems) {
     for (let month = 1; month <= 12; month++) {
       const budgetedCents = budgeted.get(key(budgetItemId, month)) ?? 0
       const actualCents = actual.get(key(budgetItemId, month)) ?? 0

@@ -3,6 +3,7 @@ import {
   computeMonthlyValues,
   type ActualTransactionInput,
   type BudgetEntryInput,
+  type BudgetItemInput,
   type MonthlyValuesInput,
 } from './monthly-values.ts'
 
@@ -19,9 +20,15 @@ const tx = (
   amountCents: number,
 ): ActualTransactionInput => ({ type, budgetItemId, transactionDate, amountCents })
 
+// item 1 is an expense item, item 2 an income item
+const items: BudgetItemInput[] = [
+  { budgetItemId: 1, kind: 'expense' },
+  { budgetItemId: 2, kind: 'income' },
+]
+
 const base = (over: Partial<MonthlyValuesInput>): MonthlyValuesInput => ({
   year: 2026,
-  budgetItemIds: [1],
+  budgetItems: items.slice(0, 1),
   budgetEntries: [],
   transactions: [],
   closedMonths: [],
@@ -34,7 +41,7 @@ describe('computeMonthlyValues', () => {
   it('shows the real value for a closed month, even when it differs from the budget', () => {
     const values = computeMonthlyValues(
       base({
-        budgetEntries: [entry(1, 3, -50_000)],
+        budgetEntries: [entry(1, 3, 50_000)],
         transactions: [tx('expense', 1, '2026-03-10', 62_000)],
         closedMonths: [{ year: 2026, month: 3 }],
       }),
@@ -50,7 +57,7 @@ describe('computeMonthlyValues', () => {
   it('shows the budget for an open month and returns the partial real next to it', () => {
     const values = computeMonthlyValues(
       base({
-        budgetEntries: [entry(1, 11, -50_000)],
+        budgetEntries: [entry(1, 11, 50_000)],
         transactions: [tx('expense', 1, '2026-11-02', 12_000)],
       }),
     )
@@ -95,9 +102,20 @@ describe('computeMonthlyValues', () => {
 
   it('sums several budget lines with different origins on the same item and month', () => {
     const values = computeMonthlyValues(
-      base({ budgetEntries: [entry(1, 6, -10_000), entry(1, 6, -2_550), entry(1, 6, 500)] }),
+      base({ budgetEntries: [entry(1, 6, 10_000), entry(1, 6, 2_550), entry(1, 6, 500)] }),
     )
-    expect(cell(values, 1, 6)?.budgetedCents).toBe(-12_050)
+    expect(cell(values, 1, 6)?.budgetedCents).toBe(-13_050)
+  })
+
+  it('gives the same budget line a positive sign on an income item and a negative one on an expense item', () => {
+    const values = computeMonthlyValues(
+      base({
+        budgetItems: items,
+        budgetEntries: [entry(1, 4, 12_345), entry(2, 4, 12_345)],
+      }),
+    )
+    expect(cell(values, 1, 4)?.budgetedCents).toBe(-12_345)
+    expect(cell(values, 2, 4)?.budgetedCents).toBe(12_345)
   })
 
   it('counts income as positive and expenses as negative', () => {
@@ -117,7 +135,10 @@ describe('computeMonthlyValues', () => {
   it('returns 12 months per item, in the given item order, and ignores other years', () => {
     const values = computeMonthlyValues(
       base({
-        budgetItemIds: [7, 3],
+        budgetItems: [
+          { budgetItemId: 7, kind: 'expense' },
+          { budgetItemId: 3, kind: 'income' },
+        ],
         budgetEntries: [entry(7, 1, 100, 2025), entry(3, 1, 200, 2027), entry(3, 2, 300)],
         transactions: [tx('income', 7, '2025-01-05', 999), tx('income', 3, '2026-02-05', 400)],
         closedMonths: [{ year: 2025, month: 1 }],
@@ -140,7 +161,8 @@ describe('computeMonthlyValues', () => {
     expect(() => computeMonthlyValues(base({ transactions: [tx('expense', 1, '2026-13-01', 5)] }))).toThrow(RangeError)
     expect(() => computeMonthlyValues(base({ transactions: [tx('expense', 1, '01/02/2026', 5)] }))).toThrow(RangeError)
     expect(() => computeMonthlyValues(base({ transactions: [tx('expense', 1, '2026-01-01', 0)] }))).toThrow(RangeError)
-    expect(() => computeMonthlyValues(base({ budgetItemIds: [1, 1] }))).toThrow(RangeError)
+    expect(() => computeMonthlyValues(base({ budgetItems: [...items.slice(0, 1), ...items.slice(0, 1)] }))).toThrow(RangeError)
+    expect(() => computeMonthlyValues(base({ budgetEntries: [entry(1, 1, -5)] }))).toThrow(RangeError)
     expect(() => computeMonthlyValues(base({ closedMonths: [{ year: 2026, month: 0 }] }))).toThrow(RangeError)
   })
 })

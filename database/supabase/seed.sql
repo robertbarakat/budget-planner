@@ -24,16 +24,16 @@ where not exists (
 );
 
 -- Voci di budget
-insert into public.budget_items (macro_area_id, name, sort_order)
-select m.id, v.name, v.sort_order
+insert into public.budget_items (macro_area_id, name, kind, sort_order)
+select m.id, v.name, v.kind::public.budget_item_kind, v.sort_order
 from (values
-  ('Vita quotidiana', 'Utenze', 1),
-  ('Vita quotidiana', 'Food & leisure', 2),
-  ('Prestiti e rate', 'Prestito Alba', 1),
-  ('Prestiti e rate', 'Mobili Alba (MondoConv)', 2),
-  ('Prestiti e rate', 'Cofidis', 3),
-  ('Casa all''estero', 'Travaux Jounieh', 1)
-) as v(macro_area, name, sort_order)
+  ('Vita quotidiana', 'Utenze', 'expense', 1),
+  ('Vita quotidiana', 'Food & leisure', 'expense', 2),
+  ('Prestiti e rate', 'Prestito Alba', 'expense', 1),
+  ('Prestiti e rate', 'Mobili Alba (MondoConv)', 'expense', 2),
+  ('Prestiti e rate', 'Cofidis', 'expense', 3),
+  ('Casa all''estero', 'Travaux Jounieh', 'expense', 1)
+) as v(macro_area, name, kind, sort_order)
 join public.macro_areas m on lower(m.name) = lower(v.macro_area) and not m.archived
 where not exists (
   select 1 from public.budget_items x where lower(x.name) = lower(v.name) and not x.archived

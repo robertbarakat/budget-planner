@@ -9,7 +9,7 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 | Tabella | Colonne principali | Note |
 |---|---|---|
 | `macro_areas` | id, name, sort_order, archived | |
-| `budget_items` | id, macro_area_id, name, sort_order, archived | FK macro-area `ON DELETE RESTRICT` |
+| `budget_items` | id, macro_area_id, name, kind, sort_order, archived | `kind` (enum `budget_item_kind`: `income`, `expense`) obbligatorio, lo sceglie l'utente; FK macro-area `ON DELETE RESTRICT` |
 | `categories` | id, budget_item_id, name, sort_order, archived | FK voce `ON DELETE RESTRICT` |
 
 - Nome unico (senza distinguere maiuscole) tra gli elementi **non archiviati** di ogni tabella (indice univoco parziale `*_name_active_key`).
@@ -35,7 +35,7 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 `budget_entries`: id, budget_item_id, year, month (1–12), amount, source (enum `budget_entry_source`: `manual`, `revenue_driver`, `recurrence`, `tax`).
 
 - Budget libero: nessun vincolo di sequenza tra anni e mesi.
-- **Segno**: gli importi di `budget_entries.amount` sono con segno, come i valori mostrati nelle viste: entrate positive, spese negative. (I movimenti invece hanno importo sempre positivo e il segno deriva dal tipo.)
+- **Segno**: `amount >= 0` sempre (vincolo `budget_entries_amount_check`). Il segno non sta nell'importo: lo applica `shared/` in base al tipo della voce (`budget_items.kind`: `income` +, `expense` −), come per i movimenti, il cui segno deriva dal tipo. Lo stesso vale per `recurrences.base_amount` e `recurrence_occurrences.amount` (`>= 0`).
 - **Unicità**: nessun vincolo unico su voce+anno+mese(+source). Più righe coesistono sulla stessa voce e mese anche con la stessa origine (il driver ricavi genera una riga per cliente e mese di incasso). Chi genera le righe (driver, ricorrenze, fiscale) le sostituisce da sé sui soli mesi non chiusi.
 - FK voce `ON DELETE RESTRICT`; indice su (year, month, budget_item_id).
 

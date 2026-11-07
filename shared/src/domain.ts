@@ -21,6 +21,7 @@ export type TransactionUpdate = TablesUpdate<'transactions'>
 export type NewBudgetEntry = TablesInsert<'budget_entries'>
 
 export type TransactionType = Enums<'transaction_type'>
+export type BudgetItemKind = Enums<'budget_item_kind'>
 export type BudgetEntrySource = Enums<'budget_entry_source'>
 export type BalanceSource = Enums<'balance_source'>
 export type RecurrenceFrequency = Enums<'recurrence_frequency'>

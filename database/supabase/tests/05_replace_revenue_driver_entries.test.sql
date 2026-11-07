@@ -8,7 +8,7 @@ select has_function('public', 'replace_revenue_driver_entries', array['integer',
 
 -- Fixture: righe di origini diverse dentro e fuori dall'intervallo 2026-05 .. 2026-08
 insert into public.macro_areas (name) values ('t_macro');
-insert into public.budget_items (macro_area_id, name) select id, 't_income' from public.macro_areas where name = 't_macro';
+insert into public.budget_items (macro_area_id, name, kind) select id, 't_income', 'income' from public.macro_areas where name = 't_macro';
 insert into public.budget_entries (budget_item_id, year, month, amount, source)
   select b.id, v.year, v.month, v.amount, v.source::public.budget_entry_source
   from public.budget_items b,

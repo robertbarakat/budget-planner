@@ -14,8 +14,8 @@ where n.nspname = 'public' and c.relkind = 'r';
 
 -- Fixture
 insert into public.macro_areas (name) values ('t_macro');
-insert into public.budget_items (macro_area_id, name) select id, 't_voce'  from public.macro_areas where name = 't_macro';
-insert into public.budget_items (macro_area_id, name) select id, 't_voce2' from public.macro_areas where name = 't_macro';
+insert into public.budget_items (macro_area_id, name, kind) select id, 't_voce', 'expense' from public.macro_areas where name = 't_macro';
+insert into public.budget_items (macro_area_id, name, kind) select id, 't_voce2', 'expense' from public.macro_areas where name = 't_macro';
 insert into public.categories (budget_item_id, name) select id, 't_cat' from public.budget_items where name = 't_voce';
 insert into public.accounts (name) values ('t_a'), ('t_b');
 insert into public.opening_balances (account_id, year, amount) select id, 2026, 10 from public.accounts where name = 't_a';
@@ -23,7 +23,7 @@ insert into public.opening_balances (account_id, year, amount) select id, 2026, 
 -- Classificazione (BP-13)
 select throws_ok($$insert into public.categories (budget_item_id, name) select id, 'T_CAT' from public.budget_items where name = 't_voce'$$,
   '23505', null, 'nome categoria duplicato (non archiviata) rifiutato');
-select throws_ok($$insert into public.budget_items (macro_area_id, name) select id, 'T_VOCE' from public.macro_areas where name = 't_macro'$$,
+select throws_ok($$insert into public.budget_items (macro_area_id, name, kind) select id, 'T_VOCE', 'expense' from public.macro_areas where name = 't_macro'$$,
   '23505', null, 'nome voce duplicato rifiutato');
 select throws_ok($$insert into public.macro_areas (name) values ('T_MACRO')$$,
   '23505', null, 'nome macro-area duplicato rifiutato');

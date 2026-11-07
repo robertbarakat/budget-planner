@@ -44,13 +44,13 @@ Se una nuova tabella serve al codice, aggiungi il suo alias in `src/domain.ts`.
 `computeExpectedCollections(clients, workedDays)` calcola gli incassi previsti per cliente, anno e mese: giorni lavorati × tariffa valida nel mese di lavoro, spostati in avanti del ritardo d'incasso del cliente (anche nell'anno successivo). Centesimi interi; lavoro con giorni > 0 senza tariffa valida è un errore esplicito.
 
 ## Valore di un mese per voce
-`computeMonthlyValues({ year, budgetItemIds, budgetEntries, transactions, closedMonths })` restituisce, per ogni voce e mese dell'anno, previsto, reale e valore mostrato (reale se il mese è chiuso, previsto altrimenti). Entrate positive, spese negative, trasferimenti esclusi; gli importi delle righe di budget sono già con segno.
+`computeMonthlyValues({ year, budgetItems, budgetEntries, transactions, closedMonths })` restituisce, per ogni voce e mese dell'anno, previsto, reale e valore mostrato (reale se il mese è chiuso, previsto altrimenti). Gli importi di budget sono sempre positivi: il segno (entrata +, spesa −) viene dal tipo della voce (`kind`: `income` / `expense`); i movimenti prendono il segno dal loro tipo; trasferimenti esclusi. `budgetItems` elenca le voci con il loro tipo.
 
 ## Saldo progressivo di cassa
 `computeCashBalances(year, openingBalanceCents, values)` parte dai valori di `computeMonthlyValues` e restituisce, per i 12 mesi, flusso, saldo a fine mese (saldo iniziale totale dell'anno + flussi cumulati) e se il mese è chiuso (reale) o ancora a previsto. Un anno senza dati mantiene costante il saldo iniziale.
 
 ## Scostamenti e aggregati
-`aggregateMonthlyValues(structure, values)` somma i valori di `computeMonthlyValues` per voce, macro-area, mese e anno e calcola lo scostamento (reale − previsto). Gli importi sono con segno (entrate positive, spese negative), quindi uno scostamento negativo è sempre sfavorevole. La struttura voce → macro-area arriva dai dati; le voci archiviate non vengono filtrate.
+`aggregateMonthlyValues(structure, values)` somma i valori di `computeMonthlyValues` per voce, macro-area, mese e anno e calcola lo scostamento (reale − previsto). I valori hanno il segno applicato (entrate positive, spese negative), quindi uno scostamento negativo è sempre sfavorevole. La struttura voce → macro-area arriva dai dati; le voci archiviate non vengono filtrate.
 
 ## Date di scadenza delle ricorrenze
 `generateRecurrenceDueDates({ frequency, startDate, endDate, referenceDate, horizonMonths })` restituisce le date `YYYY-MM-DD` delle scadenze. Il giorno di `startDate` è l'àncora: se il mese è più corto si usa l'ultimo giorno (28/29 febbraio, 30 aprile) e si torna al giorno originale quando il mese lo permette. Con `endDate` nessuna data la supera; senza, si arriva a `referenceDate` + `horizonMonths` mesi. Niente importi né accesso al database.

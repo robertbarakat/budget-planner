@@ -55,9 +55,13 @@ describe('aggregateMonthlyValues', () => {
   it('the yearly total is the sum of the twelve months', () => {
     const values = computeMonthlyValues({
       year: 2026,
-      budgetItemIds: [1, 2, 3],
+      budgetItems: [
+        { budgetItemId: 1, kind: 'expense' },
+        { budgetItemId: 2, kind: 'expense' },
+        { budgetItemId: 3, kind: 'income' },
+      ],
       budgetEntries: Array.from({ length: 12 }, (_, i) => [
-        { budgetItemId: 1, year: 2026, month: i + 1, amountCents: -(i + 1) * 1_000 },
+        { budgetItemId: 1, year: 2026, month: i + 1, amountCents: (i + 1) * 1_000 },
         { budgetItemId: 3, year: 2026, month: i + 1, amountCents: 50_000 },
       ]).flat(),
       transactions: [

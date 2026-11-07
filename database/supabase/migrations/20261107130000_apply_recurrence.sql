@@ -4,7 +4,7 @@
 -- Per ogni data passata che non ha ancora una scadenza crea:
 --   - una riga di budget con source = 'recurrence' (voce della ricorrenza, anno e mese della data);
 --   - una scadenza in recurrence_occurrences collegata a quella riga, con l'importo base.
--- L'importo si copia com'è da recurrences.base_amount (il segno lo decide l'app, come per le altre righe di budget).
+-- L'importo si copia com'è da recurrences.base_amount (positivo: il segno lo deriva shared/ dal tipo della voce, BP-154).
 --
 -- Idempotente: le scadenze già presenti per quella data (anche con importo modificato a mano) non si toccano
 -- e non generano nuove righe. Le date duplicate nell'elenco valgono una volta sola.

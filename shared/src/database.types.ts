@@ -59,14 +59,14 @@ isOneToOne: false
                   ]
                 },"budget_items": {
                   Row: {
-                    "archived": boolean,"created_at": string,"id": number,"macro_area_id": number,"name": string,"sort_order": number
+                    "archived": boolean,"created_at": string,"id": number,"kind": Database["public"]['Enums']["budget_item_kind"],"macro_area_id": number,"name": string,"sort_order": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "archived"?: boolean,"created_at"?: string,"id"?: never,"macro_area_id": number,"name": string,"sort_order"?: number
+                    "archived"?: boolean,"created_at"?: string,"id"?: never,"kind": Database["public"]['Enums']["budget_item_kind"],"macro_area_id": number,"name": string,"sort_order"?: number
                   }
                   Update: {
-                    "archived"?: boolean,"created_at"?: string,"id"?: never,"macro_area_id"?: number,"name"?: string,"sort_order"?: number
+                    "archived"?: boolean,"created_at"?: string,"id"?: never,"kind"?: Database["public"]['Enums']["budget_item_kind"],"macro_area_id"?: number,"name"?: string,"sort_order"?: number
                   }
                   Relationships: [
                     {
@@ -311,7 +311,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "balance_source": "manual"|"carried_over","budget_entry_source": "manual"|"revenue_driver"|"recurrence"|"tax","recurrence_frequency": "monthly"|"bimonthly"|"quarterly"|"semiannual"|"annual","transaction_type": "expense"|"income"|"transfer"
+            "balance_source": "manual"|"carried_over","budget_entry_source": "manual"|"revenue_driver"|"recurrence"|"tax","budget_item_kind": "income"|"expense","recurrence_frequency": "monthly"|"bimonthly"|"quarterly"|"semiannual"|"annual","transaction_type": "expense"|"income"|"transfer"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -431,7 +431,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "balance_source": ["manual", "carried_over"],"budget_entry_source": ["manual", "revenue_driver", "recurrence", "tax"],"recurrence_frequency": ["monthly", "bimonthly", "quarterly", "semiannual", "annual"],"transaction_type": ["expense", "income", "transfer"]
+            "balance_source": ["manual", "carried_over"],"budget_entry_source": ["manual", "revenue_driver", "recurrence", "tax"],"budget_item_kind": ["income", "expense"],"recurrence_frequency": ["monthly", "bimonthly", "quarterly", "semiannual", "annual"],"transaction_type": ["expense", "income", "transfer"]
           }
         }
 } as const

@@ -8,7 +8,7 @@ select ok(relrowsecurity, 'RLS attiva su worked_days') from pg_class where oid =
 
 -- Fixture
 insert into public.macro_areas (name) values ('t_macro');
-insert into public.budget_items (macro_area_id, name) select id, 't_income' from public.macro_areas where name = 't_macro';
+insert into public.budget_items (macro_area_id, name, kind) select id, 't_income', 'income' from public.macro_areas where name = 't_macro';
 insert into public.clients (name, budget_item_id) select 't_client', id from public.budget_items where name = 't_income';
 
 select lives_ok($$insert into public.worked_days (client_id, year, month, days)

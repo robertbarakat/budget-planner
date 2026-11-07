@@ -21,6 +21,7 @@ export { computeMonthlyValues } from './monthly-values.ts'
 export type {
   ActualTransactionInput,
   BudgetEntryInput,
+  BudgetItemInput,
   ClosedMonthInput,
   MonthlyValue,
   MonthlyValuesInput,
@@ -44,6 +45,7 @@ export type {
   BudgetEntry,
   BudgetEntrySource,
   BudgetItem,
+  BudgetItemKind,
   Category,
   Client,
   ClientRate,
