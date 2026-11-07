@@ -48,3 +48,6 @@ Se una nuova tabella serve al codice, aggiungi il suo alias in `src/domain.ts`.
 
 ## Saldo progressivo di cassa
 `computeCashBalances(year, openingBalanceCents, values)` parte dai valori di `computeMonthlyValues` e restituisce, per i 12 mesi, flusso, saldo a fine mese (saldo iniziale totale dell'anno + flussi cumulati) e se il mese è chiuso (reale) o ancora a previsto. Un anno senza dati mantiene costante il saldo iniziale.
+
+## Scostamenti e aggregati
+`aggregateMonthlyValues(structure, values)` somma i valori di `computeMonthlyValues` per voce, macro-area, mese e anno e calcola lo scostamento (reale − previsto). Gli importi sono con segno (entrate positive, spese negative), quindi uno scostamento negativo è sempre sfavorevole. La struttura voce → macro-area arriva dai dati; le voci archiviate non vengono filtrate.
