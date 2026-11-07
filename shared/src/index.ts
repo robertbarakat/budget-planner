@@ -14,6 +14,8 @@ export type {
   BudgetEntrySource,
   BudgetItem,
   Category,
+  Client,
+  ClientRate,
   ClosedMonth,
   MacroArea,
   NewBudgetEntry,

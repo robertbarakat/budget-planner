@@ -97,6 +97,46 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"client_rates": {
+                  Row: {
+                    "client_id": number,"created_at": string,"daily_rate": number,"id": number,"valid_from_month": number,"valid_from_year": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "client_id": number,"created_at"?: string,"daily_rate": number,"id"?: never,"valid_from_month": number,"valid_from_year": number
+                  }
+                  Update: {
+                    "client_id"?: number,"created_at"?: string,"daily_rate"?: number,"id"?: never,"valid_from_month"?: number,"valid_from_year"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "client_rates_client_id_fkey"
+      columns: ["client_id"]
+isOneToOne: false
+      referencedRelation: "clients"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"clients": {
+                  Row: {
+                    "archived": boolean,"budget_item_id": number,"collection_delay_months": number,"created_at": string,"id": number,"name": string,"sort_order": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "archived"?: boolean,"budget_item_id": number,"collection_delay_months"?: number,"created_at"?: string,"id"?: never,"name": string,"sort_order"?: number
+                  }
+                  Update: {
+                    "archived"?: boolean,"budget_item_id"?: number,"collection_delay_months"?: number,"created_at"?: string,"id"?: never,"name"?: string,"sort_order"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "clients_budget_item_id_fkey"
+      columns: ["budget_item_id"]
+isOneToOne: false
+      referencedRelation: "budget_items"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"closed_months": {
                   Row: {
                     "closed_at": string,"id": number,"month": number,"year": number
