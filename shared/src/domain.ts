@@ -14,6 +14,7 @@ export type RecurrenceOccurrence = Tables<'recurrence_occurrences'>
 export type ClosedMonth = Tables<'closed_months'>
 export type Client = Tables<'clients'>
 export type ClientRate = Tables<'client_rates'>
+export type WorkedDays = Tables<'worked_days'>
 
 export type NewTransaction = TablesInsert<'transactions'>
 export type TransactionUpdate = TablesUpdate<'transactions'>

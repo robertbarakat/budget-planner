@@ -59,6 +59,9 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 - Il DB non distingue voci di entrata e di spesa: la voce del cliente (`budget_item_id`) è scelta dall'app.
 - RLS e policy `<table>_owner` come le altre tabelle. Nessun cliente nella migrazione (i dati stanno nell'app).
 
+## Giorni lavorati (BP-58)
+`worked_days`: id, client_id, year, month (1–12), days (`numeric(5,2)`, da 0 a 31, anche frazioni di giornata). `unique (client_id, year, month)`; FK cliente `ON DELETE RESTRICT`; RLS come le altre. Si può inserire qualunque mese, anche futuro, senza righe precedenti.
+
 ## Sicurezza: RLS a utente unico (BP-19)
 - RLS attiva su tutte le tabelle; una policy `<table>_owner` per `authenticated` (lettura e scrittura, purché `auth.uid()` esista).
 - `anon`: privilegi revocati e nessuna policy, quindi nessun accesso.
