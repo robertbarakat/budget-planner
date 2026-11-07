@@ -44,3 +44,6 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 | `scadenze_ricorrenza` | id, ricorrenza_id, data, importo, riga_budget_id | `unique (ricorrenza_id, data)`; importo indipendente dal base; FK RESTRICT |
 
 `periodicita` (enum): mensile, bimestrale, trimestrale, semestrale, annuale. L'elenco è un'assunzione (la specifica non lo definisce): da confermare nell'epic 7. Generazione delle scadenze e UI: epic 7.
+
+## Mesi chiusi (BP-18)
+`mesi_chiusi`: id, anno, mese (1–12), chiuso_il. `unique (anno, mese)`. Un mese è chiuso se esiste la riga; riaprirlo = eliminarla.
