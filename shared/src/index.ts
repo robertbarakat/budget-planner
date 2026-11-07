@@ -17,6 +17,9 @@ export type { MonthlyCashBalance } from './cash-balance.ts'
 export { computeExpectedCollections } from './collections.ts'
 export { generateRecurrenceDueDates } from './recurrence-dates.ts'
 export type { RecurrenceDatesInput } from './recurrence-dates.ts'
+export { percentOfCents } from './percent.ts'
+export { computeTaxableBaseAndInps } from './taxable-base.ts'
+export type { TaxableBaseParameters, TaxableBaseResult } from './taxable-base.ts'
 export { computeMonthlyValues } from './monthly-values.ts'
 export type {
   ActualTransactionInput,
