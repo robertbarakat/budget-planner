@@ -22,6 +22,14 @@ export { computeTaxableBaseAndInps } from './taxable-base.ts'
 export type { TaxableBaseParameters, TaxableBaseResult } from './taxable-base.ts'
 export { computeSubstituteTax } from './substitute-tax.ts'
 export type { InpsPaymentInput, SubstituteTaxInput, SubstituteTaxResult } from './substitute-tax.ts'
+export { computeAdvancesAndBalance } from './advances-balance.ts'
+export type {
+  AdvanceRule,
+  AdvancesBalanceInput,
+  AdvancesBalanceResult,
+  AdvancesBalanceRules,
+  ScheduledPayment,
+} from './advances-balance.ts'
 export { computeMonthlyValues } from './monthly-values.ts'
 export type {
   ActualTransactionInput,
