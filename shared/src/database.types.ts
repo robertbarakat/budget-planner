@@ -151,6 +151,32 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"f24_deadlines": {
+                  Row: {
+                    "amount": number,"created_at": string,"due_date": string,"id": number,"installment_id": number | null,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"],"transaction_id": number | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"created_at"?: string,"due_date": string,"id"?: never,"installment_id"?: number | null,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"],"transaction_id"?: number | null
+                  }
+                  Update: {
+                    "amount"?: number,"created_at"?: string,"due_date"?: string,"id"?: never,"installment_id"?: number | null,"reference_year"?: number,"tax_type"?: Database["public"]['Enums']["tax_type"],"transaction_id"?: number | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "f24_deadlines_installment_id_fkey"
+      columns: ["installment_id"]
+isOneToOne: false
+      referencedRelation: "installments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "f24_deadlines_transaction_id_fkey"
+      columns: ["transaction_id"]
+isOneToOne: false
+      referencedRelation: "transactions"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"installment_plans": {
                   Row: {
                     "archived": boolean,"created_at": string,"description": string,"id": number,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"],"total_amount": number
