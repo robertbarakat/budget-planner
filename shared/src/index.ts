@@ -30,6 +30,8 @@ export type {
   AdvancesBalanceRules,
   ScheduledPayment,
 } from './advances-balance.ts'
+export { summarizeInstallmentPlan } from './installment-plan.ts'
+export type { InstallmentInput, InstallmentPlanInput, InstallmentPlanSummary } from './installment-plan.ts'
 export { computeMonthlyValues } from './monthly-values.ts'
 export type {
   ActualTransactionInput,
