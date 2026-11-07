@@ -23,6 +23,14 @@ where not exists (
   select 1 from public.macro_areas m where lower(m.name) = lower(v.name) and not m.archived
 );
 
+-- Macro-area dei ricavi professionali (BP-157): le sue entrate contano come incassi ai fini fiscali (BP-155).
+insert into public.macro_areas (name, sort_order, is_professional)
+select v.name, v.sort_order, true
+from (values ('Ricavi professionali', 4)) as v(name, sort_order)
+where not exists (
+  select 1 from public.macro_areas m where lower(m.name) = lower(v.name) and not m.archived
+);
+
 -- Voci di budget
 insert into public.budget_items (macro_area_id, name, kind, sort_order)
 select m.id, v.name, v.kind::public.budget_item_kind, v.sort_order
