@@ -3,7 +3,7 @@
 L'app ha un solo utente, con login email/password gestito da Supabase Auth. Nessuna registrazione pubblica.
 
 ## Impostazioni
-- Locale: `database/supabase/config.toml` ha `enable_signup = false` (sia in `[auth]` sia in `[auth.email]`) e password minima di 12 caratteri.
+- Locale: `database/supabase/config.toml` ha `enable_signup = false` in `[auth]`, che blocca la registrazione per tutti i provider (le opzioni `enable_signup` di `[auth.email]` e `[auth.sms]` sono deprecate e rimosse) e password minima di 12 caratteri.
 - Remoto (dashboard Supabase, progetto `budget-planner`):
   - Authentication → Sign In / Providers → disattivare **Allow new users to sign up**.
   - Provider **Email** attivo; disattivare gli altri provider e il sign-in anonimo.
