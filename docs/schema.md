@@ -102,6 +102,16 @@ Scelta (proposta dal ticket, da confermare): le scadenze con importo modificato 
 - Nessun valore nella migrazione: i valori arrivano dall'app dopo la verifica con il commercialista (BP-97).
 - RLS e policy `tax_parameters_owner` come le altre tabelle.
 
+## Rateizzazioni (BP-99)
+| Tabella | Colonne principali | Note |
+|---|---|---|
+| `installment_plans` | id, description, total_amount, tax_type, reference_year, archived | `total_amount > 0`; `description` non vuota |
+| `installments` | id, plan_id, number, due_date, amount | `unique (plan_id, number)`; `number >= 1`; `amount > 0`; FK `plan_id` `ON DELETE RESTRICT` |
+
+- Gli interessi non sono memorizzati: si calcolano come somma delle rate − `total_amount`.
+- Enum `tax_type` (valori controllati, scelti qui perché il ticket li lasciava "da definire"): `substitute_tax`, `substitute_tax_advance`, `substitute_tax_balance`, `inps`, `inps_advance`, `inps_balance`. Lo stesso tipo serve al calendario F24 (BP-100). Da rivedere se il commercialista indica altre voci.
+- RLS e policy `<table>_owner` come le altre tabelle.
+
 ## Sicurezza: RLS a utente unico (BP-19)
 - RLS attiva su tutte le tabelle; una policy `<table>_owner` per `authenticated` (lettura e scrittura, purché `auth.uid()` esista).
 - `anon`: privilegi revocati e nessuna policy, quindi nessun accesso.
