@@ -104,6 +104,7 @@ Regime forfettario. Parametri **modificabili per anno**, mai fissi nel codice.
 - **INPS Gestione Separata**: 26,07% sulla base (24% se si ha altra copertura previdenziale). Fonte: circolare INPS n. 8 del 3 febbraio 2026, riportata da ecnews.
 - **Imposta sostitutiva**: 15% (5% se start-up) su (base imponibile - contributi INPS **effettivamente versati nell'anno**). Principio di cassa.
 - **Acconti e saldo**: percentuali, importi e date sono parametri per anno, ricavati dall'F24 del commercialista e inseriti nell'app. Non vanno fissati nel codice.
+  - **Base degli acconti (metodo provvisorio, decisione dell'autore 2026-11-07, BP-156)**: anno corrente; ogni acconto si calcola sugli incassi dal 1° gennaio alla propria scadenza (es. l'acconto del 30 giugno sugli incassi 1/1–30/6). In futuro si aggiungeranno il metodo storico e il metodo previsionale.
 - **Rateizzazione**: entità propria (rate con interessi; gli interessi si ricavano per differenza tra importo rateizzato e somma delle rate). Esempio dal foglio 2026: interessi 1.920,27 EUR, da riconciliare.
 - **Calendario F24**: scadenze con importi, che alimentano la riga "Imposte" del budget previsto.
 - Il primo anno di attività è il 2025 (nessun acconto dovuto per quell'anno).
