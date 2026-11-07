@@ -5,9 +5,9 @@ Schermate di riferimento. Servono per ricavare design token (colori, font, spazi
 | File | Schermata |
 |---|---|
 | home-mobile.dc.html | Mobile – Home (390x844) |
-| nuovo-movimento-mobile.dc.html | Mobile – Nuovo movimento (390x844) |
-| flusso-cassa-web.dc.html | Web – Flusso di cassa, matrice voci x mesi (1440x1040) |
-| macro-aree-web.dc.html | Web – Macro-aree (1440x1040) |
+| new-transaction-mobile.dc.html | Mobile – Nuovo movimento (390x844) |
+| cash-flow-web.dc.html | Web – Flusso di cassa, matrice voci x mesi (1440x1040) |
+| macro-areas-web.dc.html | Web – Macro-aree (1440x1040) |
 
 ## Come usarli
 - Sono file di testo in un formato di tela di progettazione: aprili con un editor o falli leggere a Claude. Non si aprono direttamente nel browser, perché mancano dello script di supporto.
