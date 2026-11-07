@@ -90,12 +90,26 @@ Il mese da cui la tariffa di Bit2Win scende a 280 si imposta nell'app.
 Regime forfettario. Parametri **modificabili per anno**, mai fissi nel codice.
 - Base imponibile = incassi dell'anno x **coefficiente di redditività 67%**.
 - **INPS Gestione Separata**: 26,07% sulla base (24% se si ha altra copertura previdenziale). Fonte: circolare INPS n. 8 del 3 febbraio 2026, riportata da ecnews.
-- **Imposta sostitutiva**: 15% (5% se start-up) su (base imponibile - contributi versati nell'anno). Principio di cassa.
+- **Imposta sostitutiva**: 15% (5% se start-up) su (base imponibile - contributi INPS **effettivamente versati nell'anno**). Principio di cassa.
 - **Acconti e saldo**: percentuali, importi e date sono parametri per anno, ricavati dall'F24 del commercialista e inseriti nell'app. Non vanno fissati nel codice.
 - **Rateizzazione**: entità propria (rate con interessi; gli interessi si ricavano per differenza tra importo rateizzato e somma delle rate). Esempio dal foglio 2026: interessi 1.920,27 EUR, da riconciliare.
 - **Calendario F24**: scadenze con importi, che alimentano la riga "Imposte" del budget previsto.
 - Il primo anno di attività è il 2025 (nessun acconto dovuto per quell'anno).
 - I contributi versati nell'anno sono deducibili anche se pagati a rate (indicazione dell'autore); resta un parametro modificabile. Il commercialista resta la verifica finale di tutte le regole.
+
+### Regola di cassa per INPS e imposta (spiegata dall'autore, da confermare col commercialista)
+Tutto si basa su ciò che è stato effettivamente incassato o versato nell'anno, non sull'anno di competenza.
+1. Base imponibile dell'anno = incassi dell'anno x 67%.
+2. **INPS dovuta** sull'anno = base x 26,07%. Si paga in anni diversi (saldo nell'anno dopo, eventuali acconti); è un importo "dovuto", non una deduzione.
+3. **INPS versata** nell'anno = somma dei pagamenti INPS fatti in quell'anno, qualunque sia l'anno cui si riferiscono (saldo dell'anno precedente + acconti dell'anno corrente).
+4. Imposta sostitutiva dell'anno = 15% x (base dell'anno - INPS **versata** nell'anno). Non va sotto zero.
+
+Esempio (cifre di prova, non reali):
+- **2025** (primo anno, nessun versamento INPS nel 2025): incassi 10.000 -> base 6.700 -> imposta 15% x 6.700 = 1.005, senza alcuna deduzione. INPS dovuta sul 2025 = 6.700 x 26,07% = 1.746,69, pagata nel 2026.
+- **2026**: incassi 20.000 -> base 13.400. INPS versata nel 2026 = 1.746,69 (INPS 2025) + A (eventuali acconti INPS 2026 pagati nel 2026). Imposta = 15% x (13.400 - 1.746,69 - A).
+- **Dal 2027** non ci sono più casi particolari: ogni anno si deduce l'INPS versata in quell'anno (saldo dell'anno prima + acconti dell'anno corrente).
+
+Conseguenza per il codice: l'INPS dovuta e l'INPS versata sono due grandezze distinte. La prima si calcola dalla base (funzione pura); la seconda è un elenco di pagamenti con data, che è l'input dell'imposta. Il caso 2025 va coperto da un test.
 
 Differenza con la spesa: le imposte non si inseriscono a mano come spese, sono calcolate. Il versamento reale resta un movimento, collegato alla scadenza F24.
 
