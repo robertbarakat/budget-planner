@@ -36,3 +36,11 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 - Budget libero: nessun vincolo di sequenza tra anni e mesi.
 - **Unicità**: nessun vincolo unico su voce+anno+mese(+origine). Più righe coesistono sulla stessa voce e mese anche con la stessa origine (il driver ricavi genera una riga per cliente e mese di incasso). Chi genera le righe (driver, ricorrenze, fiscale) le sostituisce da sé sui soli mesi non chiusi.
 - FK voce `ON DELETE RESTRICT`; indice su (anno, mese, voce).
+
+## Ricorrenze (BP-17)
+| Tabella | Colonne principali | Note |
+|---|---|---|
+| `ricorrenze` | id, nome, voce_budget_id, conto_id, importo_base, periodicita, data_inizio, data_fine, archiviata | `data_fine >= data_inizio`; FK RESTRICT |
+| `scadenze_ricorrenza` | id, ricorrenza_id, data, importo, riga_budget_id | `unique (ricorrenza_id, data)`; importo indipendente dal base; FK RESTRICT |
+
+`periodicita` (enum): mensile, bimestrale, trimestrale, semestrale, annuale. L'elenco è un'assunzione (la specifica non lo definisce): da confermare nell'epic 7. Generazione delle scadenze e UI: epic 7.
