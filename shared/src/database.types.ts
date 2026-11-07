@@ -14,381 +14,381 @@ export type Database = {
   }
   public: {
     Tables: {
-      categorie: {
+      accounts: {
         Row: {
-          archiviata: boolean
+          archived: boolean
           created_at: string
           id: number
-          nome: string
-          ordine: number
-          voce_budget_id: number
+          name: string
+          sort_order: number
         }
         Insert: {
-          archiviata?: boolean
+          archived?: boolean
           created_at?: string
           id?: never
-          nome: string
-          ordine?: number
-          voce_budget_id: number
+          name: string
+          sort_order?: number
         }
         Update: {
-          archiviata?: boolean
+          archived?: boolean
           created_at?: string
           id?: never
-          nome?: string
-          ordine?: number
-          voce_budget_id?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "categorie_voce_budget_id_fkey"
-            columns: ["voce_budget_id"]
-            isOneToOne: false
-            referencedRelation: "voci_budget"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      conti: {
-        Row: {
-          archiviato: boolean
-          created_at: string
-          id: number
-          nome: string
-          ordine: number
-        }
-        Insert: {
-          archiviato?: boolean
-          created_at?: string
-          id?: never
-          nome: string
-          ordine?: number
-        }
-        Update: {
-          archiviato?: boolean
-          created_at?: string
-          id?: never
-          nome?: string
-          ordine?: number
+          name?: string
+          sort_order?: number
         }
         Relationships: []
       }
-      macro_aree: {
+      budget_entries: {
         Row: {
-          archiviata: boolean
+          amount: number
+          budget_item_id: number
           created_at: string
           id: number
-          nome: string
-          ordine: number
+          month: number
+          source: Database["public"]["Enums"]["budget_entry_source"]
+          year: number
         }
         Insert: {
-          archiviata?: boolean
+          amount: number
+          budget_item_id: number
           created_at?: string
           id?: never
-          nome: string
-          ordine?: number
+          month: number
+          source?: Database["public"]["Enums"]["budget_entry_source"]
+          year: number
         }
         Update: {
-          archiviata?: boolean
+          amount?: number
+          budget_item_id?: number
           created_at?: string
           id?: never
-          nome?: string
-          ordine?: number
-        }
-        Relationships: []
-      }
-      mesi_chiusi: {
-        Row: {
-          anno: number
-          chiuso_il: string
-          id: number
-          mese: number
-        }
-        Insert: {
-          anno: number
-          chiuso_il?: string
-          id?: never
-          mese: number
-        }
-        Update: {
-          anno?: number
-          chiuso_il?: string
-          id?: never
-          mese?: number
-        }
-        Relationships: []
-      }
-      movimenti: {
-        Row: {
-          categoria_id: number | null
-          commento: string | null
-          conto_destinazione_id: number | null
-          conto_id: number
-          created_at: string
-          data: string
-          id: number
-          importo: number
-          tag: string | null
-          tipo: Database["public"]["Enums"]["tipo_movimento"]
-          voce_budget_id: number | null
-        }
-        Insert: {
-          categoria_id?: number | null
-          commento?: string | null
-          conto_destinazione_id?: number | null
-          conto_id: number
-          created_at?: string
-          data: string
-          id?: never
-          importo: number
-          tag?: string | null
-          tipo: Database["public"]["Enums"]["tipo_movimento"]
-          voce_budget_id?: number | null
-        }
-        Update: {
-          categoria_id?: number | null
-          commento?: string | null
-          conto_destinazione_id?: number | null
-          conto_id?: number
-          created_at?: string
-          data?: string
-          id?: never
-          importo?: number
-          tag?: string | null
-          tipo?: Database["public"]["Enums"]["tipo_movimento"]
-          voce_budget_id?: number | null
+          month?: number
+          source?: Database["public"]["Enums"]["budget_entry_source"]
+          year?: number
         }
         Relationships: [
           {
-            foreignKeyName: "movimenti_categoria_id_fkey"
-            columns: ["categoria_id"]
+            foreignKeyName: "budget_entries_budget_item_id_fkey"
+            columns: ["budget_item_id"]
             isOneToOne: false
-            referencedRelation: "categorie"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "movimenti_conto_destinazione_id_fkey"
-            columns: ["conto_destinazione_id"]
-            isOneToOne: false
-            referencedRelation: "conti"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "movimenti_conto_id_fkey"
-            columns: ["conto_id"]
-            isOneToOne: false
-            referencedRelation: "conti"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "movimenti_voce_budget_id_fkey"
-            columns: ["voce_budget_id"]
-            isOneToOne: false
-            referencedRelation: "voci_budget"
+            referencedRelation: "budget_items"
             referencedColumns: ["id"]
           },
         ]
       }
-      ricorrenze: {
+      budget_items: {
         Row: {
-          archiviata: boolean
-          conto_id: number
-          created_at: string
-          data_fine: string | null
-          data_inizio: string
-          id: number
-          importo_base: number
-          nome: string
-          periodicita: Database["public"]["Enums"]["periodicita"]
-          voce_budget_id: number
-        }
-        Insert: {
-          archiviata?: boolean
-          conto_id: number
-          created_at?: string
-          data_fine?: string | null
-          data_inizio: string
-          id?: never
-          importo_base: number
-          nome: string
-          periodicita: Database["public"]["Enums"]["periodicita"]
-          voce_budget_id: number
-        }
-        Update: {
-          archiviata?: boolean
-          conto_id?: number
-          created_at?: string
-          data_fine?: string | null
-          data_inizio?: string
-          id?: never
-          importo_base?: number
-          nome?: string
-          periodicita?: Database["public"]["Enums"]["periodicita"]
-          voce_budget_id?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ricorrenze_conto_id_fkey"
-            columns: ["conto_id"]
-            isOneToOne: false
-            referencedRelation: "conti"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ricorrenze_voce_budget_id_fkey"
-            columns: ["voce_budget_id"]
-            isOneToOne: false
-            referencedRelation: "voci_budget"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      righe_budget: {
-        Row: {
-          anno: number
-          created_at: string
-          id: number
-          importo: number
-          mese: number
-          origine: Database["public"]["Enums"]["origine_riga_budget"]
-          voce_budget_id: number
-        }
-        Insert: {
-          anno: number
-          created_at?: string
-          id?: never
-          importo: number
-          mese: number
-          origine?: Database["public"]["Enums"]["origine_riga_budget"]
-          voce_budget_id: number
-        }
-        Update: {
-          anno?: number
-          created_at?: string
-          id?: never
-          importo?: number
-          mese?: number
-          origine?: Database["public"]["Enums"]["origine_riga_budget"]
-          voce_budget_id?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "righe_budget_voce_budget_id_fkey"
-            columns: ["voce_budget_id"]
-            isOneToOne: false
-            referencedRelation: "voci_budget"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      saldi_iniziali: {
-        Row: {
-          anno: number
-          conto_id: number
-          created_at: string
-          id: number
-          importo: number
-          origine: Database["public"]["Enums"]["origine_saldo"]
-        }
-        Insert: {
-          anno: number
-          conto_id: number
-          created_at?: string
-          id?: never
-          importo: number
-          origine?: Database["public"]["Enums"]["origine_saldo"]
-        }
-        Update: {
-          anno?: number
-          conto_id?: number
-          created_at?: string
-          id?: never
-          importo?: number
-          origine?: Database["public"]["Enums"]["origine_saldo"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "saldi_iniziali_conto_id_fkey"
-            columns: ["conto_id"]
-            isOneToOne: false
-            referencedRelation: "conti"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      scadenze_ricorrenza: {
-        Row: {
-          created_at: string
-          data: string
-          id: number
-          importo: number
-          ricorrenza_id: number
-          riga_budget_id: number | null
-        }
-        Insert: {
-          created_at?: string
-          data: string
-          id?: never
-          importo: number
-          ricorrenza_id: number
-          riga_budget_id?: number | null
-        }
-        Update: {
-          created_at?: string
-          data?: string
-          id?: never
-          importo?: number
-          ricorrenza_id?: number
-          riga_budget_id?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "scadenze_ricorrenza_ricorrenza_id_fkey"
-            columns: ["ricorrenza_id"]
-            isOneToOne: false
-            referencedRelation: "ricorrenze"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "scadenze_ricorrenza_riga_budget_id_fkey"
-            columns: ["riga_budget_id"]
-            isOneToOne: false
-            referencedRelation: "righe_budget"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      voci_budget: {
-        Row: {
-          archiviata: boolean
+          archived: boolean
           created_at: string
           id: number
           macro_area_id: number
-          nome: string
-          ordine: number
+          name: string
+          sort_order: number
         }
         Insert: {
-          archiviata?: boolean
+          archived?: boolean
           created_at?: string
           id?: never
           macro_area_id: number
-          nome: string
-          ordine?: number
+          name: string
+          sort_order?: number
         }
         Update: {
-          archiviata?: boolean
+          archived?: boolean
           created_at?: string
           id?: never
           macro_area_id?: number
-          nome?: string
-          ordine?: number
+          name?: string
+          sort_order?: number
         }
         Relationships: [
           {
-            foreignKeyName: "voci_budget_macro_area_id_fkey"
+            foreignKeyName: "budget_items_macro_area_id_fkey"
             columns: ["macro_area_id"]
             isOneToOne: false
-            referencedRelation: "macro_aree"
+            referencedRelation: "macro_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          archived: boolean
+          budget_item_id: number
+          created_at: string
+          id: number
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          archived?: boolean
+          budget_item_id: number
+          created_at?: string
+          id?: never
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          archived?: boolean
+          budget_item_id?: number
+          created_at?: string
+          id?: never
+          name?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categories_budget_item_id_fkey"
+            columns: ["budget_item_id"]
+            isOneToOne: false
+            referencedRelation: "budget_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      closed_months: {
+        Row: {
+          closed_at: string
+          id: number
+          month: number
+          year: number
+        }
+        Insert: {
+          closed_at?: string
+          id?: never
+          month: number
+          year: number
+        }
+        Update: {
+          closed_at?: string
+          id?: never
+          month?: number
+          year?: number
+        }
+        Relationships: []
+      }
+      macro_areas: {
+        Row: {
+          archived: boolean
+          created_at: string
+          id: number
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          id?: never
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          id?: never
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      opening_balances: {
+        Row: {
+          account_id: number
+          amount: number
+          created_at: string
+          id: number
+          source: Database["public"]["Enums"]["balance_source"]
+          year: number
+        }
+        Insert: {
+          account_id: number
+          amount: number
+          created_at?: string
+          id?: never
+          source?: Database["public"]["Enums"]["balance_source"]
+          year: number
+        }
+        Update: {
+          account_id?: number
+          amount?: number
+          created_at?: string
+          id?: never
+          source?: Database["public"]["Enums"]["balance_source"]
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opening_balances_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recurrence_occurrences: {
+        Row: {
+          amount: number
+          budget_entry_id: number | null
+          created_at: string
+          due_date: string
+          id: number
+          recurrence_id: number
+        }
+        Insert: {
+          amount: number
+          budget_entry_id?: number | null
+          created_at?: string
+          due_date: string
+          id?: never
+          recurrence_id: number
+        }
+        Update: {
+          amount?: number
+          budget_entry_id?: number | null
+          created_at?: string
+          due_date?: string
+          id?: never
+          recurrence_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurrence_occurrences_budget_entry_id_fkey"
+            columns: ["budget_entry_id"]
+            isOneToOne: false
+            referencedRelation: "budget_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurrence_occurrences_recurrence_id_fkey"
+            columns: ["recurrence_id"]
+            isOneToOne: false
+            referencedRelation: "recurrences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recurrences: {
+        Row: {
+          account_id: number
+          archived: boolean
+          base_amount: number
+          budget_item_id: number
+          created_at: string
+          end_date: string | null
+          frequency: Database["public"]["Enums"]["recurrence_frequency"]
+          id: number
+          name: string
+          start_date: string
+        }
+        Insert: {
+          account_id: number
+          archived?: boolean
+          base_amount: number
+          budget_item_id: number
+          created_at?: string
+          end_date?: string | null
+          frequency: Database["public"]["Enums"]["recurrence_frequency"]
+          id?: never
+          name: string
+          start_date: string
+        }
+        Update: {
+          account_id?: number
+          archived?: boolean
+          base_amount?: number
+          budget_item_id?: number
+          created_at?: string
+          end_date?: string | null
+          frequency?: Database["public"]["Enums"]["recurrence_frequency"]
+          id?: never
+          name?: string
+          start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurrences_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurrences_budget_item_id_fkey"
+            columns: ["budget_item_id"]
+            isOneToOne: false
+            referencedRelation: "budget_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          account_id: number
+          amount: number
+          budget_item_id: number | null
+          category_id: number | null
+          comment: string | null
+          created_at: string
+          destination_account_id: number | null
+          id: number
+          tag: string | null
+          transaction_date: string
+          type: Database["public"]["Enums"]["transaction_type"]
+        }
+        Insert: {
+          account_id: number
+          amount: number
+          budget_item_id?: number | null
+          category_id?: number | null
+          comment?: string | null
+          created_at?: string
+          destination_account_id?: number | null
+          id?: never
+          tag?: string | null
+          transaction_date: string
+          type: Database["public"]["Enums"]["transaction_type"]
+        }
+        Update: {
+          account_id?: number
+          amount?: number
+          budget_item_id?: number | null
+          category_id?: number | null
+          comment?: string | null
+          created_at?: string
+          destination_account_id?: number | null
+          id?: never
+          tag?: string | null
+          transaction_date?: string
+          type?: Database["public"]["Enums"]["transaction_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_budget_item_id_fkey"
+            columns: ["budget_item_id"]
+            isOneToOne: false
+            referencedRelation: "budget_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_destination_account_id_fkey"
+            columns: ["destination_account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
         ]
@@ -401,19 +401,15 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      origine_riga_budget:
-        | "manuale"
-        | "driver_ricavi"
-        | "ricorrenza"
-        | "fiscale"
-      origine_saldo: "manuale" | "riportato"
-      periodicita:
-        | "mensile"
-        | "bimestrale"
-        | "trimestrale"
-        | "semestrale"
-        | "annuale"
-      tipo_movimento: "spesa" | "entrata" | "trasferimento"
+      balance_source: "manual" | "carried_over"
+      budget_entry_source: "manual" | "revenue_driver" | "recurrence" | "tax"
+      recurrence_frequency:
+        | "monthly"
+        | "bimonthly"
+        | "quarterly"
+        | "semiannual"
+        | "annual"
+      transaction_type: "expense" | "income" | "transfer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -541,21 +537,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      origine_riga_budget: [
-        "manuale",
-        "driver_ricavi",
-        "ricorrenza",
-        "fiscale",
+      balance_source: ["manual", "carried_over"],
+      budget_entry_source: ["manual", "revenue_driver", "recurrence", "tax"],
+      recurrence_frequency: [
+        "monthly",
+        "bimonthly",
+        "quarterly",
+        "semiannual",
+        "annual",
       ],
-      origine_saldo: ["manuale", "riportato"],
-      periodicita: [
-        "mensile",
-        "bimestrale",
-        "trimestrale",
-        "semestrale",
-        "annuale",
-      ],
-      tipo_movimento: ["spesa", "entrata", "trasferimento"],
+      transaction_type: ["expense", "income", "transfer"],
     },
   },
 } as const

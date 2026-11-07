@@ -24,7 +24,7 @@ Ogni Task appartiene a un Epic.
 ## Ticket da non dimenticare
 - Epic 4: "Gestione conti, categorie, voci di budget e macro-aree" (aggiungere, rinominare, riordinare, archiviare; vedi docs/specifica.md, sezione 3, "Anagrafiche modificabili dall'app"). Probabilmente da spezzare in più ticket, uno per anagrafica.
 - Le decisioni sono già prese (docs/specifica.md, sezione 10): non creare ticket di decisione. Servono invece questi ticket: "Inserire i parametri fiscali dall'F24" (epic 8), "Calcolare i saldi iniziali per conto al momento dell'import" (epic 9), "Valutare l'uso offline" (epic 11).
-- Epic 5: gestione di clienti, tariffe con periodo di validità, ritardo d'incasso e giorni lavorati per cliente e mese (docs/specifica.md, sezione 6), più la rigenerazione delle righe `driver_ricavi` sui soli mesi non chiusi.
+- Epic 5: gestione di clienti, tariffe con periodo di validità, ritardo d'incasso e giorni lavorati per cliente e mese (docs/specifica.md, sezione 6), più la rigenerazione delle righe `revenue_driver` sui soli mesi non chiusi.
 
 ## Come scrivere un ticket
 **Titolo**: verbo all'infinito + oggetto, massimo 80 caratteri. Es. "Creare tabella movimenti con vincoli".
@@ -47,6 +47,8 @@ Cosa NON si fa in questo ticket (se utile).
 
 **Dimensione**: massimo una giornata di lavoro. Se è più grande, spezzalo.
 
+**Identificatori**: titolo e testo dei ticket sono in italiano, ma ogni nome tecnico (tabelle, colonne, enum, funzioni, tipi, file) va scritto in inglese tra backtick, come nel codice.
+
 **Etichetta** (una sola): `frontend`, `backend` o `database`. Il lavoro in shared/ usa `backend`.
 
 **Priorità**: Highest solo per ciò che blocca il resto; High / Medium / Low per il resto. Segui l'ordine degli epic.
@@ -57,7 +59,7 @@ Cosa NON si fa in questo ticket (se utile).
 
 ## Dal ticket al codice
 - Branch: `BP-12-descrizione-breve`.
-- Commit: iniziano con la chiave, es. `BP-12: aggiunge tabella movimenti`.
+- Commit: iniziano con la chiave, es. `BP-12: aggiunge tabella transactions`.
 - Prima di spostare un ticket in "Fatto": lint, test e build passano, e i criteri di accettazione sono verificati uno per uno.
 - Le decisioni importanti si scrivono in un commento del ticket e, se cambiano la specifica, in docs/specifica.md.
 

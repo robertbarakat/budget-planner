@@ -66,7 +66,7 @@ Il lint usa Oxlint con `--deny-warnings`: anche un warning fa fallire.
 ## Convenzioni
 - Un ticket Jira (progetto BP, barakarob.atlassian.net) per ogni lavoro. Come si scrivono: [docs/jira.md](docs/jira.md).
 - **Branch**: `BP-12-descrizione-breve`, uno per ticket.
-- **Commit**: iniziano con la chiave, es. `BP-12: aggiunge tabella movimenti`.
+- **Commit**: iniziano con la chiave, es. `BP-12: aggiunge tabella transactions`.
 - Un ticket si chiude solo con lint, test e build passati e i criteri di accettazione verificati.
 - Flusso: branch per ticket → merge su `main` (squash) → push. Vercel pubblica da `main` (produzione), ogni altro branch ha una preview.
 - Regole fiscali: vanno confermate dal commercialista.

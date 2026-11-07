@@ -19,13 +19,14 @@ Gestionale personale per P.IVA forfettaria: budget annuo previsto + consuntivo r
 - Conti (Bancoposta, Cash, Postepay) con saldo iniziale.
 - Categorie -> voce di budget -> macro-area.
 - Movimenti reali: spesa, entrata, trasferimento.
-- Righe di budget per voce + anno + mese (origine: manuale, driver ricavi, ricorrenza, fiscale).
+- Righe di budget per voce + anno + mese (source: manual, revenue_driver, recurrence, tax).
 - Ricorrenze con importo modificabile a ogni scadenza.
 - Mese "chiuso" = si mostra il reale; altrimenti il previsto. Budget libero su qualsiasi anno e mese.
 - Viste: cronologica mese per mese con saldo progressivo; per categoria/macro-area (previsto vs reale); sul web anche matrice voci x mesi.
 
 ## Regole
 - Rispondi in italiano, breve e diretto, senza spiegazioni superflue.
+- Nel codice tutti gli identificatori sono in inglese: tabelle, colonne, enum e relativi valori, vincoli, indici, policy, variabili, funzioni, metodi, tipi, file e cartelle. L'italiano sta solo nei dati (seed), nei testi per l'utente e nei commenti. Se un ticket o la specifica usano nomi italiani, nel codice li traduci; se due fonti si contraddicono, fermati e chiedi.
 - Un ticket Jira (progetto BP, barakarob.atlassian.net) per ogni lavoro; cita la chiave nei commit e nei branch.
 - Usa i connettori (Supabase, Vercel, GitHub, Jira) direttamente: applica migrazioni, fai push e deploy senza chiedere conferma.
 - Chiedi conferma solo per: operazioni distruttive su dati reali dopo l'import storico (DROP, TRUNCATE, DELETE massivi, reset del database), force push, e qualsiasi scrittura sul foglio Google "Budget 2026" esistente (l'export scrive solo sul proprio file).

@@ -11,6 +11,7 @@ Gestionale personale per un libero professionista in regime forfettario (P.IVA).
 Un solo utente. Web app PWA usata da telefono (inserimento rapido) e desktop (analisi). Un solo database condiviso. UI in italiano, valuta EUR, mesi in italiano.
 
 ## 2. Stack e decisioni prese
+- **Nomi nel codice**: tutti gli identificatori (tabelle, colonne, enum e valori, variabili, funzioni, tipi, file) sono in inglese; l'italiano resta nei dati, nei testi per l'utente e nella documentazione. Glossario sotto.
 - Monorepo GitHub `budget-planner`: frontend/, backend/, database/, shared/, docs/.
 - Frontend: React + Vite + TypeScript, Oxlint, CSS puro con custom properties (niente SCSS). Lo scrive l'autore.
 - Database e autenticazione: Supabase (Postgres, row level security, utente unico). Migrazioni in database/supabase/migrations.
@@ -19,6 +20,17 @@ Un solo utente. Web app PWA usata da telefono (inserimento rapido) e desktop (an
 - Gestione lavoro: Jira (barakarob.atlassian.net). Documentazione nel repo (docs/), non su Confluence.
 - Solo online all'inizio. L'uso offline (coda di inserimenti sul telefono) non è un requisito iniziale: si valuta a fine progetto (epic 11).
 - Export su Google Sheets: unidirezionale DB -> Sheet, fase finale. L'app non legge dal foglio.
+
+### Glossario italiano -> inglese (nomi nel codice)
+| Italiano | Inglese | Note |
+|---|---|---|
+| conto / saldo iniziale | `accounts` / `opening_balances` | |
+| macro-area, voce di budget, categoria | `macro_areas`, `budget_items`, `categories` | |
+| movimento: spesa, entrata, trasferimento | `transactions`: `expense`, `income`, `transfer` | |
+| riga di budget | `budget_entries` | origine = `source`: `manual`, `revenue_driver`, `recurrence`, `tax` |
+| ricorrenza, scadenza | `recurrences`, `recurrence_occurrences` | periodicità = `frequency`: `monthly`, `bimonthly`, `quarterly`, `semiannual`, `annual` |
+| mese chiuso | `closed_months` | |
+| importo, anno, mese, nome, data | `amount`, `year`, `month`, `name`, `transaction_date` / `due_date` | |
 
 ## 3. Modello dati
 
@@ -39,7 +51,7 @@ Conti, categorie, voci di budget e macro-aree sono dati gestibili dall'utente: a
 Tipi: **spesa**, **entrata**, **trasferimento** (tra conti, senza effetto sul totale). Campi: data, importo, conto (e conto di destinazione per i trasferimenti), categoria, voce di budget, commento, tag facoltativo. Valuta unica EUR.
 
 ### Righe di budget
-Una riga per **voce + anno + mese** con importo previsto. Origine: `manuale`, `driver_ricavi`, `ricorrenza`, `fiscale`. Il budget è libero: si può inserire su qualsiasi anno e mese, senza vincoli di sequenza.
+Una riga per **voce + anno + mese** con importo previsto. Origine (`source`): `manual`, `revenue_driver`, `recurrence`, `tax`. Il budget è libero: si può inserire su qualsiasi anno e mese, senza vincoli di sequenza.
 
 ### Ricorrenze
 Pagamenti periodici (es. mutuo, abbonamenti). Generano righe di budget alle scadenze. L'importo si può **modificare a ogni scadenza** senza cambiare le altre.
@@ -73,8 +85,8 @@ Tutto parametrabile dall'app: nessun cliente, tariffa o ritardo è scritto nel c
 ### Calcolo
 - Ricavo maturato nel mese M = giorni lavorati di M x tariffa valida in M, per cliente.
 - Incasso previsto = ricavo maturato, spostato in avanti del ritardo del cliente: cade nel mese M + ritardo. Se cade in un altro anno, finisce nel budget di quell'anno (es. il "Riporto su 2027" del foglio).
-- Il driver genera righe di budget con origine `driver_ricavi`, una per cliente e mese di incasso.
-- Cambiando giorni, tariffa o ritardo, le righe `driver_ricavi` si rigenerano solo per i mesi **non chiusi**. I mesi chiusi non si toccano.
+- Il driver genera righe di budget con origine `revenue_driver`, una per cliente e mese di incasso.
+- Cambiando giorni, tariffa o ritardo, le righe `revenue_driver` si rigenerano solo per i mesi **non chiusi**. I mesi chiusi non si toccano.
 - Quando arriva l'incasso reale, si registra come entrata collegata al cliente: l'app confronta incasso previsto e reale per cliente.
 
 ### Dati di partenza (dal foglio "Budget 2026", confermati dall'autore)
