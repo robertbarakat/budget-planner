@@ -72,6 +72,14 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 - `security invoker` (valgono le policy RLS), `search_path` vuoto; `execute` revocato a `public` e `anon`, concesso ad `authenticated`.
 - Il calcolo degli importi sta in `shared/` (`computeExpectedCollections`): qui solo la scrittura.
 
+### `apply_recurrence` (BP-85)
+`public.apply_recurrence(p_recurrence_id bigint, p_due_dates date[]) returns integer` (numero di scadenze create).
+
+- Per ogni data senza scadenza crea una riga di `budget_entries` (`source = 'recurrence'`, voce della ricorrenza, anno e mese della data, importo = `base_amount` com'è) e la scadenza in `recurrence_occurrences` collegata (`budget_entry_id`) con lo stesso importo.
+- Idempotente: le scadenze già presenti per quella data, anche con importo modificato, non si toccano; le date duplicate nell'elenco valgono una volta.
+- Date nulle o fuori dal periodo `start_date .. end_date`, elenco null, ricorrenza archiviata: errore `22023`; ricorrenza inesistente: `P0002`. Un errore a metà annulla tutto (unica transazione).
+- Le date le calcola l'app (`generateRecurrenceDueDates` in `shared/`). `security invoker`, `search_path` vuoto; `execute` revocato a `public` e `anon`, concesso ad `authenticated`.
+
 ## Sicurezza: RLS a utente unico (BP-19)
 - RLS attiva su tutte le tabelle; una policy `<table>_owner` per `authenticated` (lettura e scrittura, purché `auth.uid()` esista).
 - `anon`: privilegi revocati e nessuna policy, quindi nessun accesso.

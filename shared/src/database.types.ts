@@ -301,7 +301,10 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "replace_revenue_driver_entries":
+            "apply_recurrence":
+{ Args: { "p_due_dates": (string)[],"p_recurrence_id": number }; Returns: number
+                           },
+"replace_revenue_driver_entries":
 { Args: { "p_entries": Json,"p_from_month": number,"p_from_year": number,"p_to_month": number,"p_to_year": number }; Returns: {
               "deleted_count": number,"inserted_count": number
             }[]
