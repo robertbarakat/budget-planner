@@ -213,14 +213,14 @@ isOneToOne: false
                   ]
                 },"macro_areas": {
                   Row: {
-                    "archived": boolean,"created_at": string,"id": number,"name": string,"sort_order": number
+                    "archived": boolean,"created_at": string,"id": number,"is_professional": boolean,"name": string,"sort_order": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "archived"?: boolean,"created_at"?: string,"id"?: never,"name": string,"sort_order"?: number
+                    "archived"?: boolean,"created_at"?: string,"id"?: never,"is_professional"?: boolean,"name": string,"sort_order"?: number
                   }
                   Update: {
-                    "archived"?: boolean,"created_at"?: string,"id"?: never,"name"?: string,"sort_order"?: number
+                    "archived"?: boolean,"created_at"?: string,"id"?: never,"is_professional"?: boolean,"name"?: string,"sort_order"?: number
                   }
                   Relationships: [
                     

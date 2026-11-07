@@ -8,7 +8,7 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 
 | Tabella | Colonne principali | Note |
 |---|---|---|
-| `macro_areas` | id, name, sort_order, archived | |
+| `macro_areas` | id, name, sort_order, archived, is_professional | `is_professional` (BP-155): `boolean not null default false`; marca la macro-area dei ricavi professionali, le cui entrate contano come incassi ai fini fiscali (nessun nome nel codice) |
 | `budget_items` | id, macro_area_id, name, kind, sort_order, archived | `kind` (enum `budget_item_kind`: `income`, `expense`) obbligatorio, lo sceglie l'utente; FK macro-area `ON DELETE RESTRICT` |
 | `categories` | id, budget_item_id, name, sort_order, archived | FK voce `ON DELETE RESTRICT` |
 
