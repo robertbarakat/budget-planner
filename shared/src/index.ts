@@ -20,6 +20,8 @@ export type { RecurrenceDatesInput } from './recurrence-dates.ts'
 export { percentOfCents } from './percent.ts'
 export { computeTaxableBaseAndInps } from './taxable-base.ts'
 export type { TaxableBaseParameters, TaxableBaseResult } from './taxable-base.ts'
+export { computeSubstituteTax } from './substitute-tax.ts'
+export type { InpsPaymentInput, SubstituteTaxInput, SubstituteTaxResult } from './substitute-tax.ts'
 export { computeMonthlyValues } from './monthly-values.ts'
 export type {
   ActualTransactionInput,
