@@ -24,3 +24,11 @@ Nessuna migrazione va applicata al progetto remoto senza conferma (vedi `CLAUDE.
 npx supabase migration new descrizione_breve
 ```
 Il file prende un nome con data; non modificare mai una migrazione già applicata.
+
+## Test SQL (pgTAP)
+Test dei vincoli e della RLS in `supabase/tests/` (`01_vincoli.test.sql`, `02_rls.test.sql`). Ogni file gira in una transazione annullata: non lascia dati.
+```bash
+npx supabase start   # serve Docker
+npx supabase test db # esegue tutti i test in supabase/tests/
+```
+Ogni tabella ha almeno un test (esistenza, RLS, vincoli, `ON DELETE RESTRICT`). Quando aggiungi una tabella o un vincolo, aggiungi il test.
