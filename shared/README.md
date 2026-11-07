@@ -25,3 +25,14 @@ import { sommaCentesimi } from 'budget-planner-shared'
 - Frontend: già collegato.
 - Backend: da collegare quando si crea il pacchetto (BP-4).
 - Ogni nuova funzione si esporta da `src/index.ts`.
+
+## Tipi del database
+`src/database.types.ts` è generato da Supabase: non si modifica a mano. Gli alias di dominio (`Movimento`, `RigaBudget`, `MeseChiuso`…) stanno in `src/dominio.ts` e sono esportati da `src/index.ts`.
+
+Rigenerare **dopo ogni migrazione** (insieme a `docs/schema.md`):
+```bash
+cd ../database && npx supabase start   # una volta, serve Docker
+cd ../shared && npm run gen:types      # supabase gen types typescript --local
+npm run build
+```
+Se una nuova tabella serve al codice, aggiungi il suo alias in `src/dominio.ts`.
