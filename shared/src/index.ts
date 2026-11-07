@@ -15,6 +15,8 @@ export type {
 export { computeCashBalances } from './cash-balance.ts'
 export type { MonthlyCashBalance } from './cash-balance.ts'
 export { computeExpectedCollections } from './collections.ts'
+export { generateRecurrenceDueDates } from './recurrence-dates.ts'
+export type { RecurrenceDatesInput } from './recurrence-dates.ts'
 export { computeMonthlyValues } from './monthly-values.ts'
 export type {
   ActualTransactionInput,

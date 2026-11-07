@@ -51,3 +51,6 @@ Se una nuova tabella serve al codice, aggiungi il suo alias in `src/domain.ts`.
 
 ## Scostamenti e aggregati
 `aggregateMonthlyValues(structure, values)` somma i valori di `computeMonthlyValues` per voce, macro-area, mese e anno e calcola lo scostamento (reale − previsto). Gli importi sono con segno (entrate positive, spese negative), quindi uno scostamento negativo è sempre sfavorevole. La struttura voce → macro-area arriva dai dati; le voci archiviate non vengono filtrate.
+
+## Date di scadenza delle ricorrenze
+`generateRecurrenceDueDates({ frequency, startDate, endDate, referenceDate, horizonMonths })` restituisce le date `YYYY-MM-DD` delle scadenze. Il giorno di `startDate` è l'àncora: se il mese è più corto si usa l'ultimo giorno (28/29 febbraio, 30 aprile) e si torna al giorno originale quando il mese lo permette. Con `endDate` nessuna data la supera; senza, si arriva a `referenceDate` + `horizonMonths` mesi. Niente importi né accesso al database.
