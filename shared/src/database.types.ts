@@ -187,14 +187,14 @@ isOneToOne: false
                   ]
                 },"recurrence_occurrences": {
                   Row: {
-                    "amount": number,"budget_entry_id": number | null,"created_at": string,"due_date": string,"id": number,"recurrence_id": number
+                    "amount": number,"budget_entry_id": number | null,"created_at": string,"due_date": string,"id": number,"is_manually_modified": boolean,"recurrence_id": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount": number,"budget_entry_id"?: number | null,"created_at"?: string,"due_date": string,"id"?: never,"recurrence_id": number
+                    "amount": number,"budget_entry_id"?: number | null,"created_at"?: string,"due_date": string,"id"?: never,"is_manually_modified"?: boolean,"recurrence_id": number
                   }
                   Update: {
-                    "amount"?: number,"budget_entry_id"?: number | null,"created_at"?: string,"due_date"?: string,"id"?: never,"recurrence_id"?: number
+                    "amount"?: number,"budget_entry_id"?: number | null,"created_at"?: string,"due_date"?: string,"id"?: never,"is_manually_modified"?: boolean,"recurrence_id"?: number
                   }
                   Relationships: [
                     {
@@ -303,6 +303,14 @@ isOneToOne: false
           Functions: {
             "apply_recurrence":
 { Args: { "p_due_dates": (string)[],"p_recurrence_id": number }; Returns: number
+                           },
+"archive_recurrence":
+{ Args: { "p_recurrence_id": number,"p_today": string }; Returns: number
+                           },
+"regenerate_recurrence_occurrences":
+{ Args: { "p_due_dates": (string)[],"p_recurrence_id": number,"p_today": string }; Returns: {
+              "created_count": number,"deleted_count": number,"updated_count": number
+            }[]
                            },
 "replace_revenue_driver_entries":
 { Args: { "p_entries": Json,"p_from_month": number,"p_from_year": number,"p_to_month": number,"p_to_year": number }; Returns: {

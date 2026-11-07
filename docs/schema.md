@@ -86,6 +86,14 @@ Trigger su `recurrence_occurrences` (funzioni `sync_occurrence_budget_entry_amou
 - Cancellazione di una scadenza: cancella la sola riga collegata. Le scadenze senza riga collegata (`budget_entry_id` null) non danno errori.
 - Il cambio di `due_date` non sposta la riga (fuori ambito).
 
+### Rigenerazione e archiviazione delle ricorrenze (BP-87)
+Scelta (proposta dal ticket, da confermare): le scadenze con importo modificato a mano si conservano sempre; le altre scadenze future si ricalcolano; le passate non cambiano mai. "Futura" = `due_date >= p_today` (la data di riferimento è un argomento, niente `now()`).
+
+- `recurrence_occurrences.is_manually_modified boolean not null default false`: la imposta a `true` un trigger `BEFORE UPDATE` quando cambia `amount`. Le funzioni sotto lo disattivano per i propri aggiornamenti (impostazione locale alla transazione `app.recurrence_regenerating`).
+- `public.regenerate_recurrence_occurrences(p_recurrence_id, p_due_dates date[], p_today date) returns table (deleted_count, updated_count, created_count)`: dopo che l'app ha aggiornato la ricorrenza (fine, periodicità, importo base) e ricalcolato le date, elimina le scadenze future non modificate non più nell'elenco, aggiorna all'importo base attuale quelle non modificate che restano, crea le mancanti con `apply_recurrence`. Le righe di budget seguono con i trigger di BP-86. Date prima di `p_today` ignorate; date fuori dal periodo, valori null, ricorrenza archiviata: errore `22023`; ricorrenza inesistente: `P0002`. Unica transazione.
+- `public.archive_recurrence(p_recurrence_id, p_today) returns integer`: imposta `archived = true` ed elimina le scadenze future non modificate (con le righe di budget); le passate e le modificate a mano restano con le loro righe. Restituisce quante ne ha eliminate.
+- `security invoker`, `search_path` vuoto; `execute` revocato a `public` e `anon`, concesso ad `authenticated`.
+
 ## Sicurezza: RLS a utente unico (BP-19)
 - RLS attiva su tutte le tabelle; una policy `<table>_owner` per `authenticated` (lettura e scrittura, purché `auth.uid()` esista).
 - `anon`: privilegi revocati e nessuna policy, quindi nessun accesso.
