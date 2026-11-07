@@ -62,6 +62,15 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 ## Giorni lavorati (BP-58)
 `worked_days`: id, client_id, year, month (1–12), days (`numeric(5,2)`, da 0 a 31, anche frazioni di giornata). `unique (client_id, year, month)`; FK cliente `ON DELETE RESTRICT`; RLS come le altre. Si può inserire qualunque mese, anche futuro, senza righe precedenti.
 
+## Funzioni (BP-60)
+`public.replace_revenue_driver_entries(p_from_year, p_from_month, p_to_year, p_to_month, p_entries jsonb) returns table (deleted_count, inserted_count)`
+
+- Cancella le righe di `budget_entries` con `source = 'revenue_driver'` nell'intervallo di mesi (estremi inclusi, anche a cavallo di due anni) e inserisce le righe passate in `p_entries` (array JSON di `{budget_item_id, year, month, amount}`), in un'unica transazione. Righe con altra origine non vengono toccate.
+- Le righe passate devono cadere nell'intervallo (altrimenti errore `22023`), così una rigenerazione successiva non lascia doppioni. Mesi fuori da 1–12 o intervallo invertito: errore `22023`.
+- Un errore a metà (es. voce inesistente) annulla tutto: i dati restano com'erano.
+- `security invoker` (valgono le policy RLS), `search_path` vuoto; `execute` revocato a `public` e `anon`, concesso ad `authenticated`.
+- Il calcolo degli importi sta in `shared/` (`computeExpectedCollections`): qui solo la scrittura.
+
 ## Sicurezza: RLS a utente unico (BP-19)
 - RLS attiva su tutte le tabelle; una policy `<table>_owner` per `authenticated` (lettura e scrittura, purché `auth.uid()` esista).
 - `anon`: privilegi revocati e nessuna policy, quindi nessun accesso.

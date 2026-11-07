@@ -301,7 +301,11 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            [_ in never]: never
+            "replace_revenue_driver_entries":
+{ Args: { "p_entries": Json,"p_from_month": number,"p_from_year": number,"p_to_month": number,"p_to_year": number }; Returns: {
+              "deleted_count": number,"inserted_count": number
+            }[]
+                           }
           }
           Enums: {
             "balance_source": "manual"|"carried_over","budget_entry_source": "manual"|"revenue_driver"|"recurrence"|"tax","recurrence_frequency": "monthly"|"bimonthly"|"quarterly"|"semiannual"|"annual","transaction_type": "expense"|"income"|"transfer"
