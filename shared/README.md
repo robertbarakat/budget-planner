@@ -45,3 +45,6 @@ Se una nuova tabella serve al codice, aggiungi il suo alias in `src/domain.ts`.
 
 ## Valore di un mese per voce
 `computeMonthlyValues({ year, budgetItemIds, budgetEntries, transactions, closedMonths })` restituisce, per ogni voce e mese dell'anno, previsto, reale e valore mostrato (reale se il mese è chiuso, previsto altrimenti). Entrate positive, spese negative, trasferimenti esclusi; gli importi delle righe di budget sono già con segno.
+
+## Saldo progressivo di cassa
+`computeCashBalances(year, openingBalanceCents, values)` parte dai valori di `computeMonthlyValues` e restituisce, per i 12 mesi, flusso, saldo a fine mese (saldo iniziale totale dell'anno + flussi cumulati) e se il mese è chiuso (reale) o ancora a previsto. Un anno senza dati mantiene costante il saldo iniziale.

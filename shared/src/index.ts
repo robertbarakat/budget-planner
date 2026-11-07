@@ -1,5 +1,7 @@
 export { eurosToCents, sumCents } from './cents.ts'
 export { computeAccountBalances } from './balances.ts'
+export { computeCashBalances } from './cash-balance.ts'
+export type { MonthlyCashBalance } from './cash-balance.ts'
 export { computeExpectedCollections } from './collections.ts'
 export { computeMonthlyValues } from './monthly-values.ts'
 export type {
