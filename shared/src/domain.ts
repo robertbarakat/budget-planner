@@ -12,6 +12,8 @@ export type BudgetEntry = Tables<'budget_entries'>
 export type Recurrence = Tables<'recurrences'>
 export type RecurrenceOccurrence = Tables<'recurrence_occurrences'>
 export type ClosedMonth = Tables<'closed_months'>
+export type Client = Tables<'clients'>
+export type ClientRate = Tables<'client_rates'>
 
 export type NewTransaction = TablesInsert<'transactions'>
 export type TransactionUpdate = TablesUpdate<'transactions'>

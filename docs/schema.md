@@ -49,6 +49,16 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 ## Mesi chiusi (BP-18)
 `closed_months`: id, year, month (1–12), closed_at. `unique (year, month)`. Un mese è chiuso se esiste la riga; riaprirlo = eliminarla.
 
+## Clienti e tariffe (BP-57)
+| Tabella | Colonne principali | Note |
+|---|---|---|
+| `clients` | id, name, budget_item_id, collection_delay_months, sort_order, archived | ritardo d'incasso in mesi `>= 0`; nome unico tra i non archiviati; FK voce `ON DELETE RESTRICT` |
+| `client_rates` | id, client_id, daily_rate, valid_from_year, valid_from_month | `unique (client_id, valid_from_year, valid_from_month)`; FK cliente `ON DELETE RESTRICT` |
+
+- **Validità delle tariffe**: una tariffa vale dal mese `valid_from_*` fino al mese precedente alla successiva dello stesso cliente. Con un solo inizio per tariffa le validità non si sovrappongono; il vincolo unico impedisce due tariffe con lo stesso mese di inizio. I mesi passati mantengono la tariffa di allora.
+- Il DB non distingue voci di entrata e di spesa: la voce del cliente (`budget_item_id`) è scelta dall'app.
+- RLS e policy `<table>_owner` come le altre tabelle. Nessun cliente nella migrazione (i dati stanno nell'app).
+
 ## Sicurezza: RLS a utente unico (BP-19)
 - RLS attiva su tutte le tabelle; una policy `<table>_owner` per `authenticated` (lettura e scrittura, purché `auth.uid()` esista).
 - `anon`: privilegi revocati e nessuna policy, quindi nessun accesso.
