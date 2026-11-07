@@ -2,7 +2,7 @@ import { percentOfCents } from './percent.ts'
 
 /** One advance payment rule of the year: percentage of the advance base and due date. */
 export interface AdvanceRule {
-  /** Percentage of `advanceBaseCents` due with this advance (two decimals at most). */
+  /** Percentage of the advance base (see `advanceBaseCents`) due with this advance (two decimals at most). */
   percent: number
   /** Due date, `YYYY-MM-DD`. */
   dueDate: string
@@ -23,8 +23,12 @@ export interface AdvancesBalanceInput {
   activityStartYear: number
   /** Amount due for the year (substitute tax or INPS), in cents. */
   dueCents: number
-  /** Amount the advances are computed on (e.g. a previous-year figure, chosen by the caller), in cents. */
-  advanceBaseCents: number
+  /**
+   * Amount a given advance is computed on, in cents, for the advance due on `dueDate` (`YYYY-MM-DD`).
+   * Provisional method (author's decision, BP-156): current-year collections from 1 January to the due date.
+   * The caller supplies it (pure function), so other methods (historical, forecast) can be added later.
+   */
+  advanceBaseCents: (dueDate: string) => number
   /**
    * Advances already paid for this year, in cents. If omitted, the scheduled advances are assumed
    * to be paid in full (forecast).
@@ -62,7 +66,7 @@ function checkCents(value: number, label: string): void {
 /**
  * Splits the amount due for a year into advances and balance, following rules passed in.
  *
- * - Each advance = advance base x its percentage, rounded half up to the cent.
+ * - Each advance = base of that advance (collections up to its due date) x its percentage, rounded half up to the cent.
  * - In the first year of activity no advances are due (the balance is the whole amount due).
  * - Balance = amount due - advances paid (actual if given, otherwise the scheduled ones); never negative,
  *   an excess is returned as `creditCents`.
@@ -72,7 +76,6 @@ export function computeAdvancesAndBalance(input: AdvancesBalanceInput): Advances
     throw new RangeError(`Year ${input.year} is before the activity start year ${input.activityStartYear}`)
   }
   checkCents(input.dueCents, 'Amount due')
-  checkCents(input.advanceBaseCents, 'Advance base')
   if (input.paidAdvancesCents !== undefined) checkCents(input.paidAdvancesCents, 'Paid advances')
   checkDate(input.rules.balanceDueDate)
 
@@ -81,7 +84,9 @@ export function computeAdvancesAndBalance(input: AdvancesBalanceInput): Advances
   if (!isFirstYear) {
     for (const rule of input.rules.advances) {
       checkDate(rule.dueDate)
-      advances.push({ amountCents: percentOfCents(input.advanceBaseCents, rule.percent), dueDate: rule.dueDate })
+      const baseCents = input.advanceBaseCents(rule.dueDate)
+      checkCents(baseCents, 'Advance base')
+      advances.push({ amountCents: percentOfCents(baseCents, rule.percent), dueDate: rule.dueDate })
     }
   }
   const advancesTotalCents = advances.reduce((sum, advance) => sum + advance.amountCents, 0)
