@@ -53,3 +53,6 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 - `anon`: privilegi revocati e nessuna policy, quindi nessun accesso.
 - Il signup è disattivato (docs/auth.md): l'unico utente è il proprietario.
 - Ogni nuova tabella deve abilitare RLS e aggiungere la policy nella propria migrazione.
+
+## Seed (BP-20)
+`database/supabase/seed.sql`: 3 conti, 3 macro-aree, 6 voci e 7 categorie di partenza (dagli esempi della specifica). Ripetibile (inserisce solo ciò che manca, per nome tra i non archiviati). Nessun saldo iniziale. I nomi delle macro-aree sono provvisori: da rivedere prima del primo uso. Il seed gira in locale con `supabase db reset`; non è applicato al progetto remoto.
