@@ -29,3 +29,10 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 - Vincolo `movimenti_coerenza_tipo`: trasferimento = destinazione presente e diversa dall'origine, senza categoria né voce; spesa/entrata = categoria e voce presenti, nessuna destinazione.
 - La voce di budget è salvata sul movimento: riclassificare una categoria non cambia lo storico.
 - Tutte le FK sono `ON DELETE RESTRICT`. Indici su data, conto, destinazione, categoria, voce.
+
+## Righe di budget (BP-16)
+`righe_budget`: id, voce_budget_id, anno, mese (1–12), importo, origine (enum `origine_riga_budget`: manuale, driver_ricavi, ricorrenza, fiscale).
+
+- Budget libero: nessun vincolo di sequenza tra anni e mesi.
+- **Unicità**: nessun vincolo unico su voce+anno+mese(+origine). Più righe coesistono sulla stessa voce e mese anche con la stessa origine (il driver ricavi genera una riga per cliente e mese di incasso). Chi genera le righe (driver, ricorrenze, fiscale) le sostituisce da sé sui soli mesi non chiusi.
+- FK voce `ON DELETE RESTRICT`; indice su (anno, mese, voce).
