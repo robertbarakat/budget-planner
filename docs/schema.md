@@ -13,3 +13,11 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 
 - Nome unico (senza distinguere maiuscole) tra gli elementi **non archiviati** di ogni tabella (indice univoco parziale).
 - Un elemento con dati collegati non si elimina: si archivia.
+
+## Conti (BP-14)
+| Tabella | Colonne principali | Note |
+|---|---|---|
+| `conti` | id, nome, ordine, archiviato | nome unico tra i non archiviati |
+| `saldi_iniziali` | id, conto_id, anno, importo, origine | `unique (conto_id, anno)`; FK conto `ON DELETE RESTRICT` |
+
+`origine` (enum `origine_saldo`): `manuale` oppure `riportato` dall'anno precedente. Il calcolo del riporto e i valori sono fuori ambito (epic 4).
