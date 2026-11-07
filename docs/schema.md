@@ -126,7 +126,7 @@ Scelta (proposta dal ticket, da confermare): le scadenze con importo modificato 
 - Ogni nuova tabella deve abilitare RLS e aggiungere la policy nella propria migrazione.
 
 ## Seed (BP-20)
-`database/supabase/seed.sql`: 3 conti, 3 macro-aree, 6 voci e 7 categorie di partenza (dagli esempi della specifica). Ripetibile (inserisce solo ciò che manca, per nome tra i non archiviati). Nessun saldo iniziale. I nomi delle macro-aree sono provvisori: da rivedere prima del primo uso. Il seed gira in locale con `supabase db reset`; non è applicato al progetto remoto.
+`database/supabase/seed.sql`: 3 conti, 4 macro-aree (tra cui "Ricavi professionali", con `is_professional = true`, BP-157), 6 voci e 7 categorie di partenza (dagli esempi della specifica). Ripetibile (inserisce solo ciò che manca, per nome tra i non archiviati). Nessun saldo iniziale. I nomi delle macro-aree sono provvisori: da rivedere prima del primo uso. Il seed gira in locale con `supabase db reset`; non è applicato al progetto remoto.
 
 ## Test (BP-22)
 Test pgTAP in `database/supabase/tests/`, eseguiti con `npx supabase test db` (vedi `database/README.md`).
