@@ -80,6 +80,12 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 - Date nulle o fuori dal periodo `start_date .. end_date`, elenco null, ricorrenza archiviata: errore `22023`; ricorrenza inesistente: `P0002`. Un errore a metà annulla tutto (unica transazione).
 - Le date le calcola l'app (`generateRecurrenceDueDates` in `shared/`). `security invoker`, `search_path` vuoto; `execute` revocato a `public` e `anon`, concesso ad `authenticated`.
 
+### Allineamento riga di budget e scadenza (BP-86)
+Trigger su `recurrence_occurrences` (funzioni `sync_occurrence_budget_entry_amount`, `delete_occurrence_budget_entry`, `security invoker`):
+- Modifica di `amount` di una scadenza: aggiorna `amount` della sola riga di `budget_entries` collegata (`budget_entry_id`). Le altre scadenze e `recurrences.base_amount` non vengono toccati. Un update che non cambia l'importo non scrive nulla.
+- Cancellazione di una scadenza: cancella la sola riga collegata. Le scadenze senza riga collegata (`budget_entry_id` null) non danno errori.
+- Il cambio di `due_date` non sposta la riga (fuori ambito).
+
 ## Sicurezza: RLS a utente unico (BP-19)
 - RLS attiva su tutte le tabelle; una policy `<table>_owner` per `authenticated` (lettura e scrittura, purché `auth.uid()` esista).
 - `anon`: privilegi revocati e nessuna policy, quindi nessun accesso.
