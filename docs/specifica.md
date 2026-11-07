@@ -125,7 +125,7 @@ Conseguenza per il codice: l'INPS dovuta e l'INPS versata sono due grandezze dis
 
 ### Parametri confermati e incassi professionali (BP-97)
 - Valori confermati dall'autore il 2026-11-07, applicati da due anni con il commercialista: coefficiente di redditività 67%, aliquota INPS Gestione Separata 26,07%, imposta sostitutiva 15%. Restano parametri per anno, modificabili dall'app (BP-109).
-- **Incassi ai fini fiscali**: contano solo le entrate professionali. Si identificano per macro-area: le entrate le cui voci di budget appartengono alla macro-area dei ricavi professionali (nome nei dati, proposto "Ricavi professionali"). Le altre entrate non entrano nella base imponibile. Poiché nessun nome è scritto nel codice, la macro-area andrà marcata con un attributo (da definire in un ticket dedicato).
+- **Incassi ai fini fiscali**: contano solo le entrate professionali. Si identificano per macro-area: le entrate le cui voci di budget appartengono alla macro-area dei ricavi professionali (nome nei dati, scelto dall'autore: "Ricavi professionali"). Le altre entrate non entrano nella base imponibile. Poiché nessun nome è scritto nel codice, la macro-area andrà marcata con un attributo (da definire in un ticket dedicato).
 
 Differenza con la spesa: le imposte non si inseriscono a mano come spese, sono calcolate. Il versamento reale resta un movimento, collegato alla scadenza F24.
 
