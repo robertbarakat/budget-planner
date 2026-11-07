@@ -27,4 +27,5 @@ export type {
   Transaction,
   TransactionType,
   TransactionUpdate,
+  WorkedDays,
 } from './domain.ts'

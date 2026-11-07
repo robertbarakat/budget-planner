@@ -275,6 +275,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"worked_days": {
+                  Row: {
+                    "client_id": number,"created_at": string,"days": number,"id": number,"month": number,"year": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "client_id": number,"created_at"?: string,"days": number,"id"?: never,"month": number,"year": number
+                  }
+                  Update: {
+                    "client_id"?: number,"created_at"?: string,"days"?: number,"id"?: never,"month"?: number,"year"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "worked_days_client_id_fkey"
+      columns: ["client_id"]
+isOneToOne: false
+      referencedRelation: "clients"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Views: {
