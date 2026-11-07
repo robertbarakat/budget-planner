@@ -94,6 +94,14 @@ Scelta (proposta dal ticket, da confermare): le scadenze con importo modificato 
 - `public.archive_recurrence(p_recurrence_id, p_today) returns integer`: imposta `archived = true` ed elimina le scadenze future non modificate (con le righe di budget); le passate e le modificate a mano restano con le loro righe. Restituisce quante ne ha eliminate.
 - `security invoker`, `search_path` vuoto; `execute` revocato a `public` e `anon`, concesso ad `authenticated`.
 
+## Parametri fiscali (BP-98)
+`tax_parameters`: id, year, profitability_coefficient, inps_rate, substitute_tax_rate, is_startup, has_other_pension_coverage, activity_start_year.
+
+- `unique (year)`: una riga per anno. Percentuali in punti percentuali (`26.07` = 26,07%), `numeric(5,2)`, da 0 a 100 (`check`).
+- `is_startup` e `has_other_pension_coverage` `not null default false`; `activity_start_year` tra 2000 e 2100 e non successivo a `year`.
+- Nessun valore nella migrazione: i valori arrivano dall'app dopo la verifica con il commercialista (BP-97).
+- RLS e policy `tax_parameters_owner` come le altre tabelle.
+
 ## Sicurezza: RLS a utente unico (BP-19)
 - RLS attiva su tutte le tabelle; una policy `<table>_owner` per `authenticated` (lettura e scrittura, purché `auth.uid()` esista).
 - `anon`: privilegi revocati e nessuna policy, quindi nessun accesso.

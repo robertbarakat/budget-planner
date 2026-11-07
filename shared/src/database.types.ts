@@ -237,6 +237,20 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"tax_parameters": {
+                  Row: {
+                    "activity_start_year": number,"created_at": string,"has_other_pension_coverage": boolean,"id": number,"inps_rate": number,"is_startup": boolean,"profitability_coefficient": number,"substitute_tax_rate": number,"year": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "activity_start_year": number,"created_at"?: string,"has_other_pension_coverage"?: boolean,"id"?: never,"inps_rate": number,"is_startup"?: boolean,"profitability_coefficient": number,"substitute_tax_rate": number,"year": number
+                  }
+                  Update: {
+                    "activity_start_year"?: number,"created_at"?: string,"has_other_pension_coverage"?: boolean,"id"?: never,"inps_rate"?: number,"is_startup"?: boolean,"profitability_coefficient"?: number,"substitute_tax_rate"?: number,"year"?: number
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"transactions": {
                   Row: {
                     "account_id": number,"amount": number,"budget_item_id": number | null,"category_id": number | null,"comment": string | null,"created_at": string,"destination_account_id": number | null,"id": number,"tag": string | null,"transaction_date": string,"type": Database["public"]['Enums']["transaction_type"]
