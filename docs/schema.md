@@ -21,3 +21,11 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 | `saldi_iniziali` | id, conto_id, anno, importo, origine | `unique (conto_id, anno)`; FK conto `ON DELETE RESTRICT` |
 
 `origine` (enum `origine_saldo`): `manuale` oppure `riportato` dall'anno precedente. Il calcolo del riporto e i valori sono fuori ambito (epic 4).
+
+## Movimenti (BP-15)
+`movimenti`: id, tipo (enum `tipo_movimento`: spesa, entrata, trasferimento), data, importo, conto_id, conto_destinazione_id, categoria_id, voce_budget_id, commento, tag.
+
+- `importo > 0` sempre; il segno deriva dal tipo.
+- Vincolo `movimenti_coerenza_tipo`: trasferimento = destinazione presente e diversa dall'origine, senza categoria né voce; spesa/entrata = categoria e voce presenti, nessuna destinazione.
+- La voce di budget è salvata sul movimento: riclassificare una categoria non cambia lo storico.
+- Tutte le FK sono `ON DELETE RESTRICT`. Indici su data, conto, destinazione, categoria, voce.
