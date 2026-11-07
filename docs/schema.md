@@ -112,6 +112,13 @@ Scelta (proposta dal ticket, da confermare): le scadenze con importo modificato 
 - Enum `tax_type` (valori controllati, scelti qui perché il ticket li lasciava "da definire"): `substitute_tax`, `substitute_tax_advance`, `substitute_tax_balance`, `inps`, `inps_advance`, `inps_balance`. Lo stesso tipo serve al calendario F24 (BP-100). Da rivedere se il commercialista indica altre voci.
 - RLS e policy `<table>_owner` come le altre tabelle.
 
+## Calendario F24 (BP-100)
+`f24_deadlines`: id, reference_year, tax_type, due_date, amount, transaction_id, installment_id.
+
+- `tax_type` è l'enum di BP-99 (un tributo non previsto è rifiutato). `unique (reference_year, tax_type, due_date)`; `amount > 0`.
+- `transaction_id` (il versamento reale) e `installment_id` (rata collegata) sono facoltativi; FK `ON DELETE RESTRICT` e indici sulle due FK: un movimento o una rata collegati a una scadenza non si eliminano.
+- RLS e policy `f24_deadlines_owner` come le altre tabelle. Il calcolo degli importi non è in questa tabella.
+
 ## Sicurezza: RLS a utente unico (BP-19)
 - RLS attiva su tutte le tabelle; una policy `<table>_owner` per `authenticated` (lettura e scrittura, purché `auth.uid()` esista).
 - `anon`: privilegi revocati e nessuna policy, quindi nessun accesso.
