@@ -12,3 +12,14 @@ export function sumCents(amounts: readonly number[]): number {
   }
   return total
 }
+
+/**
+ * Converts an amount in euros (as stored in numeric(12,2) columns) to integer cents.
+ * Rounds to the nearest cent, so 0.1 and 0.2 become exactly 10 and 20.
+ */
+export function eurosToCents(euros: number): number {
+  if (!Number.isFinite(euros)) {
+    throw new RangeError(`Amount is not a finite number: ${euros}`)
+  }
+  return Math.round(euros * 100)
+}

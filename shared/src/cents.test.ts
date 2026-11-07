@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { sumCents } from './cents.ts'
+import { eurosToCents, sumCents } from './cents.ts'
 
 describe('sumCents', () => {
   it('sums amounts in cents', () => {
@@ -16,5 +16,19 @@ describe('sumCents', () => {
 
   it('rejects non-integer amounts', () => {
     expect(() => sumCents([10.5])).toThrow(RangeError)
+  })
+})
+
+describe('eurosToCents', () => {
+  it('converts euros to exact integer cents', () => {
+    expect(eurosToCents(0.1)).toBe(10)
+    expect(eurosToCents(0.2)).toBe(20)
+    expect(eurosToCents(1234.5)).toBe(123_450)
+    expect(eurosToCents(-42)).toBe(-4_200)
+    expect(eurosToCents(19.99)).toBe(1_999)
+  })
+
+  it('rejects non-finite values', () => {
+    expect(() => eurosToCents(Number.NaN)).toThrow(RangeError)
   })
 })

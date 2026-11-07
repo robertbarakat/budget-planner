@@ -36,3 +36,6 @@ cd ../shared && npm run gen:types      # supabase gen types typescript --local
 npm run build
 ```
 Se una nuova tabella serve al codice, aggiungi il suo alias in `src/domain.ts`.
+
+## Saldi per conto
+`computeAccountBalances(openingBalances, transactions)` restituisce il saldo di ogni conto e il totale (saldo iniziale + entrate − spese ± trasferimenti), tutto in centesimi interi. Gli importi del DB (euro, `numeric(12,2)`) si convertono con `eurosToCents` ai bordi.
