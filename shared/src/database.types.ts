@@ -151,6 +151,40 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"installment_plans": {
+                  Row: {
+                    "archived": boolean,"created_at": string,"description": string,"id": number,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"],"total_amount": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "archived"?: boolean,"created_at"?: string,"description": string,"id"?: never,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"],"total_amount": number
+                  }
+                  Update: {
+                    "archived"?: boolean,"created_at"?: string,"description"?: string,"id"?: never,"reference_year"?: number,"tax_type"?: Database["public"]['Enums']["tax_type"],"total_amount"?: number
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"installments": {
+                  Row: {
+                    "amount": number,"created_at": string,"due_date": string,"id": number,"number": number,"plan_id": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"created_at"?: string,"due_date": string,"id"?: never,"number": number,"plan_id": number
+                  }
+                  Update: {
+                    "amount"?: number,"created_at"?: string,"due_date"?: string,"id"?: never,"number"?: number,"plan_id"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "installments_plan_id_fkey"
+      columns: ["plan_id"]
+isOneToOne: false
+      referencedRelation: "installment_plans"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"macro_areas": {
                   Row: {
                     "archived": boolean,"created_at": string,"id": number,"name": string,"sort_order": number
@@ -333,7 +367,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "balance_source": "manual"|"carried_over","budget_entry_source": "manual"|"revenue_driver"|"recurrence"|"tax","budget_item_kind": "income"|"expense","recurrence_frequency": "monthly"|"bimonthly"|"quarterly"|"semiannual"|"annual","transaction_type": "expense"|"income"|"transfer"
+            "balance_source": "manual"|"carried_over","budget_entry_source": "manual"|"revenue_driver"|"recurrence"|"tax","budget_item_kind": "income"|"expense","recurrence_frequency": "monthly"|"bimonthly"|"quarterly"|"semiannual"|"annual","tax_type": "substitute_tax"|"substitute_tax_advance"|"substitute_tax_balance"|"inps"|"inps_advance"|"inps_balance","transaction_type": "expense"|"income"|"transfer"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -453,7 +487,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "balance_source": ["manual", "carried_over"],"budget_entry_source": ["manual", "revenue_driver", "recurrence", "tax"],"budget_item_kind": ["income", "expense"],"recurrence_frequency": ["monthly", "bimonthly", "quarterly", "semiannual", "annual"],"transaction_type": ["expense", "income", "transfer"]
+            "balance_source": ["manual", "carried_over"],"budget_entry_source": ["manual", "revenue_driver", "recurrence", "tax"],"budget_item_kind": ["income", "expense"],"recurrence_frequency": ["monthly", "bimonthly", "quarterly", "semiannual", "annual"],"tax_type": ["substitute_tax", "substitute_tax_advance", "substitute_tax_balance", "inps", "inps_advance", "inps_balance"],"transaction_type": ["expense", "income", "transfer"]
           }
         }
 } as const
