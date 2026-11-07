@@ -72,6 +72,14 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 - `security invoker` (valgono le policy RLS), `search_path` vuoto; `execute` revocato a `public` e `anon`, concesso ad `authenticated`.
 - Il calcolo degli importi sta in `shared/` (`computeExpectedCollections`): qui solo la scrittura.
 
+### `replace_tax_entries` (BP-107)
+`public.replace_tax_entries(p_from_year, p_from_month, p_to_year, p_to_month, p_entries jsonb) returns table (deleted_count, inserted_count)`
+
+- Come `replace_revenue_driver_entries`, ma per `source = 'tax'`: cancella le righe fiscali dell'intervallo di mesi (estremi inclusi, anche a cavallo di due anni) e inserisce quelle di `p_entries` (`{budget_item_id, year, month, amount}`) in un'unica transazione. Righe con altra origine (`manual`, `revenue_driver`, `recurrence`) e righe `tax` fuori intervallo non si toccano.
+- Righe fuori intervallo, mesi fuori da 1–12, intervallo invertito, `p_entries` non array: errore `22023`. Un errore a metà (es. voce inesistente) annulla tutto.
+- `security invoker`, `search_path` vuoto; `execute` revocato a `public` e `anon`, concesso ad `authenticated`. Il calcolo sta in `shared/`.
+- Migrazione non applicata al progetto remoto (richiede conferma, vedi ticket).
+
 ### `apply_recurrence` (BP-85)
 `public.apply_recurrence(p_recurrence_id bigint, p_due_dates date[]) returns integer` (numero di scadenze create).
 

@@ -390,6 +390,11 @@ isOneToOne: false
 { Args: { "p_entries": Json,"p_from_month": number,"p_from_year": number,"p_to_month": number,"p_to_year": number }; Returns: {
               "deleted_count": number,"inserted_count": number
             }[]
+                           },
+"replace_tax_entries":
+{ Args: { "p_entries": Json,"p_from_month": number,"p_from_year": number,"p_to_month": number,"p_to_year": number }; Returns: {
+              "deleted_count": number,"inserted_count": number
+            }[]
                            }
           }
           Enums: {
