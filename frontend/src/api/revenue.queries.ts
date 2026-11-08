@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createCrudHooks, invalidateAll } from './crud-hooks.ts'
+import { createArchivableHooks, createCrudHooks, invalidateAll } from './crud-hooks.ts'
 import type { BudgetEntryDraft, MonthRange } from './month-range.ts'
 import { queryKeys } from './query-keys.ts'
 import { revenueService, type WorkedDaysFilters } from './revenue.service.ts'
@@ -7,12 +7,22 @@ import { revenueService, type WorkedDaysFilters } from './revenue.service.ts'
 // Giorni, tariffe e ritardi cambiano gli incassi previsti: invalidiamo anche il budget.
 const invalidate = [queryKeys.revenue.all, queryKeys.budget.all] as const
 
-const clients = createCrudHooks({ service: revenueService.clients, key: queryKeys.revenue.clients, invalidate })
+const clients = createArchivableHooks({ service: revenueService.clients, key: queryKeys.revenue.clients, invalidate })
 export const useClients = clients.useList
 export const useClient = clients.useById
 export const useCreateClient = clients.useCreate
 export const useUpdateClient = clients.useUpdate
 export const useDeleteClient = clients.useRemove
+export const useSetArchivedClient = clients.useSetArchived
+export const useReorderClients = clients.useReorder
+
+/** Id dei clienti con tariffe o giorni lavorati collegati. */
+export function useClientIdsInUse() {
+  return useQuery({
+    queryKey: [...queryKeys.revenue.all, 'client-ids-in-use'],
+    queryFn: () => revenueService.listClientIdsInUse(),
+  })
+}
 
 const rates = createCrudHooks({ service: revenueService.rates, key: queryKeys.revenue.rates, invalidate })
 export const useCreateClientRate = rates.useCreate

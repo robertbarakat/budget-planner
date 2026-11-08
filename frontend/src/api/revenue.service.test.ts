@@ -72,3 +72,14 @@ describe('RevenueService letture e giorni lavorati', () => {
     expect(present.calls.find((c) => c.method === 'update')?.args[0]).toEqual({ days: 18.5 })
   })
 })
+
+describe('RevenueService.listClientIdsInUse', () => {
+  it('unisce clienti con tariffe e con giorni lavorati, senza doppioni', async () => {
+    const { client } = fakeSupabase({
+      client_rates: { data: [{ client_id: 1 }, { client_id: 2 }], error: null },
+      worked_days: { data: [{ client_id: 2 }, { client_id: 5 }], error: null },
+    })
+    const ids = await new RevenueService(() => client).listClientIdsInUse()
+    expect(ids.toSorted()).toEqual([1, 2, 5])
+  })
+})

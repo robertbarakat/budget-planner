@@ -14,6 +14,7 @@ import SettingsPage from './pages/settings/SettingsPage.tsx'
 import BudgetItemsSettingsPage from './pages/settings/BudgetItemsSettingsPage.tsx'
 import AccountsSettingsPage from './pages/settings/AccountsSettingsPage.tsx'
 import CategoriesSettingsPage from './pages/settings/CategoriesSettingsPage.tsx'
+import ClientsSettingsPage from './pages/settings/ClientsSettingsPage.tsx'
 import MacroAreasSettingsPage from './pages/settings/MacroAreasSettingsPage.tsx'
 
 // Unico file delle rotte (gli indirizzi stanno in paths.ts).
@@ -38,6 +39,7 @@ export const routes: RouteObject[] = [
           { path: 'settings/budget-items', element: <BudgetItemsSettingsPage /> },
           { path: 'settings/categories', element: <CategoriesSettingsPage /> },
           { path: 'settings/accounts', element: <AccountsSettingsPage /> },
+          { path: 'settings/clients', element: <ClientsSettingsPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

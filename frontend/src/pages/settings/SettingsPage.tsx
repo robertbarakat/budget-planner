@@ -8,6 +8,7 @@ const sections = [
   { to: paths.settingsBudgetItems, title: 'Voci di budget', description: 'Il livello della previsione, raggruppato per macro-area.' },
   { to: paths.settingsCategories, title: 'Categorie', description: 'Il livello dell\'inserimento, raggruppato per voce di budget.' },
   { to: paths.settingsAccounts, title: 'Conti', description: 'Dove stanno i soldi: aggiungi, riordina, archivia.' },
+  { to: paths.settingsClients, title: 'Clienti', description: 'Chi ti paga: ogni cliente alimenta una voce di entrata.' },
 ] as const
 
 export default function SettingsPage() {

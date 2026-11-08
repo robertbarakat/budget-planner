@@ -13,4 +13,5 @@ export const paths = {
   settingsBudgetItems: '/settings/budget-items',
   settingsCategories: '/settings/categories',
   settingsAccounts: '/settings/accounts',
+  settingsClients: '/settings/clients',
 } as const

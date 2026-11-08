@@ -22,6 +22,15 @@ export class RevenueService {
     this.workedDays = new BaseService('worked_days', getClient)
   }
 
+  /** Id dei clienti con tariffe o giorni lavorati collegati: quelli non si eliminano, si archiviano. */
+  async listClientIdsInUse(): Promise<number[]> {
+    const [rateRows, dayRows] = await Promise.all([
+      this.rates.listColumn('client_id'),
+      this.workedDays.listColumn('client_id'),
+    ])
+    return [...new Set([...rateRows, ...dayRows].map((row) => row.client_id))]
+  }
+
   /** Tariffe di un cliente, dalla più recente. */
   listRates(clientId: number): Promise<RowOf<'client_rates'>[]> {
     return this.rates.list({
