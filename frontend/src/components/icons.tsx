@@ -50,3 +50,19 @@ export function PlusIcon() {
     </Icon>
   )
 }
+
+export function ArrowUpIcon() {
+  return (
+    <Icon size={20}>
+      <path d="M12 19V5M5 12l7-7 7 7" />
+    </Icon>
+  )
+}
+
+export function ArrowDownIcon() {
+  return (
+    <Icon size={20}>
+      <path d="M12 5v14M5 12l7 7 7-7" />
+    </Icon>
+  )
+}
