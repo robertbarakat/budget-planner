@@ -32,7 +32,9 @@ describe('RecurrencesSettingsPage', () => {
     vi.spyOn(classificationService.budgetItems, 'list').mockResolvedValue([
       { id: 1, name: 'Casa', kind: 'expense', archived: false, sort_order: 0 },
       { id: 2, name: 'Vecchia voce', kind: 'expense', archived: true, sort_order: 1 },
+      { id: 3, name: 'Voce senza categorie', kind: 'expense', archived: false, sort_order: 2 },
     ] as never)
+    vi.spyOn(classificationService.categories, 'list').mockResolvedValue([{ id: 1, budget_item_id: 1, name: 'Mutuo', archived: false }] as never)
     vi.spyOn(accountsService.accounts, 'list').mockResolvedValue([
       { id: 1, name: 'Bancoposta', archived: false, sort_order: 0 },
       { id: 2, name: 'Conto chiuso', archived: true, sort_order: 1 },
@@ -52,6 +54,7 @@ describe('RecurrencesSettingsPage', () => {
     setup()
     await userEvent.click(await screen.findByRole('button', { name: 'Nuova ricorrenza' }))
     expect(screen.queryByRole('option', { name: 'Vecchia voce' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('option', { name: 'Voce senza categorie' })).not.toBeInTheDocument()
     expect(screen.queryByRole('option', { name: 'Conto chiuso' })).not.toBeInTheDocument()
     await userEvent.type(screen.getByLabelText(/Nome/), 'TEST-Nuova')
     await userEvent.selectOptions(screen.getByLabelText(/Voce di budget/), 'Casa')
@@ -96,6 +99,7 @@ describe('RecurrencesSettingsPage: scadenze', () => {
     vi.spyOn(recurrencesService.recurrences, 'list').mockResolvedValue([recurrence(1, 'TEST-Mutuo')])
     vi.spyOn(classificationService.budgetItems, 'list').mockResolvedValue([{ id: 1, name: 'Casa', kind: 'expense', archived: false, sort_order: 0 }] as never)
     vi.spyOn(accountsService.accounts, 'list').mockResolvedValue([{ id: 1, name: 'Bancoposta', archived: false, sort_order: 0 }] as never)
+    vi.spyOn(classificationService.categories, 'list').mockResolvedValue([{ id: 1, budget_item_id: 1, name: 'Mutuo', archived: false }] as never)
     vi.spyOn(recurrencesService, 'listOccurrences').mockResolvedValue([occ(10, '2026-12-05', 650), occ(11, '2027-01-05', 700)])
   })
 

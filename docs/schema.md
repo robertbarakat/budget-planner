@@ -43,7 +43,7 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 | Tabella | Colonne principali | Note |
 |---|---|---|
 | `recurrences` | id, name, budget_item_id, account_id, base_amount, frequency, start_date, end_date, archived | `end_date >= start_date`; FK RESTRICT |
-| `recurrence_occurrences` | id, recurrence_id, due_date, amount, budget_entry_id | `unique (recurrence_id, due_date)`; importo indipendente dal base; FK RESTRICT |
+| `recurrence_occurrences` | id, recurrence_id, due_date, amount, budget_entry_id, transaction_id, registered_at | `unique (recurrence_id, due_date)`; importo indipendente dal base; FK RESTRICT |
 
 `frequency` (enum `recurrence_frequency`): `monthly`, `bimonthly`, `quarterly`, `semiannual`, `annual`. L'elenco è un'assunzione (la specifica non lo definisce): da confermare nell'epic 7. Generazione delle scadenze e UI: epic 7.
 
@@ -87,6 +87,9 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 - Non sposta la categoria (`categories.budget_item_id` resta com'è: è una scrittura a parte) e non impone che la voce di destinazione sia quella della categoria. Tocca solo spese ed entrate, quindi `transactions_type_consistency` resta valido.
 - Categoria o voce inesistenti (o non visibili per RLS): errore `23503`. Parametri null o intervallo invertito: errore `22023`.
 - `security invoker`, `search_path` vuoto; `execute` revocato a `public` e `anon`, concesso ad `authenticated`.
+
+### `register_due_recurrence_transactions` (BP-92)
+`public.register_due_recurrence_transactions(p_today date) returns integer`: per ogni scadenza con `due_date <= p_today`, `registered_at` nullo, di una ricorrenza attiva, crea il movimento reale (importo della scadenza, conto e voce della ricorrenza, data della scadenza, tipo dalla voce, categoria = prima non archiviata della voce, commento = nome) e valorizza `transaction_id` e `registered_at`. Idempotente; salta le voci senza categorie attive; un movimento cancellato non si ricrea (`transaction_id` torna null, `registered_at` resta). Pianificata ogni giorno alle 00:05 UTC con `pg_cron` (job `register-due-recurrence-transactions`). Restituisce i movimenti creati.
 
 ### `apply_recurrence` (BP-85)
 `public.apply_recurrence(p_recurrence_id bigint, p_due_dates date[]) returns integer` (numero di scadenze create).

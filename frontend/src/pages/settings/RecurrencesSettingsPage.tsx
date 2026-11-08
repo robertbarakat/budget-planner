@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { AlertDialog } from 'radix-ui'
 import type { Recurrence } from 'budget-planner-shared'
 import { useAccounts } from '../../api/accounts.queries.ts'
-import { useBudgetItems } from '../../api/classification.queries.ts'
+import { useBudgetItems, useCategories } from '../../api/classification.queries.ts'
 import {
   useArchiveRecurrence,
   useCreateRecurrenceWithOccurrences,
@@ -40,6 +40,7 @@ export default function RecurrencesSettingsPage() {
   const recurrences = useRecurrences({ orderBy: [{ column: 'name' }] })
   const budgetItems = useBudgetItems({ orderBy: ORDER })
   const accounts = useAccounts({ orderBy: ORDER })
+  const categories = useCategories()
   const create = useCreateRecurrenceWithOccurrences()
   const update = useUpdateRecurrenceWithOccurrences()
   const archive = useArchiveRecurrence()
@@ -47,7 +48,7 @@ export default function RecurrencesSettingsPage() {
   const [showArchived, setShowArchived] = useState(false)
   const [toArchive, setToArchive] = useState<Recurrence | null>(null)
 
-  const queries = [recurrences, budgetItems, accounts]
+  const queries = [recurrences, budgetItems, accounts, categories]
   const itemName = new Map((budgetItems.data ?? []).map((item) => [item.id, item.name]))
   const itemKind = new Map((budgetItems.data ?? []).map((item) => [item.id, item.kind]))
   const accountName = new Map((accounts.data ?? []).map((account) => [account.id, account.name]))
@@ -56,8 +57,12 @@ export default function RecurrencesSettingsPage() {
   const hasArchived = all.some((row) => row.archived)
 
   // Voci e conti archiviati non si scelgono; in modifica restano quelli già usati dalla ricorrenza.
+  // Il movimento automatico ha bisogno di una categoria: si scelgono solo voci con almeno una categoria attiva.
+  const itemsWithCategory = new Set((categories.data ?? []).filter((c) => !c.archived).map((c) => c.budget_item_id))
   const choicesFor = (keepItem?: number, keepAccount?: number) => ({
-    budgetItems: (budgetItems.data ?? []).filter((item) => !item.archived || item.id === keepItem),
+    budgetItems: (budgetItems.data ?? []).filter(
+      (item) => item.id === keepItem || (!item.archived && itemsWithCategory.has(item.id)),
+    ),
     accounts: (accounts.data ?? []).filter((account) => !account.archived || account.id === keepAccount),
   })
 
@@ -88,7 +93,7 @@ export default function RecurrencesSettingsPage() {
         <>
           {(newChoices.budgetItems.length === 0 || newChoices.accounts.length === 0) && (
             <p className="settings__status">
-              Per creare una ricorrenza servono almeno una voce di budget e un conto.
+              Per creare una ricorrenza servono un conto e una voce di budget con almeno una categoria.
             </p>
           )}
           <RecurrenceFormDialog

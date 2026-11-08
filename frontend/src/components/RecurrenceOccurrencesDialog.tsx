@@ -76,6 +76,7 @@ function OccurrenceRow({ occurrence, recurrence, kind }: RowProps) {
       <div className="occurrences__summary">
         <span className="occurrences__date">{occurrence.due_date}</span>
         {modified && <span className="occurrences__badge">Modificata</span>}
+        {occurrence.registered_at && <span className="occurrences__badge">Registrata</span>}
         <Amount value={sign * occurrence.amount} explicitPlus={kind === 'income'} />
       </div>
       {editing ? (

@@ -247,14 +247,14 @@ isOneToOne: false
                   ]
                 },"recurrence_occurrences": {
                   Row: {
-                    "amount": number,"budget_entry_id": number | null,"created_at": string,"due_date": string,"id": number,"is_manually_modified": boolean,"recurrence_id": number
+                    "amount": number,"budget_entry_id": number | null,"created_at": string,"due_date": string,"id": number,"is_manually_modified": boolean,"recurrence_id": number,"registered_at": string | null,"transaction_id": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount": number,"budget_entry_id"?: number | null,"created_at"?: string,"due_date": string,"id"?: never,"is_manually_modified"?: boolean,"recurrence_id": number
+                    "amount": number,"budget_entry_id"?: number | null,"created_at"?: string,"due_date": string,"id"?: never,"is_manually_modified"?: boolean,"recurrence_id": number,"registered_at"?: string | null,"transaction_id"?: number | null
                   }
                   Update: {
-                    "amount"?: number,"budget_entry_id"?: number | null,"created_at"?: string,"due_date"?: string,"id"?: never,"is_manually_modified"?: boolean,"recurrence_id"?: number
+                    "amount"?: number,"budget_entry_id"?: number | null,"created_at"?: string,"due_date"?: string,"id"?: never,"is_manually_modified"?: boolean,"recurrence_id"?: number,"registered_at"?: string | null,"transaction_id"?: number | null
                   }
                   Relationships: [
                     {
@@ -380,6 +380,9 @@ isOneToOne: false
                            },
 "archive_recurrence":
 { Args: { "p_recurrence_id": number,"p_today": string }; Returns: number
+                           },
+"register_due_recurrence_transactions":
+{ Args: { "p_today": string }; Returns: number
                            },
 "reclassify_category_history":
 { Args: { "p_budget_item_id": number,"p_category_id": number,"p_from_date"?: string,"p_to_date"?: string }; Returns: number

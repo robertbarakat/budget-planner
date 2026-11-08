@@ -1,6 +1,5 @@
 import { useBudgetItems } from '../api/classification.queries.ts'
 import { useOccurrencesInRange, useRecurrences } from '../api/recurrences.queries.ts'
-import { useTransactions } from '../api/transactions.queries.ts'
 import { Link } from 'react-router'
 import { newTransactionFromDuePath } from '../lib/due-prefill.ts'
 import { paths } from '../paths.ts'
@@ -18,9 +17,8 @@ export default function UpcomingDues() {
   const occurrences = useOccurrencesInRange(from, to)
   const recurrences = useRecurrences()
   const budgetItems = useBudgetItems()
-  const transactions = useTransactions({ from, to: today })
 
-  const queries = [occurrences, recurrences, budgetItems, transactions]
+  const queries = [occurrences, recurrences, budgetItems]
   const loading = queries.some((q) => q.isPending)
   const failed = queries.some((q) => q.isError)
   const kinds = new Map((budgetItems.data ?? []).map((item) => [item.id, item.kind]))
@@ -28,7 +26,6 @@ export default function UpcomingDues() {
     occurrences: occurrences.data ?? [],
     recurrences: recurrences.data ?? [],
     kinds,
-    transactions: transactions.data ?? [],
     today,
   })
 

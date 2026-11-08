@@ -85,7 +85,7 @@ export default function RecurrenceFormDialog({
         <Dialog.Content className="move-dialog recurrence-dialog">
           <Dialog.Title className="move-dialog__title">{title}</Dialog.Title>
           <Dialog.Description className="move-dialog__text">
-            {description ?? 'Le scadenze diventano righe di budget.'}
+            {description ?? 'Le scadenze diventano righe di budget e, alla data, il movimento si registra da solo.'}
           </Dialog.Description>
           <form className="recurrence-dialog__form" onSubmit={submit} noValidate>
             <Field label="Nome" error={errors.name} required>
