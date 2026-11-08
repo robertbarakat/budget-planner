@@ -11,11 +11,11 @@ import { transactionsService } from '../api/transactions.service.ts'
 import { SnackbarProvider } from '../components/Snackbar.tsx'
 import NewTransactionPage from './NewTransactionPage.tsx'
 
-function setup() {
+function setup(url = '/transactions/new') {
   render(
     <QueryClientProvider client={createQueryClient()}>
       <SnackbarProvider>
-        <MemoryRouter>
+        <MemoryRouter initialEntries={[url]}>
           <NewTransactionPage />
         </MemoryRouter>
       </SnackbarProvider>
@@ -127,6 +127,41 @@ describe('NewTransactionPage salvataggio', () => {
     const create = vi.spyOn(transactionsService, 'create')
     setup()
     await userEvent.click(await screen.findByRole('button', { name: 'Salva spesa' }))
+    expect(create).not.toHaveBeenCalled()
+  })
+})
+
+describe('NewTransactionPage precompilata da una scadenza', () => {
+  const url = '/transactions/new?amount=650%2C00&account=2&item=10'
+
+  it('apre il form con importo, conto e voce (categoria della voce) della scadenza', async () => {
+    setup(url)
+    expect(await screen.findByLabelText(/Importo/)).toHaveValue('650,00')
+    expect(screen.getByRole('radio', { name: /Conto B/ })).toBeChecked()
+    expect(screen.getByLabelText(/Categoria/)).toHaveValue('100')
+    expect(screen.getByText('Precompilato dalla scadenza: controlla i dati e salva.')).toBeInTheDocument()
+  })
+
+  it('salvando crea un movimento normale, senza dati extra, e il form riparte vuoto', async () => {
+    const create = vi.spyOn(transactionsService, 'create').mockResolvedValue(row({ id: 1 }))
+    setup(url)
+    await userEvent.click(await screen.findByRole('button', { name: 'Salva spesa' }))
+    await vi.waitFor(() => expect(create).toHaveBeenCalledTimes(1))
+    expect(Object.keys(create.mock.calls[0]![0]).sort()).toEqual(
+      ['account_id', 'amount', 'budget_item_id', 'category_id', 'comment', 'destination_account_id', 'tag', 'transaction_date', 'type'].sort(),
+    )
+    expect(create.mock.calls[0]![0]).toMatchObject({ amount: 650, account_id: 2, budget_item_id: 10, category_id: 100, type: 'expense' })
+    expect(await screen.findByLabelText(/Importo/)).toHaveValue('')
+  })
+
+  it('tutti i campi restano modificabili e annullare non crea nulla', async () => {
+    const create = vi.spyOn(transactionsService, 'create').mockResolvedValue(row({ id: 1 }))
+    setup(url)
+    const amount = await screen.findByLabelText(/Importo/)
+    await userEvent.clear(amount)
+    await userEvent.type(amount, '700')
+    expect(amount).toHaveValue('700')
+    expect(screen.getByRole('link', { name: 'Annulla' })).toHaveAttribute('href', '/')
     expect(create).not.toHaveBeenCalled()
   })
 })

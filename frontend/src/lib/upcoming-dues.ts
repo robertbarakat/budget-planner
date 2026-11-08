@@ -12,6 +12,9 @@ export interface UpcomingDue {
   dueDate: string
   /** Con segno: spesa negativa, entrata positiva. */
   amount: number
+  /** Conto e voce di budget della ricorrenza (per precompilare il movimento). */
+  accountId: number
+  budgetItemId: number
   /** Scadenza passata senza un movimento corrispondente. */
   overdue: boolean
 }
@@ -81,6 +84,8 @@ export function buildUpcomingDues(args: {
       name: recurrence.name,
       dueDate: occurrence.due_date,
       amount: sign * occurrence.amount,
+      accountId: recurrence.account_id,
+      budgetItemId: recurrence.budget_item_id,
       overdue: past,
     })
   }

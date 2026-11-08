@@ -117,6 +117,10 @@ describe('HomePage', () => {
     expect(items[1]).toHaveTextContent('Affitto studio')
     expect(items[1]).toHaveTextContent('+')
     expect(within(card).queryByText('Vecchio abbonamento')).not.toBeInTheDocument()
+    expect(within(items[0]!).getByRole('link', { name: /Registra pagamento di Mutuo/ })).toHaveAttribute(
+      'href',
+      '/transactions/new?amount=650%2C00&account=1&item=20',
+    )
   })
 
   it('senza scadenze mostra lo stato vuoto', async () => {

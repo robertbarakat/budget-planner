@@ -58,3 +58,18 @@
   color: var(--color-negative);
   font-weight: var(--font-weight-semibold);
 }
+
+/* Su mobile l'azione va a capo sotto nome e importo; da tablet sta sulla stessa riga. */
+.upcoming__item {
+  flex-wrap: wrap;
+}
+
+.upcoming__register {
+  flex-basis: 100%;
+}
+
+@media (min-width: 768px) {
+  .upcoming__register {
+    flex-basis: auto;
+  }
+}

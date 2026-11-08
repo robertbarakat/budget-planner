@@ -1,5 +1,8 @@
 import { useState } from 'react'
+import { Link, useSearchParams } from 'react-router'
 import { useCreateTransaction } from '../api/transactions.queries.ts'
+import { readDuePrefill } from '../lib/due-prefill.ts'
+import { paths } from '../paths.ts'
 import { toTransactionPayload } from '../lib/transaction-payload.ts'
 import { useSnackbar } from '../components/Snackbar.tsx'
 import TransactionForm from '../components/TransactionForm.tsx'
@@ -14,10 +17,21 @@ export default function NewTransactionPage() {
   const { showSuccess } = useSnackbar()
   // Dopo un salvataggio il form riparte vuoto (nuova chiave = nuovo form), pronto per un altro inserimento.
   const [formKey, setFormKey] = useState(0)
+  // Da "Registra pagamento" (scheda Prossime scadenze) il form parte precompilato; tutti i campi restano modificabili.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const prefill = options.isPending || options.isError ? null : readDuePrefill(searchParams, options.groups, options.accounts.map((a) => a.id))
 
   return (
     <main className="new-transaction">
       <h1>Nuovo movimento</h1>
+      {prefill && (
+        <p className="new-transaction__status">
+          Precompilato dalla scadenza: controlla i dati e salva.{' '}
+          <Link to={paths.home} className="new-transaction__back">
+            Annulla
+          </Link>
+        </p>
+      )}
       {options.isPending ? (
         <p role="status" className="new-transaction__status">
           Caricamento…
@@ -28,7 +42,8 @@ export default function NewTransactionPage() {
         </p>
       ) : (
         <TransactionForm
-          key={formKey}
+          key={`${formKey}-${prefill ? "due" : "blank"}`}
+          initial={prefill ?? undefined}
           busy={create.isPending}
           accounts={options.accounts}
           categoryGroups={options.groups}
@@ -40,6 +55,8 @@ export default function NewTransactionPage() {
               return
             }
             showSuccess(SAVED_MESSAGE[values.type])
+            // Il prossimo inserimento riparte vuoto: si tolgono i valori della scadenza dall'indirizzo.
+            if (prefill) setSearchParams({}, { replace: true })
             setFormKey((key) => key + 1)
           }}
         />
