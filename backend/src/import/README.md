@@ -19,3 +19,15 @@ Il formato reale non è documentato e la specifica non lo dice: il parser **non 
 2. **una riga** con `Conto` come origine e destinazione nel commento/tag, solo se coincide con un conto esistente.
 
 Le righe di `Bonifici` che non rientrano in nessuna forma non vengono indovinate: finiscono negli scarti dell'anteprima (BP-123) con il motivo. Da verificare sul file reale il giorno del passaggio.
+
+## File di mappatura (`docs/import-data/category-mapping.json`, ignorato da git)
+```json
+{ "rules": [
+  { "sourceCategory": "…", "commentContains": "…", "priority": 1, "targetBudgetItem": "…", "targetCategory": "…" }
+] }
+```
+- `sourceCategory`: categoria dell'export. `commentContains`: facoltativo, testo che deve essere contenuto nel commento.
+- Confronti senza distinguere maiuscole e con gli spazi ridotti a uno (`  Rata   PRIMO ` contiene `primo`).
+- `priority`: vince il numero **più basso**; a parità, la prima regola del file. Metti le regole con commento prima (numero basso) e quella generica dopo.
+- Le stesse regole servono per le entrate: "Stipendio" con il cliente nel commento va alla voce di quel cliente.
+- Nessuna regola applicabile: lo scarto riporta categoria e commento (`shared/src/import-mapping.ts`, BP-121). I trasferimenti non hanno categoria e non passano dalle regole.

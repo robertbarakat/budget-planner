@@ -96,3 +96,5 @@ export type {
   RejectedRow,
   SourceRow,
 } from './import-normalize.ts'
+export { mapImportedTransactions, normalizeMappingText, parseMappingRules } from './import-mapping.ts'
+export type { MappedTransaction, MappingResult, MappingRule } from './import-mapping.ts'
