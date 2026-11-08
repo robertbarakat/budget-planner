@@ -45,3 +45,10 @@ describe('MobileNav', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Nuovo movimento' })).toBeInTheDocument()
   })
 })
+
+describe('MobileNav nella schermata Nuovo movimento', () => {
+  it('nasconde il pulsante "nuovo movimento" per non coprire il salvataggio', async () => {
+    await renderAt('/transactions/new')
+    expect(mobileNav().queryByRole('link', { name: 'Nuovo movimento' })).not.toBeInTheDocument()
+  })
+})

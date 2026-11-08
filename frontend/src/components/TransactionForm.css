@@ -1,0 +1,57 @@
+.transaction-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  max-width: calc(var(--sidebar-width) * 2);
+}
+
+/* Importo in evidenza: cifre in mono, allineate a destra */
+.transaction-form__amount input {
+  min-height: calc(var(--target-min) + var(--space-5));
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-tight);
+  text-align: right;
+}
+
+.transaction-form__hint {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-md);
+}
+
+.transaction-form__budget-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-5) var(--space-7);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+}
+
+.transaction-form__budget-item-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.transaction-form__budget-item-value {
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Pulsante di salvataggio sempre a portata di pollice: appiccicato sopra la barra inferiore */
+.transaction-form__submit {
+  position: sticky;
+  bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + var(--space-6));
+  padding: var(--space-4) 0;
+  background: var(--color-background);
+}
+
+.transaction-form__submit .button {
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .transaction-form__submit {
+    position: static;
+  }
+}

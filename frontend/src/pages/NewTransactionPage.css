@@ -1,0 +1,9 @@
+.new-transaction {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.new-transaction__status {
+  color: var(--color-text-muted);
+}

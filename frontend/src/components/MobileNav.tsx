@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Link, NavLink } from 'react-router'
+import { Link, NavLink, useLocation } from 'react-router'
 import { paths } from '../paths.ts'
 import { CashFlowIcon, HomeIcon, MacroAreasIcon, PlusIcon, SettingsIcon } from './icons.tsx'
 import { navItems } from './nav-items.ts'
@@ -14,15 +14,15 @@ const icons: Record<string, ReactNode> = {
 
 // Barra inferiore: pollice destro sul pulsante "nuovo movimento", sempre raggiungibile.
 export default function MobileNav() {
+  // Nella schermata del movimento il pulsante "nuovo" non serve e coprirebbe il pulsante di salvataggio.
+  const showFab = useLocation().pathname !== paths.newTransaction
   return (
     <div className="mobile-nav">
-      <Link
-        to={paths.newTransaction}
-        className="mobile-nav__fab"
-        aria-label="Nuovo movimento"
-      >
-        <PlusIcon />
-      </Link>
+      {showFab && (
+        <Link to={paths.newTransaction} className="mobile-nav__fab" aria-label="Nuovo movimento">
+          <PlusIcon />
+        </Link>
+      )}
       <nav aria-label="Navigazione principale" className="mobile-nav__bar">
         <ul className="mobile-nav__list">
           {navItems.map((item) => (

@@ -11,3 +11,10 @@ Element.prototype.hasPointerCapture ??= () => false
 Element.prototype.setPointerCapture ??= () => undefined
 Element.prototype.releasePointerCapture ??= () => undefined
 Element.prototype.scrollIntoView ??= () => undefined
+
+// Stesso motivo: Radix (radio, select) osserva le dimensioni degli elementi.
+globalThis.ResizeObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
