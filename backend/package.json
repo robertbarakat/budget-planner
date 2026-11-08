@@ -8,6 +8,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "import:read": "node src/import/read-export.ts",
+    "import:preview": "node src/import/preview-cli.ts",
     "build": "tsc --noEmit"
   },
   "devDependencies": {
@@ -17,6 +18,7 @@
     "vitest": "^5.0.5"
   },
   "dependencies": {
+    "budget-planner-shared": "file:../shared",
     "exceljs": "^4.4.0"
   }
 }

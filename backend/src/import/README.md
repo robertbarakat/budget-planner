@@ -31,3 +31,9 @@ Le righe di `Bonifici` che non rientrano in nessuna forma non vengono indovinate
 - `priority`: vince il numero **più basso**; a parità, la prima regola del file. Metti le regole con commento prima (numero basso) e quella generica dopo.
 - Le stesse regole servono per le entrate: "Stipendio" con il cliente nel commento va alla voce di quel cliente.
 - Nessuna regola applicabile: lo scarto riporta categoria e commento (`shared/src/import-mapping.ts`, BP-121). I trasferimenti non hanno categoria e non passano dalle regole.
+
+## Anteprima (BP-123)
+```bash
+npm run import:preview -- /percorso/file.xlsx ../docs/import-data/category-mapping.json [report.md]
+```
+Esegue parser, normalizzazione e mappatura **senza accedere al database** e scrive il report (default `docs/import-data/preview-report.md`, ignorato da git): righe per foglio (lette = accettate + scartate), scarti con foglio, riga e motivo, totali per voce e mese, variazione per conto. Il terminale mostra solo i conteggi, mai commenti o categorie. I nomi dei conti per riconoscere i trasferimenti a riga singola sono quelli visti nei fogli `Spese` ed `Entrate`.
