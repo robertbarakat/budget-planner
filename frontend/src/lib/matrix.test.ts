@@ -40,10 +40,10 @@ describe('buildMatrix', () => {
   const rent = matrix.groups[1]!.items[0]!
 
   it('in Previsto la cella è la somma delle righe di budget; in Reale la somma dei movimenti, trasferimenti esclusi', () => {
-    expect(matrix.groups[0]!.items[0]!.months[0]).toEqual({ budgeted: 1200, actual: 900 })
+    expect(matrix.groups[0]!.items[0]!.months[0]).toMatchObject({ budgeted: 1200, actual: 900 })
     expect(cellValue(rent.months[0]!, 'budgeted')).toBe(-400)
     expect(cellValue(rent.months[0]!, 'actual')).toBe(-430)
-    expect(rent.months[2]).toEqual({ budgeted: 0, actual: 0 })
+    expect(rent.months[2]).toEqual({ budgeted: 0, actual: 0, shown: 0, variance: 0 })
     expect(matrix.months[0]!.actual).toBe(900 - 430)
   })
 
@@ -74,10 +74,39 @@ describe('buildMatrix', () => {
   })
 })
 
+describe('modalità Misto e Scostamento', () => {
+  const closed = [{ year: 2026, month: 1 }]
+  const matrix = buildMatrix(2026, areas, items, entries, transactions, closed)
+  const everyCell = matrix.groups.flatMap((g) => [g, ...g.items]).flatMap((row) => [...row.months, row.year]).concat(matrix.months, [matrix.total])
+
+  it('segna i mesi chiusi', () => {
+    expect(matrix.closedMonths.slice(0, 3)).toEqual([true, false, false])
+  })
+
+  it('in Misto un mese chiuso coincide con Reale e uno aperto con Previsto, anche nei totali', () => {
+    const rent = matrix.groups[1]!.items[0]!
+    expect(cellValue(rent.months[0]!, 'mixed')).toBe(cellValue(rent.months[0]!, 'actual'))
+    expect(cellValue(rent.months[1]!, 'mixed')).toBe(cellValue(rent.months[1]!, 'budgeted'))
+    // totale del mese chiuso = reale, del mese aperto = previsto; anno = somma dei mesi
+    expect(cellValue(matrix.months[0]!, 'mixed')).toBeCloseTo(cellValue(matrix.months[0]!, 'actual'), 2)
+    expect(cellValue(matrix.months[1]!, 'mixed')).toBeCloseTo(cellValue(matrix.months[1]!, 'budgeted'), 2)
+    expect(matrix.months.reduce((s, c) => s + c.shown, 0)).toBeCloseTo(matrix.total.shown, 2)
+  })
+
+  it('in Scostamento ogni cella è Reale − Previsto della stessa cella', () => {
+    for (const cell of everyCell) {
+      expect(cellValue(cell, 'variance')).toBeCloseTo(cellValue(cell, 'actual') - cellValue(cell, 'budgeted'), 2)
+    }
+    // affitto gennaio: previsto −400, reale −430 → scostamento −30 (sfavorevole)
+    expect(cellValue(matrix.groups[1]!.items[0]!.months[0]!, 'variance')).toBe(-30)
+  })
+})
+
 describe('readMatrixMode', () => {
-  it('accetta le modalità note e ripiega sul predefinito', () => {
+  it('accetta le modalità note e ripiega sul predefinito (Misto)', () => {
     expect(readMatrixMode('actual')).toBe('actual')
-    expect(readMatrixMode('boh')).toBe('budgeted')
-    expect(readMatrixMode(null)).toBe('budgeted')
+    expect(readMatrixMode('variance')).toBe('variance')
+    expect(readMatrixMode('boh')).toBe('mixed')
+    expect(readMatrixMode(null)).toBe('mixed')
   })
 })

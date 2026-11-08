@@ -61,11 +61,13 @@ function setup(url = '/matrix?year=2026') {
   )
 }
 
+const modeUrl = (mode: string) => `/matrix?year=2026&mode=${mode}`
+
 const rowOf = (grid: HTMLElement, name: string) => within(grid).getAllByRole('row').find((r) => r.textContent?.startsWith(name))!
 
 describe('MatrixPage', () => {
   it('in Previsto mostra le righe di budget con totali per voce, area, mese e anno', async () => {
-    setup()
+    setup(modeUrl('budgeted'))
     const grid = await screen.findByRole('region', { name: /Previsto 2026/ })
     const rent = rowOf(grid, 'Affitto')
     const cells = within(rent).getAllByRole('gridcell')
@@ -83,7 +85,7 @@ describe('MatrixPage', () => {
 
   it('in Reale mostra i movimenti (trasferimenti esclusi) e la modalità sta nell\'indirizzo', async () => {
     const user = userEvent.setup()
-    setup()
+    setup(modeUrl('budgeted'))
     await screen.findByRole('region', { name: /Previsto 2026/ })
     await user.click(screen.getByRole('radio', { name: 'Reale' }))
     expect(screen.getByTestId('search')).toHaveTextContent('mode=actual')
@@ -96,7 +98,7 @@ describe('MatrixPage', () => {
 
   it('la navigazione con le frecce sposta il fuoco tra le celle', async () => {
     const user = userEvent.setup()
-    setup()
+    setup(modeUrl('budgeted'))
     const grid = await screen.findByRole('region', { name: /Previsto 2026/ })
     const first = within(rowOf(grid, 'Introiti')).getAllByRole('gridcell')[0]!
     first.focus()
@@ -108,5 +110,30 @@ describe('MatrixPage', () => {
     expect(within(rowOf(grid, 'Fatture')).getAllByRole('gridcell')[12]).toHaveFocus()
     await user.keyboard('{ArrowRight}{Home}{ArrowUp}')
     expect(within(rowOf(grid, 'Introiti')).getAllByRole('gridcell')[0]).toHaveFocus()
+  })
+
+  it('la modalità predefinita è Misto: i mesi chiusi si distinguono con il testo e la cella segue lo stato', async () => {
+    vi.spyOn(budgetService.closedMonths, 'list').mockResolvedValue([{ id: 1, year: 2026, month: 1 } as never])
+    setup('/matrix?year=2026')
+    const grid = await screen.findByRole('region', { name: /Misto 2026/ })
+    expect(within(grid).getByRole('columnheader', { name: /Gen.*✓ reale/ })).toBeInTheDocument()
+    expect(within(grid).getByRole('columnheader', { name: /Feb.*○ previsto/ })).toBeInTheDocument()
+    const cells = within(rowOf(grid, 'Affitto')).getAllByRole('gridcell')
+    expect(cells[0]).toHaveTextContent('430,00') // gennaio chiuso: reale
+    expect(cells[1]).toHaveTextContent('400,00') // febbraio aperto: previsto
+  })
+
+  it('in Scostamento ogni cella è Reale − Previsto, con il segno esplicito', async () => {
+    setup(modeUrl('variance'))
+    const grid = await screen.findByRole('region', { name: /Scostamento 2026/ })
+    const cells = within(rowOf(grid, 'Affitto')).getAllByRole('gridcell')
+    expect(cells[0]).toHaveTextContent('−30,00') // reale −430 − previsto −400
+    expect(cells[1]).toHaveTextContent('+400,00') // reale 0 − previsto −400
+    expect(within(rowOf(grid, 'Fatture')).getAllByRole('gridcell')[0]).toHaveTextContent('−1.000,00')
+  })
+
+  it('con la modalità nell\'indirizzo, ricaricando resta la stessa', async () => {
+    setup(modeUrl('variance'))
+    expect(await screen.findByRole('radio', { name: 'Scostamento' })).toBeChecked()
   })
 })

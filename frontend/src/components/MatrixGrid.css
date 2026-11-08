@@ -35,3 +35,9 @@
 .matrix-grid__strong {
   font-weight: var(--font-weight-semibold);
 }
+
+.matrix-grid__state {
+  display: block;
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-regular);
+}

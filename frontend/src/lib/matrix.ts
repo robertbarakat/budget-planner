@@ -1,15 +1,22 @@
 import { computeMonthlyValues, eurosToCents } from 'budget-planner-shared'
 import type { BudgetItemInput, EntryInput, MacroAreaInput, TransactionInput } from './macro-areas.ts'
 
-/** Modalità della matrice (nell'indirizzo come `mode`). */
-export type MatrixMode = 'budgeted' | 'actual'
-export const MATRIX_MODES: readonly MatrixMode[] = ['budgeted', 'actual']
-export const DEFAULT_MATRIX_MODE: MatrixMode = 'budgeted'
+/**
+ * Modalità della matrice (nell'indirizzo come `mode`): misto (reale nei mesi chiusi, previsto negli altri),
+ * previsto, reale, scostamento (reale − previsto).
+ */
+export type MatrixMode = 'mixed' | 'budgeted' | 'actual' | 'variance'
+export const MATRIX_MODES: readonly MatrixMode[] = ['mixed', 'budgeted', 'actual', 'variance']
+export const DEFAULT_MATRIX_MODE: MatrixMode = 'mixed'
 
-/** Una cella: previsto e reale in euro con segno (entrate +, spese −). */
+/** Una cella in euro con segno (entrate +, spese −): previsto, reale, valore misto e scostamento. */
 export interface MatrixCell {
   budgeted: number
   actual: number
+  /** Misto: il reale se il mese è chiuso, il previsto altrimenti. */
+  shown: number
+  /** Reale − previsto. */
+  variance: number
 }
 
 export interface MatrixItemRow {
@@ -32,6 +39,8 @@ export interface MatrixGroup {
 export interface Matrix {
   year: number
   groups: MatrixGroup[]
+  /** Mesi chiusi: 12 flag, da gennaio. */
+  closedMonths: boolean[]
   /** Totale per mese di tutte le voci, e totale annuo. */
   months: MatrixCell[]
   total: MatrixCell
@@ -39,7 +48,16 @@ export interface Matrix {
 
 /** Valore da mostrare in una cella secondo la modalità. */
 export function cellValue(cell: MatrixCell, mode: MatrixMode): number {
-  return mode === 'budgeted' ? cell.budgeted : cell.actual
+  switch (mode) {
+    case 'mixed':
+      return cell.shown
+    case 'budgeted':
+      return cell.budgeted
+    case 'actual':
+      return cell.actual
+    case 'variance':
+      return cell.variance
+  }
 }
 
 /** Legge la modalità dai parametri di ricerca; un valore sconosciuto vale la modalità predefinita. */
@@ -47,13 +65,19 @@ export function readMatrixMode(value: string | null): MatrixMode {
   return MATRIX_MODES.find((mode) => mode === value) ?? DEFAULT_MATRIX_MODE
 }
 
-type CentsCell = { budgeted: number; actual: number }
-const zero = (): CentsCell => ({ budgeted: 0, actual: 0 })
+type CentsCell = { budgeted: number; actual: number; shown: number }
+const zero = (): CentsCell => ({ budgeted: 0, actual: 0, shown: 0 })
 const add = (target: CentsCell, source: CentsCell) => {
   target.budgeted += source.budgeted
   target.actual += source.actual
+  target.shown += source.shown
 }
-const toCell = (cents: CentsCell): MatrixCell => ({ budgeted: cents.budgeted / 100, actual: cents.actual / 100 })
+const toCell = (cents: CentsCell): MatrixCell => ({
+  budgeted: cents.budgeted / 100,
+  actual: cents.actual / 100,
+  shown: cents.shown / 100,
+  variance: (cents.actual - cents.budgeted) / 100,
+})
 
 /**
  * Matrice voci × mesi di un anno, raggruppata per macro-area, con totali per voce, area e mese.
@@ -82,10 +106,12 @@ export function buildMatrix(
     closedMonths: closedMonths.map((c) => ({ year: c.year, month: c.month })),
   })
   const byItem = new Map<number, CentsCell[]>()
+  const closed = Array.from({ length: 12 }, () => false)
   for (const value of values) {
     const months = byItem.get(value.budgetItemId) ?? Array.from({ length: 12 }, zero)
-    months[value.month - 1] = { budgeted: value.budgetedCents, actual: value.actualCents }
+    months[value.month - 1] = { budgeted: value.budgetedCents, actual: value.actualCents, shown: value.shownCents }
     byItem.set(value.budgetItemId, months)
+    if (value.isClosed) closed[value.month - 1] = true
   }
 
   const grandMonths = Array.from({ length: 12 }, zero)
@@ -118,5 +144,5 @@ export function buildMatrix(
       year: toCell(areaYear),
     })
   }
-  return { year, groups, months: grandMonths.map(toCell), total: toCell(grandYear) }
+  return { year, groups, closedMonths: closed, months: grandMonths.map(toCell), total: toCell(grandYear) }
 }

@@ -52,7 +52,12 @@ export default function MatrixGrid({ matrix, mode, label }: MatrixGridProps) {
         onFocus={() => setActive({ row, col })}
         className={col === 12 ? 'data-grid__sum' : undefined}
       >
-        <Amount value={cellValue(cell, mode)} colored={false} className={total ? 'matrix-grid__strong' : undefined} />
+        <Amount
+          value={cellValue(cell, mode)}
+          colored={mode === 'variance'}
+          explicitPlus={mode === 'variance'}
+          className={total ? 'matrix-grid__strong' : undefined}
+        />
       </td>
     ))
 
@@ -67,6 +72,11 @@ export default function MatrixGrid({ matrix, mode, label }: MatrixGridProps) {
             {MONTHS.map((month) => (
               <th key={month.value} scope="col">
                 {month.label.slice(0, 3)}
+                {mode === 'mixed' && (
+                  <span className="matrix-grid__state">
+                    {matrix.closedMonths[month.value - 1] ? '✓ reale' : '○ previsto'}
+                  </span>
+                )}
               </th>
             ))}
             <th scope="col" className="data-grid__sum">

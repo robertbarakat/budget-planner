@@ -8,7 +8,7 @@ import PeriodSelector, { usePeriod } from '../components/PeriodSelector.tsx'
 import { buildMatrix, MATRIX_MODES, readMatrixMode, type MatrixMode } from '../lib/matrix.ts'
 import './MatrixPage.css'
 
-const MODE_LABEL: Record<MatrixMode, string> = { budgeted: 'Previsto', actual: 'Reale' }
+const MODE_LABEL: Record<MatrixMode, string> = { mixed: 'Misto', budgeted: 'Previsto', actual: 'Reale', variance: 'Scostamento' }
 
 export default function MatrixPage() {
   const [period, setPeriod] = usePeriod('none')
@@ -78,7 +78,11 @@ export default function MatrixPage() {
       ) : (
         <MatrixGrid matrix={matrix} mode={mode} label={`${MODE_LABEL[mode]} ${year}, voci per mese`} />
       )}
-      <p className="matrix-page__note">Entrate positive, spese negative. I trasferimenti non compaiono.</p>
+      <p className="matrix-page__note">
+        Entrate positive, spese negative. I trasferimenti non compaiono.
+        {mode === 'mixed' && ' Misto: reale nei mesi chiusi (✓), previsto negli altri (○).'}
+        {mode === 'variance' && ' Scostamento = reale − previsto: un segno meno è sempre sfavorevole.'}
+      </p>
     </main>
   )
 }
