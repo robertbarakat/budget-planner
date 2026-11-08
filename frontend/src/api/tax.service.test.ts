@@ -110,3 +110,16 @@ describe('TaxService.syncDeadlines', () => {
     expect(calls.filter((c) => c.method === 'delete')).toHaveLength(0)
   })
 })
+
+describe('TaxService.applyTaxEntries', () => {
+  it('chiama la funzione SQL una volta per tratto', async () => {
+    const { client, calls } = fakeSupabase({ data: [{ deleted_count: 1, inserted_count: 2 }], error: null })
+    const range = { fromYear: 2026, fromMonth: 1, toYear: 2026, toMonth: 12 }
+    const result = await new TaxService(() => client).applyTaxEntries([
+      { range, entries: [{ budgetItemId: 1, year: 2026, month: 6, amount: -10 }] },
+      { range, entries: [] },
+    ])
+    expect(calls.filter((c) => c.method === 'rpc')).toHaveLength(2)
+    expect(result).toEqual({ deletedCount: 2, insertedCount: 4 })
+  })
+})

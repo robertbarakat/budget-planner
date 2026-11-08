@@ -42,8 +42,29 @@ export function planDriverApply(
   existingDriverRows: readonly YearMonth[],
   closedMonths: readonly YearMonth[],
 ): DriverApplyPlan {
-  const first = monthIndex(year, 1)
-  const last = monthIndex(year + 1, 12)
+  const entries: BudgetEntryDraft[] = []
+  for (const collection of collections) {
+    if (collection.amountCents <= 0) continue
+    const budgetItemId = budgetItemIdByClient.get(collection.clientId)
+    if (budgetItemId === undefined) throw new RangeError(`Client ${collection.clientId} has no budget item`)
+    entries.push({ budgetItemId, year: collection.year, month: collection.month, amount: collection.amountCents / 100 })
+  }
+  return planReplacement({ year, month: 1 }, { year: year + 1, month: 12 }, entries, existingDriverRows, closedMonths)
+}
+
+/**
+ * Sostituzione delle righe di un'origine (driver, imposte) nell'intervallo di mesi: solo i mesi non chiusi, a tratti
+ * continui (una transazione per tratto). Le righe fuori dai tratti aperti non si scrivono né si contano.
+ */
+export function planReplacement(
+  fromMonth: YearMonth,
+  toMonth: YearMonth,
+  entries: readonly BudgetEntryDraft[],
+  existingRows: readonly YearMonth[],
+  closedMonths: readonly YearMonth[],
+): DriverApplyPlan {
+  const first = monthIndex(fromMonth.year, fromMonth.month)
+  const last = monthIndex(toMonth.year, toMonth.month)
   const closed = new Set(closedMonths.map((m) => monthIndex(m.year, m.month)))
 
   const segments: ApplySegment[] = []
@@ -54,15 +75,11 @@ export function planDriverApply(
     const from = fromIndex(start)
     const to = fromIndex(end)
     const segmentStart = start
-    const entries: BudgetEntryDraft[] = []
-    for (const collection of collections) {
-      const index = monthIndex(collection.year, collection.month)
-      if (index < segmentStart || index > end || collection.amountCents <= 0) continue
-      const budgetItemId = budgetItemIdByClient.get(collection.clientId)
-      if (budgetItemId === undefined) throw new RangeError(`Client ${collection.clientId} has no budget item`)
-      entries.push({ budgetItemId, year: collection.year, month: collection.month, amount: collection.amountCents / 100 })
-    }
-    segments.push({ range: { fromYear: from.year, fromMonth: from.month, toYear: to.year, toMonth: to.month }, entries })
+    const inSegment = entries.filter((entry) => {
+      const index = monthIndex(entry.year, entry.month)
+      return index >= segmentStart && index <= end
+    })
+    segments.push({ range: { fromYear: from.year, fromMonth: from.month, toYear: to.year, toMonth: to.month }, entries: inSegment })
     start = null
   }
   for (let index = first; index <= last; index++) {
@@ -80,10 +97,10 @@ export function planDriverApply(
     return index >= first && index <= last && !closed.has(index)
   }
   return {
-    from: { year, month: 1 },
-    to: { year: year + 1, month: 12 },
+    from: fromMonth,
+    to: toMonth,
     segments,
-    replacedCount: existingDriverRows.filter(inOpenRange).length,
+    replacedCount: existingRows.filter(inOpenRange).length,
     createdCount: segments.reduce((sum, segment) => sum + segment.entries.length, 0),
     skippedClosedMonths: skipped,
   }

@@ -93,6 +93,17 @@ export class TaxService {
     return result
   }
 
+  /** Applica più tratti di mesi (i mesi chiusi sono già esclusi dal chiamante): una sostituzione per tratto. */
+  async applyTaxEntries(segments: readonly { range: MonthRange; entries: readonly BudgetEntryDraft[] }[]): Promise<ReplaceResult> {
+    const total: ReplaceResult = { deletedCount: 0, insertedCount: 0 }
+    for (const segment of segments) {
+      const result = await this.replaceTaxEntries(segment.range, segment.entries)
+      total.deletedCount += result.deletedCount
+      total.insertedCount += result.insertedCount
+    }
+    return total
+  }
+
   /**
    * Sostituisce le righe `tax` del budget nell'intervallo di mesi (le altre origini non si toccano).
    * Gli importi vengono dal modulo fiscale di `shared/` (calendario F24).

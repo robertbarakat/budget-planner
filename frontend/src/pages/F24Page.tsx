@@ -1,11 +1,16 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
-import { useF24DeadlinesDueInYear, useSyncF24Deadlines } from '../api/tax.queries.ts'
+import { useBudgetEntries, useClosedMonths } from '../api/budget.queries.ts'
+import { useBudgetItems } from '../api/classification.queries.ts'
+import { useApplyTaxEntries, useF24DeadlinesDueInYear, useSyncF24Deadlines } from '../api/tax.queries.ts'
+import ApplyDriverDialog from '../components/ApplyDriverDialog.tsx'
+import Field from '../components/Field.tsx'
 import Amount from '../components/Amount.tsx'
 import Button from '../components/Button.tsx'
 import F24AmountDialog from '../components/F24AmountDialog.tsx'
 import { useSnackbar } from '../components/Snackbar.tsx'
 import YearSelector from '../components/YearSelector.tsx'
+import { planTaxApply } from '../lib/tax-apply.ts'
 import { deadlineStatus, planDeadlines, statusLabels, taxTypeLabels } from '../lib/f24-plan.ts'
 import { paths } from '../paths.ts'
 import { useTaxSummary } from './use-tax-summary.ts'
@@ -13,6 +18,16 @@ import './F24Page.css'
 
 const italianDate = (date: string) => date.split('-').reverse().join('/')
 const today = () => new Date().toISOString().slice(0, 10)
+const ITEM_KEY = 'tax-budget-item'
+
+// La voce scelta per le imposte si ricorda in questo browser (preferenza locale).
+function readItem(): string {
+  try {
+    return localStorage.getItem(ITEM_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
 
 export default function F24Page() {
   const [year, setYear] = useState(() => new Date().getFullYear())
@@ -21,6 +36,13 @@ export default function F24Page() {
   const saved = useF24DeadlinesDueInYear(year)
   const sync = useSyncF24Deadlines()
   const { showSuccess } = useSnackbar()
+  const items = useBudgetItems()
+  const taxEntries = useBudgetEntries({ source: 'tax' })
+  const closedMonths = useClosedMonths()
+  const applyTax = useApplyTaxEntries()
+  const [itemId, setItemId] = useState(readItem)
+  const expenseItems = (items.data ?? []).filter((i) => i.kind === 'expense' && !i.archived)
+  const validItemId = expenseItems.some((i) => String(i.id) === itemId) ? Number(itemId) : null
 
   const plan = useMemo(() => {
     if (!current.summary || !current.parameters) return null
@@ -37,6 +59,17 @@ export default function F24Page() {
   }
 
   const rows = saved.data ?? []
+  const applyPlan = useMemo(() => {
+    if (validItemId === null || !taxEntries.data || !closedMonths.data) return null
+    return planTaxApply(
+      year,
+      (saved.data ?? []).map((d) => ({ due_date: d.due_date, amount: Number(d.amount) })),
+      validItemId,
+      taxEntries.data.map((e) => ({ year: e.year, month: e.month })),
+      closedMonths.data.map((m) => ({ year: m.year, month: m.month })),
+    )
+  }, [year, validItemId, saved.data, taxEntries.data, closedMonths.data])
+
   const total = rows.reduce((sum, d) => sum + Number(d.amount), 0)
   const loading = current.isPending || saved.isPending
   return (
@@ -85,6 +118,44 @@ export default function F24Page() {
               <p className="f24-page__total">
                 Totale calendario: <Amount value={total} colored={false} />
               </p>
+              <section className="f24-page__apply">
+                <h2>Budget</h2>
+                <Field label="Voce del budget per le imposte">
+                  {(control) => (
+                    <select
+                      {...control}
+                      value={itemId}
+                      onChange={(e) => {
+                        setItemId(e.target.value)
+                        try {
+                          localStorage.setItem(ITEM_KEY, e.target.value)
+                        } catch {
+                          // Preferenza locale non disponibile: si sceglie di nuovo la prossima volta.
+                        }
+                      }}
+                    >
+                      <option value="">Scegli…</option>
+                      {expenseItems.map((i) => (
+                        <option key={i.id} value={i.id}>
+                          {i.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </Field>
+                <ApplyDriverDialog
+                  plan={applyPlan ?? { from: { year, month: 1 }, to: { year, month: 12 }, segments: [], replacedCount: 0, createdCount: 0, skippedClosedMonths: [] }}
+                  disabledReason={applyPlan === null ? 'Scegli la voce del budget per le imposte.' : undefined}
+                  title="Applicare le imposte al budget?"
+                  description={`Da gennaio a dicembre ${year} le righe delle imposte vengono sostituite con una riga per mese di scadenza, sulla voce scelta (importi in spesa). Le righe di altra origine, comprese quelle manuali, non si toccano.`}
+                  nothingToDoText="Non c'è nulla da applicare: nessuna scadenza salvata e nessuna riga delle imposte nel budget."
+                  onConfirm={async () => {
+                    if (!applyPlan) return
+                    const result = await applyTax.mutateAsync(applyPlan.segments)
+                    showSuccess(`Budget aggiornato: ${result.deletedCount} righe sostituite, ${result.insertedCount} create.`)
+                  }}
+                />
+              </section>
             </>
           )}
         </>

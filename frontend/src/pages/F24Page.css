@@ -61,3 +61,9 @@
 .f24-page__total {
   font-weight: var(--font-weight-semibold);
 }
+
+.f24-page__apply {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}

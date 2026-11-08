@@ -85,3 +85,11 @@ export function useSyncF24Deadlines() {
     onSuccess: () => invalidateAll(queryClient, invalidate),
   })
 }
+
+export function useApplyTaxEntries() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (segments: Parameters<typeof taxService.applyTaxEntries>[0]) => taxService.applyTaxEntries(segments),
+    onSuccess: () => invalidateAll(queryClient, invalidate),
+  })
+}
