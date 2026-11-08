@@ -1,0 +1,71 @@
+.apply-driver {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.apply-driver__note {
+  color: var(--color-text-muted);
+}
+
+.apply-driver__overlay {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  background: var(--color-text);
+  opacity: 0.4;
+}
+
+.apply-driver__dialog {
+  position: fixed;
+  z-index: 20;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  width: calc(100% - var(--space-11));
+  max-width: calc(var(--sidebar-width) * 2);
+  max-height: calc(100dvh - var(--space-11));
+  overflow-y: auto;
+  padding: var(--space-10);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+  transform: translate(-50%, -50%);
+}
+
+.apply-driver__title {
+  font-size: var(--font-size-xl);
+}
+
+.apply-driver__text {
+  color: var(--color-text-muted);
+}
+
+.apply-driver__counts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+}
+
+.apply-driver__counts div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+.apply-driver__counts dd {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+}
+
+.apply-driver__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}

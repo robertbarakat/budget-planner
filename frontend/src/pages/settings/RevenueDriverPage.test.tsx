@@ -3,7 +3,9 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { budgetService } from '../../api/budget.service.ts'
 import { revenueService } from '../../api/revenue.service.ts'
+import { SnackbarProvider } from '../../components/Snackbar.tsx'
 import RevenueDriverPage from './RevenueDriverPage.tsx'
 
 type ClientRow = Awaited<ReturnType<typeof revenueService.clients.list>>[number]
@@ -14,9 +16,11 @@ const year = new Date().getFullYear()
 function setup() {
   render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-      <MemoryRouter>
-        <RevenueDriverPage />
-      </MemoryRouter>
+      <SnackbarProvider>
+        <MemoryRouter>
+          <RevenueDriverPage />
+        </MemoryRouter>
+      </SnackbarProvider>
     </QueryClientProvider>,
   )
 }
@@ -28,6 +32,10 @@ beforeEach(() => {
   ])
   vi.spyOn(revenueService.rates, 'list').mockResolvedValue([
     { id: 1, client_id: 1, daily_rate: 250, valid_from_year: year - 1, valid_from_month: 1, created_at: '' } as RateRow,
+  ])
+  vi.spyOn(budgetService, 'listClosedMonths').mockResolvedValue([])
+  vi.spyOn(budgetService, 'listEntries').mockResolvedValue([
+    { id: 1, budget_item_id: 10, year, month: 4, amount: 10, source: 'revenue_driver', created_at: '' } as Awaited<ReturnType<typeof budgetService.listEntries>>[number],
   ])
   vi.spyOn(revenueService, 'listWorkedDays').mockResolvedValue([
     { id: 1, client_id: 1, year: year - 1, month: 11, days: 10, created_at: '' } as DaysRow,
@@ -65,5 +73,43 @@ describe('RevenueDriverPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Anno successivo' }))
     expect(await screen.findByRole('region', { name: `Incassi previsti ${year + 1}` })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: `Riporto su ${year + 2}` })).toBeInTheDocument()
+  })
+
+  it('chiede conferma con i conteggi e applica solo dopo la conferma', async () => {
+    const apply = vi.spyOn(revenueService, 'applyRevenueDriver').mockResolvedValue({ deletedCount: 1, insertedCount: 3 })
+    setup()
+    await userEvent.click(await screen.findByRole('button', { name: 'Applica al budget' }))
+    const dialog = await screen.findByRole('alertdialog')
+    expect(within(dialog).getByText('Righe sostituite').nextSibling).toHaveTextContent('1')
+    // gennaio (da anno prima), maggio, gennaio dell'anno dopo
+    expect(within(dialog).getByText('Righe create').nextSibling).toHaveTextContent('3')
+    expect(apply).not.toHaveBeenCalled()
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Applica' }))
+    await vi.waitFor(() => expect(apply).toHaveBeenCalledTimes(1))
+    const [segments] = apply.mock.calls[0]!
+    expect(segments).toHaveLength(1)
+    expect(segments[0]!.range).toEqual({ fromYear: year, fromMonth: 1, toYear: year + 1, toMonth: 12 })
+    expect(segments[0]!.entries).toEqual([
+      { budgetItemId: 10, year, month: 1, amount: 2500 },
+      { budgetItemId: 10, year, month: 5, amount: 1000 },
+      { budgetItemId: 10, year: year + 1, month: 1, amount: 500 },
+    ])
+    expect(await screen.findByText('Budget aggiornato: 1 righe sostituite, 3 create.')).toBeInTheDocument()
+  })
+
+  it('annullando la conferma non scrive nulla', async () => {
+    const apply = vi.spyOn(revenueService, 'applyRevenueDriver').mockResolvedValue({ deletedCount: 0, insertedCount: 0 })
+    setup()
+    await userEvent.click(await screen.findByRole('button', { name: 'Applica al budget' }))
+    await userEvent.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Annulla' }))
+    expect(apply).not.toHaveBeenCalled()
+  })
+
+  it('con mesi senza tariffa il pulsante è disabilitato e spiega perché', async () => {
+    vi.mocked(revenueService.rates.list).mockResolvedValue([])
+    setup()
+    const button = await screen.findByRole('button', { name: 'Applica al budget' })
+    expect(button).toBeDisabled()
+    expect(screen.getByText(/risolvi i mesi senza tariffa/)).toBeInTheDocument()
   })
 })

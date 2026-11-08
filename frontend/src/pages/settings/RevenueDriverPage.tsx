@@ -1,8 +1,12 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
-import { useClientRatesList, useClients, useWorkedDays } from '../../api/revenue.queries.ts'
+import { useBudgetEntries, useClosedMonths } from '../../api/budget.queries.ts'
+import { useApplyRevenueDriver, useClientRatesList, useClients, useWorkedDays } from '../../api/revenue.queries.ts'
+import ApplyDriverDialog from '../../components/ApplyDriverDialog.tsx'
 import CollectionsTable from '../../components/CollectionsTable.tsx'
+import { useSnackbar } from '../../components/Snackbar.tsx'
 import YearSelector from '../../components/YearSelector.tsx'
+import { planDriverApply } from '../../lib/driver-apply.ts'
 import { monthName } from '../../lib/months.ts'
 import { buildRevenuePreview } from '../../lib/revenue-preview.ts'
 import { paths } from '../../paths.ts'
@@ -14,6 +18,10 @@ export default function RevenueDriverPage() {
   const clients = useClients({ orderBy: [{ column: 'sort_order' }, { column: 'id' }] })
   const rates = useClientRatesList()
   const workedDays = useWorkedDays()
+  const closedMonths = useClosedMonths()
+  const driverEntries = useBudgetEntries({ source: 'revenue_driver' })
+  const apply = useApplyRevenueDriver()
+  const { showSuccess } = useSnackbar()
 
   const preview = useMemo(() => {
     if (!clients.data || !rates.data || !workedDays.data) return null
@@ -37,6 +45,17 @@ export default function RevenueDriverPage() {
     )
   }, [year, clients.data, rates.data, workedDays.data])
 
+  const plan = useMemo(() => {
+    if (!preview || !clients.data || !closedMonths.data || !driverEntries.data) return null
+    return planDriverApply(
+      year,
+      preview.collections,
+      new Map(clients.data.map((c) => [c.id, c.budget_item_id])),
+      driverEntries.data.map((e) => ({ year: e.year, month: e.month })),
+      closedMonths.data.map((m) => ({ year: m.year, month: m.month })),
+    )
+  }, [year, preview, clients.data, closedMonths.data, driverEntries.data])
+
   return (
     <main className="settings settings--wide">
       <Link to={paths.settings} className="settings__back">
@@ -47,7 +66,7 @@ export default function RevenueDriverPage() {
         Incassi previsti = giorni lavorati × tariffa del mese, spostati in avanti del ritardo d'incasso del cliente. Anteprima: non scrive nel budget.
       </p>
       <YearSelector year={year} onChange={setYear} />
-      {clients.isError || rates.isError || workedDays.isError ? (
+      {clients.isError || rates.isError || workedDays.isError || closedMonths.isError || driverEntries.isError ? (
         <p role="alert" className="settings__status">
           Non riesco a leggere i dati dei ricavi. Riprova più tardi.
         </p>
@@ -89,6 +108,23 @@ export default function RevenueDriverPage() {
             <p className="settings__status">Incassi del {year + 1} che nascono da lavoro del {year}.</p>
             <CollectionsTable table={preview.carryOver} label={`Incassi riportati su ${year + 1}`} />
           </section>
+          {plan && (
+            <section className="revenue-driver__section" aria-labelledby="apply-title">
+              <h2 id="apply-title" className="settings__group-title">
+                Budget
+              </h2>
+              <ApplyDriverDialog
+                plan={plan}
+                disabledReason={
+                  preview.problems.length > 0 ? 'Prima risolvi i mesi senza tariffa valida elencati sopra.' : undefined
+                }
+                onConfirm={async () => {
+                  const result = await apply.mutateAsync(plan.segments)
+                  showSuccess(`Budget aggiornato: ${result.deletedCount} righe sostituite, ${result.insertedCount} create.`)
+                }}
+              />
+            </section>
+          )}
         </>
       )}
     </main>

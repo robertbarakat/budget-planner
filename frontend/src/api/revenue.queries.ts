@@ -65,3 +65,12 @@ export function useReplaceRevenueDriverEntries() {
     onSuccess: () => invalidateAll(queryClient, invalidate),
   })
 }
+
+/** Applica il driver ricavi al budget sui tratti di mesi aperti (vedi `planDriverApply`). */
+export function useApplyRevenueDriver() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (segments: Parameters<typeof revenueService.applyRevenueDriver>[0]) => revenueService.applyRevenueDriver(segments),
+    onSuccess: () => invalidateAll(queryClient, invalidate),
+  })
+}

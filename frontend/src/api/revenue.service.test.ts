@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { RevenueService } from './revenue.service.ts'
 import { fakeSupabase, type RecordedCall } from './test-utils.ts'
 
@@ -81,5 +81,26 @@ describe('RevenueService.listClientIdsInUse', () => {
     })
     const ids = await new RevenueService(() => client).listClientIdsInUse()
     expect(ids.toSorted()).toEqual([1, 2, 5])
+  })
+})
+
+describe('RevenueService.applyRevenueDriver', () => {
+  it('sostituisce un tratto dopo l\'altro e somma i totali', async () => {
+    const service = new RevenueService(() => fakeSupabase({ data: [], error: null }).client)
+    const replace = vi
+      .spyOn(service, 'replaceRevenueDriverEntries')
+      .mockResolvedValueOnce({ deletedCount: 2, insertedCount: 3 })
+      .mockResolvedValueOnce({ deletedCount: 1, insertedCount: 4 })
+    const first = { range: { fromYear: 2026, fromMonth: 3, toYear: 2026, toMonth: 4 }, entries: [] }
+    const second = { range: { fromYear: 2026, fromMonth: 6, toYear: 2027, toMonth: 12 }, entries: [{ budgetItemId: 1, year: 2026, month: 6, amount: 10 }] }
+    await expect(service.applyRevenueDriver([first, second])).resolves.toEqual({ deletedCount: 3, insertedCount: 7 })
+    expect(replace.mock.calls.map((c) => c[0])).toEqual([first.range, second.range])
+  })
+
+  it('senza tratti non scrive nulla', async () => {
+    const service = new RevenueService(() => fakeSupabase({ data: [], error: null }).client)
+    const replace = vi.spyOn(service, 'replaceRevenueDriverEntries')
+    await expect(service.applyRevenueDriver([])).resolves.toEqual({ deletedCount: 0, insertedCount: 0 })
+    expect(replace).not.toHaveBeenCalled()
   })
 })

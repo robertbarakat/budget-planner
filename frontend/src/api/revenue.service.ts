@@ -67,6 +67,20 @@ export class RevenueService {
     const [row] = unwrap(await this.getClient().rpc('replace_revenue_driver_entries', toReplaceArgs(range, entries)))
     return toReplaceResult(row)
   }
+
+  /**
+   * Applica il driver sui tratti di mesi aperti, uno dopo l'altro (ogni tratto è una transazione). Con un solo
+   * tratto, cioè senza mesi chiusi, l'operazione è atomica. Restituisce i totali.
+   */
+  async applyRevenueDriver(segments: readonly { range: MonthRange; entries: readonly BudgetEntryDraft[] }[]): Promise<ReplaceResult> {
+    const total: ReplaceResult = { deletedCount: 0, insertedCount: 0 }
+    for (const segment of segments) {
+      const result = await this.replaceRevenueDriverEntries(segment.range, segment.entries)
+      total.deletedCount += result.deletedCount
+      total.insertedCount += result.insertedCount
+    }
+    return total
+  }
 }
 
 export const revenueService = new RevenueService()
