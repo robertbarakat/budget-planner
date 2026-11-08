@@ -1,0 +1,94 @@
+.transactions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  max-width: calc(var(--sidebar-width) * 4);
+}
+
+.transactions__filter {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-6);
+}
+
+.transactions__status {
+  color: var(--color-text-muted);
+}
+
+.transactions__day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.transactions__day-title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: capitalize;
+}
+
+.transactions__list {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.transactions__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  min-height: var(--target-min);
+  padding: var(--space-5) var(--space-7);
+}
+
+.transactions__item + .transactions__item {
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.transactions__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.transactions__title {
+  font-weight: var(--font-weight-medium);
+  overflow-wrap: anywhere;
+}
+
+.transactions__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* Tipo in chiaro: spesa, entrata e trasferimento si distinguono anche senza colore */
+.transactions__type {
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  font-weight: var(--font-weight-medium);
+}
+
+.transactions__comment {
+  overflow-wrap: anywhere;
+}
+
+/* Il trasferimento è tratteggiato: un secondo segno oltre all'etichetta e all'assenza di segno sull'importo */
+.transactions__item--transfer .transactions__type {
+  border-style: dashed;
+}
+
+.transactions__item .amount {
+  flex: none;
+  font-weight: var(--font-weight-semibold);
+}

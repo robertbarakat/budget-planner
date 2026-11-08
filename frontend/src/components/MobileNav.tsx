@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react'
 import { Link, NavLink, useLocation } from 'react-router'
 import { paths } from '../paths.ts'
-import { CashFlowIcon, HomeIcon, MacroAreasIcon, PlusIcon, SettingsIcon } from './icons.tsx'
+import { CashFlowIcon, HomeIcon, MacroAreasIcon, PlusIcon, SettingsIcon, TransactionsIcon } from './icons.tsx'
 import { navItems } from './nav-items.ts'
 import './MobileNav.css'
 
 const icons: Record<string, ReactNode> = {
   [paths.home]: <HomeIcon />,
+  [paths.transactions]: <TransactionsIcon />,
   [paths.cashFlow]: <CashFlowIcon />,
   [paths.macroAreas]: <MacroAreasIcon />,
   [paths.settings]: <SettingsIcon />,

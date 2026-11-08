@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage.tsx'
 import LoginPage from './pages/LoginPage.tsx'
 import MacroAreasPage from './pages/MacroAreasPage.tsx'
 import NewTransactionPage from './pages/NewTransactionPage.tsx'
+import TransactionsPage from './pages/TransactionsPage.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
 import SettingsPage from './pages/settings/SettingsPage.tsx'
 import BudgetItemsSettingsPage from './pages/settings/BudgetItemsSettingsPage.tsx'
@@ -24,6 +25,7 @@ export const routes: RouteObject[] = [
         element: <App />,
         children: [
           { index: true, element: <HomePage /> },
+          { path: 'transactions', element: <TransactionsPage /> },
           { path: 'transactions/new', element: <NewTransactionPage /> },
           { path: 'cash-flow', element: <CashFlowPage /> },
           { path: 'macro-areas', element: <MacroAreasPage /> },

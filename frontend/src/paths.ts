@@ -3,6 +3,7 @@ export const paths = {
   home: '/',
   login: '/login',
   newTransaction: '/transactions/new',
+  transactions: '/transactions',
   cashFlow: '/cash-flow',
   macroAreas: '/macro-areas',
   settings: '/settings',

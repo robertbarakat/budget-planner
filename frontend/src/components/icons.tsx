@@ -76,3 +76,11 @@ export function SettingsIcon() {
     </Icon>
   )
 }
+
+export function TransactionsIcon() {
+  return (
+    <Icon>
+      <path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4" />
+    </Icon>
+  )
+}

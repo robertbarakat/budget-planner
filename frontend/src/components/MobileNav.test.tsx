@@ -18,6 +18,7 @@ describe('MobileNav', () => {
     await renderAt('/')
     const nav = mobileNav().getByRole('navigation', { name: 'Navigazione principale' })
     expect(nav).toHaveTextContent('Home')
+    expect(nav).toHaveTextContent('Movimenti')
     expect(nav).toHaveTextContent('Flusso di cassa')
     expect(nav).toHaveTextContent('Macro-aree')
     expect(nav).toHaveTextContent('Impostazioni')
