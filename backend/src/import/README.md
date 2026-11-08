@@ -62,3 +62,9 @@ npm run import:reconcile -- /percorso/file.xlsx ../docs/import-data/category-map
 ```
 Solo lettura. Confronta, per anno, conto e tipo (spese, entrate, trasferimenti in uscita/entrata), i totali del database con quelli dei movimenti accettati dall'anteprima. Report in `docs/import-data/reconcile-report.md` con le **sole differenze** e, per spiegarle, righe e importi scartati per foglio. A terminale solo conteggi. Esce con codice 2 se ci sono differenze.
 - `--balances`: file JSON `{ "Nome conto": saldo attuale in euro }`; con `--year` confronta i saldi calcolati con `computeAccountBalances` (saldo iniziale dell'anno + movimenti dal 1 gennaio) con quelli digitati. Va usato dopo aver salvato i saldi iniziali (BP-151).
+
+## Saldi iniziali (BP-151)
+```bash
+npm run import:opening-balances -- --year 2026 [--balances saldi.json] [--expected-total 42929,33] [--allow-remote]
+```
+Da lanciare **dopo** l'import dei movimenti. Chiede il saldo attuale di ogni conto attivo (o lo legge da `saldi.json`, `{ "Nome conto": euro }`) e calcola `saldo iniziale = saldo attuale - movimenti dal 1 gennaio dell'anno` (`computeOpeningBalancesFromCurrent` in `shared/`; trasferimenti compresi, movimenti precedenti all'anno ignorati). Mostra, per conto, saldo attuale, movimenti e saldo iniziale, poi il totale con lo scarto dal totale atteso (default 42.929,33 EUR del foglio "Budget 2026"). Solo dopo la conferma digitata (`salva`) scrive in `opening_balances` con origine `manual`. Se per l'anno esistono già saldi iniziali non scrive. Un saldo iniziale può risultare negativo. Solo database locale senza `--allow-remote`.

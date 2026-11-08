@@ -11,6 +11,7 @@
     "import:preview": "node src/import/preview-cli.ts",
     "import:run": "node --env-file-if-exists=../.env src/import/run-import-cli.ts",
     "import:reconcile": "node --env-file-if-exists=../.env src/import/reconcile-cli.ts",
+    "import:opening-balances": "node --env-file-if-exists=../.env src/import/opening-balances-cli.ts",
     "import:setup": "node --env-file-if-exists=../.env src/import/master-data-cli.ts",
     "build": "tsc --noEmit"
   },

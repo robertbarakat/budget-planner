@@ -101,3 +101,11 @@ export type { MappedTransaction, MappingResult, MappingRule } from './import-map
 export { parseAmountCents } from './import-normalize.ts'
 export { diffBalances, diffTotals, totalsFromTransactions } from './import-reconcile.ts'
 export type { BalanceDifference, ReconcileTransaction, TotalsDifference, TotalsEntry, TotalsKind } from './import-reconcile.ts'
+export { computeOpeningBalancesFromCurrent } from './opening-balances-from-current.ts'
+export type {
+  DatedTransactionInput,
+  OpeningAccountInput,
+  OpeningBalanceResult,
+  OpeningBalancesFromCurrent,
+  OpeningBalancesFromCurrentInput,
+} from './opening-balances-from-current.ts'

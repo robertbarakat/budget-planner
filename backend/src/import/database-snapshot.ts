@@ -11,7 +11,7 @@ export function createSnapshotReader(url: string, serviceRoleKey: string) {
   const client = createClient<Database>(url, serviceRoleKey, { auth: { persistSession: false } })
 
   async function read(openingYear: number | null): Promise<DatabaseSnapshot> {
-    const accounts = await client.from('accounts').select('id, name')
+    const accounts = await client.from('accounts').select('id, name, archived')
     if (accounts.error) throw new Error(`Lettura dei conti non riuscita: ${accounts.error.message}`)
 
     const transactions: DatabaseSnapshot['transactions'] = []

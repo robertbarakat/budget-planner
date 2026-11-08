@@ -9,7 +9,7 @@ import type { ImportPreview } from './preview.ts'
 
 /** Fotografia del database: solo lettura. */
 export interface DatabaseSnapshot {
-  accounts: Array<{ id: number; name: string }>
+  accounts: Array<{ id: number; name: string; archived?: boolean }>
   transactions: Array<{
     type: 'expense' | 'income' | 'transfer'
     transactionDate: string
