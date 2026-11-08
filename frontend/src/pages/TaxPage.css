@@ -42,3 +42,11 @@
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
 }
+
+.tax-page__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target-min);
+  color: var(--color-primary-strong);
+  font-weight: var(--font-weight-medium);
+}

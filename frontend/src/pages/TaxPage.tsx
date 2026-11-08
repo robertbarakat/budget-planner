@@ -1,12 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router'
-import { useBudgetItems, useCategories, useMacroAreas } from '../api/classification.queries.ts'
-import { useF24Deadlines, useTaxParameters } from '../api/tax.queries.ts'
-import { useYearTransactions } from '../api/transactions.queries.ts'
 import Amount from '../components/Amount.tsx'
 import YearSelector from '../components/YearSelector.tsx'
-import { buildTaxSummary, previousAdvancesAndInps, selectProfessionalIncomes, type TaxLine } from '../lib/tax-summary.ts'
+import type { TaxLine } from '../lib/tax-summary.ts'
 import { paths } from '../paths.ts'
+import { useTaxSummary } from './use-tax-summary.ts'
 import './TaxPage.css'
 
 const italianDate = (date: string) => date.split('-').reverse().join('/')
@@ -22,44 +20,12 @@ function LineAmount({ line }: { line: TaxLine }) {
 
 export default function TaxPage() {
   const [year, setYear] = useState(() => new Date().getFullYear())
-  const parameters = useTaxParameters(year)
-  const transactions = useYearTransactions(year)
-  const deadlines = useF24Deadlines()
-  const categories = useCategories()
-  const budgetItems = useBudgetItems()
-  const macroAreas = useMacroAreas()
-  const previousYear = useYearTransactions(year - 1)
-
-  const summary = useMemo(() => {
-    const p = parameters.data
-    if (!p || !transactions.data || !deadlines.data || !categories.data || !budgetItems.data || !macroAreas.data || !previousYear.data) return null
-    if (!p.first_advance_due_date || !p.second_advance_due_date) return null
-    const incomes = selectProfessionalIncomes(transactions.data, categories.data, budgetItems.data, macroAreas.data)
-    const { previousAdvances, inpsPayments } = previousAdvancesAndInps(deadlines.data, [...transactions.data, ...previousYear.data], year)
-    return buildTaxSummary({
-      year,
-      parameters: {
-        profitabilityCoefficient: p.profitability_coefficient,
-        inpsRate: p.inps_rate,
-        substituteTaxRate: p.substitute_tax_rate,
-        activityStartYear: p.activity_start_year,
-        firstAdvanceDueDate: p.first_advance_due_date,
-        secondAdvanceDueDate: p.second_advance_due_date,
-        firstAdvanceMethod: p.first_advance_method,
-        secondAdvanceMethod: p.second_advance_method,
-      },
-      incomes,
-      inpsPayments,
-      previousAdvances,
-    })
-  }, [year, parameters.data, transactions.data, previousYear.data, deadlines.data, categories.data, budgetItems.data, macroAreas.data])
-
-  const failed = [parameters, transactions, previousYear, deadlines, categories, budgetItems, macroAreas].some((q) => q.isError)
-  const loading = [parameters, transactions, previousYear, deadlines, categories, budgetItems, macroAreas].some((q) => q.isPending)
+  const { summary, isError: failed, isPending: loading } = useTaxSummary(year)
 
   return (
     <main className="tax-page">
       <h1>Fiscale</h1>
+      <Link to={paths.taxF24} className="tax-page__link">Calendario F24 →</Link>
       <YearSelector year={year} onChange={setYear} />
       {failed ? (
         <p role="alert" className="tax-page__note">Non riesco a leggere i dati fiscali. Riprova più tardi.</p>

@@ -90,3 +90,23 @@ describe('TaxService parametri e scadenze', () => {
     expect(linked.calls.find((c) => c.method === 'update')?.args[0]).toEqual({ transaction_id: 77 })
   })
 })
+
+describe('TaxService.syncDeadlines', () => {
+  const existing = [
+    { id: 1, reference_year: 2026, tax_type: 'inps_advance', due_date: '2026-06-30', amount: 80, transaction_id: null, installment_id: null, is_amount_manual: false },
+    { id: 2, reference_year: 2026, tax_type: 'inps_advance', due_date: '2026-11-30', amount: 90, transaction_id: 55, installment_id: null, is_amount_manual: false },
+    { id: 3, reference_year: 2026, tax_type: 'inps_balance', due_date: '2026-06-30', amount: 70, transaction_id: null, installment_id: null, is_amount_manual: true },
+  ]
+  it('crea le mancanti, aggiorna le non collegate, non tocca le collegate né quelle modificate a mano, né cancella', async () => {
+    const { client, calls } = fakeSupabase({ f24_deadlines: (q) => ({ data: q.some((c) => c.method === 'gte') ? existing : { id: 9 }, error: null }) })
+    const result = await new TaxService(() => client).syncDeadlines(2026, [
+      { referenceYear: 2026, taxType: 'inps_advance', dueDate: '2026-06-30', amount: 100 },
+      { referenceYear: 2026, taxType: 'inps_advance', dueDate: '2026-11-30', amount: 999 },
+      { referenceYear: 2026, taxType: 'substitute_tax_advance', dueDate: '2026-06-30', amount: 50 },
+      { referenceYear: 2026, taxType: 'inps_balance', dueDate: '2026-06-30', amount: 5 },
+    ])
+    expect(result).toEqual({ created: 1, updated: 1, kept: 2 })
+    expect(calls.filter((c) => c.method === 'update').map((c) => c.args[0])).toEqual([{ amount: 100 }])
+    expect(calls.filter((c) => c.method === 'delete')).toHaveLength(0)
+  })
+})

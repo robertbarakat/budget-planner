@@ -137,6 +137,7 @@ Scelta (proposta dal ticket, da confermare): le scadenze con importo modificato 
 
 - `tax_type` è l'enum di BP-99 (un tributo non previsto è rifiutato). `unique (reference_year, tax_type, due_date)`; `amount > 0`.
 - `transaction_id` (il versamento reale) e `installment_id` (rata collegata) sono facoltativi; FK `ON DELETE RESTRICT` e indici sulle due FK: un movimento o una rata collegati a una scadenza non si eliminano.
+- `is_amount_manual` (BP-111): `boolean not null default false`; `true` se l'importo è stato modificato a mano: il ricalcolo del calendario non lo sovrascrive.
 - RLS e policy `f24_deadlines_owner` come le altre tabelle. Il calcolo degli importi non è in questa tabella.
 
 ## Sicurezza: RLS a utente unico (BP-19)

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildTaxSummary, previousAdvancesAndInps, selectProfessionalIncomes, type TaxSummaryParameters } from './tax-summary.ts'
+import { buildTaxSummary, confirmedAdvanceAmounts, previousAdvancesAndInps, selectProfessionalIncomes, type TaxSummaryParameters } from './tax-summary.ts'
 
 const parameters: TaxSummaryParameters = {
   profitabilityCoefficient: 67, inpsRate: 26.07, substituteTaxRate: 15, activityStartYear: 2025,
@@ -54,6 +54,19 @@ describe('buildTaxSummary (calcolo manuale annotato)', () => {
   })
 })
 
+describe('importi salvati nel calendario', () => {
+  it('hanno la precedenza sul metodo e cambiano il saldo (dovuto 437,25 - (150 + 201) = 86,25)', () => {
+    const result = buildTaxSummary({
+      year: 2026, parameters, incomes, inpsPayments: [{ date: '2026-03-01', amount: 100, isInstalment: false }],
+      previousAdvances: { substituteTax: [120, 130], inps: [80, 90] }, confirmedAdvances: { substituteTax: [150, undefined], inps: [] },
+    })
+    expect(result.advances[0].substituteTax.amount).toBe(150)
+    expect(result.advances[0].substituteTax.explanation).toContain('calendario F24')
+    expect(result.advances[1].substituteTax.amount).toBe(201)
+    expect(result.substituteTaxBalance).toBe(86.25)
+  })
+})
+
 describe('selectProfessionalIncomes', () => {
   it('conta solo le entrate della macro-area professionale (voce diretta o della categoria)', () => {
     const tx = (o: Partial<{ type: string; budget_item_id: number | null; category_id: number | null }>) => ({ type: 'income', transaction_date: '2026-01-01', amount: 10, budget_item_id: null, category_id: null, ...o })
@@ -76,5 +89,13 @@ describe('previousAdvancesAndInps', () => {
     )
     expect(result.previousAdvances.inps).toEqual([80, 90])
     expect(result.inpsPayments).toEqual([{ date: '2026-06-30', amount: 55, isInstalment: true }])
+  })
+})
+
+describe('confirmedAdvanceAmounts', () => {
+  it('conta solo scadenze versate o modificate a mano, per posizione', () => {
+    const d = (o: object) => ({ reference_year: 2026, tax_type: 'inps_advance', due_date: '2026-06-30', amount: 100, transaction_id: null, is_amount_manual: false, ...o })
+    expect(confirmedAdvanceAmounts([d({}), d({ due_date: '2026-11-30', is_amount_manual: true, amount: 250 })], 2026).inps).toEqual([undefined, 250])
+    expect(confirmedAdvanceAmounts([d({ transaction_id: 3 })], 2026).inps).toEqual([100])
   })
 })

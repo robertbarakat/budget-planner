@@ -10,6 +10,7 @@ export const paths = {
   macroAreas: '/macro-areas',
   matrix: '/matrix',
   tax: '/tax',
+  taxF24: '/tax/f24',
   settings: '/settings',
   settingsMacroAreas: '/settings/macro-areas',
   settingsBudgetItems: '/settings/budget-items',

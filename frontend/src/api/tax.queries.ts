@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createCrudHooks, invalidateAll } from './crud-hooks.ts'
 import type { BudgetEntryDraft, MonthRange } from './month-range.ts'
 import { queryKeys } from './query-keys.ts'
-import { taxService, type TaxParametersValues } from './tax.service.ts'
+import { taxService, type PlannedDeadline, type TaxParametersValues } from './tax.service.ts'
 
 // Parametri, rate e scadenze alimentano la riga "Imposte" del budget: invalidiamo anche il budget.
 const invalidate = [queryKeys.tax.all, queryKeys.budget.all] as const
@@ -74,6 +74,14 @@ export function useReplaceTaxEntries() {
   return useMutation({
     mutationFn: (args: { range: MonthRange; entries: readonly BudgetEntryDraft[] }) =>
       taxService.replaceTaxEntries(args.range, args.entries),
+    onSuccess: () => invalidateAll(queryClient, invalidate),
+  })
+}
+
+export function useSyncF24Deadlines() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (args: { year: number; planned: readonly PlannedDeadline[] }) => taxService.syncDeadlines(args.year, args.planned),
     onSuccess: () => invalidateAll(queryClient, invalidate),
   })
 }

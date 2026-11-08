@@ -153,14 +153,14 @@ isOneToOne: false
                   ]
                 },"f24_deadlines": {
                   Row: {
-                    "amount": number,"created_at": string,"due_date": string,"id": number,"installment_id": number | null,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"],"transaction_id": number | null
+                    "amount": number,"created_at": string,"due_date": string,"id": number,"is_amount_manual": boolean,"installment_id": number | null,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"],"transaction_id": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount": number,"created_at"?: string,"due_date": string,"id"?: never,"installment_id"?: number | null,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"],"transaction_id"?: number | null
+                    "amount": number,"created_at"?: string,"due_date": string,"id"?: never,"is_amount_manual"?: boolean,"installment_id"?: number | null,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"],"transaction_id"?: number | null
                   }
                   Update: {
-                    "amount"?: number,"created_at"?: string,"due_date"?: string,"id"?: never,"installment_id"?: number | null,"reference_year"?: number,"tax_type"?: Database["public"]['Enums']["tax_type"],"transaction_id"?: number | null
+                    "amount"?: number,"created_at"?: string,"due_date"?: string,"id"?: never,"is_amount_manual"?: boolean,"installment_id"?: number | null,"reference_year"?: number,"tax_type"?: Database["public"]['Enums']["tax_type"],"transaction_id"?: number | null
                   }
                   Relationships: [
                     {

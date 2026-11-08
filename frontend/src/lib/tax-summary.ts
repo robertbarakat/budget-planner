@@ -48,9 +48,15 @@ export interface TaxSummaryInput {
   inpsPayments: readonly { date: string; amount: number; isInstalment: boolean }[]
   /** Acconti dell'anno scorso in euro, nell'ordine di scadenza. */
   previousAdvances: { substituteTax: readonly number[]; inps: readonly number[] }
+  /** Importi già salvati nel calendario F24 per questo anno (nell'ordine di scadenza): hanno la precedenza sul calcolo. */
+  confirmedAdvances?: { substituteTax: readonly (number | undefined)[]; inps: readonly (number | undefined)[] }
 }
 
 const pct = (n: number) => String(n).replace('.', ',')
+function savedLine(values: readonly (number | undefined)[] | undefined, index: number): TaxLine | null {
+  const amount = values?.[index]
+  return amount === undefined ? null : { amount, explanation: `Importo del calendario F24 (versato o modificato a mano): ${formatAbsoluteAmount(amount)}.` }
+}
 const toEuros = (cents: number) => cents / 100
 const italianDate = (date: string) => date.split('-').reverse().join('/')
 
@@ -83,7 +89,7 @@ export function buildTaxSummary(input: TaxSummaryInput): TaxSummary {
     { position: 'first' as const, dueDate: parameters.firstAdvanceDueDate, method: parameters.firstAdvanceMethod, from: `${year}-01-01` },
     { position: 'second' as const, dueDate: parameters.secondAdvanceDueDate, method: parameters.secondAdvanceMethod, from: nextDay(parameters.firstAdvanceDueDate) },
   ]
-  const advances: AdvanceSummary[] = periods.map((period, index) => {
+  const computed: AdvanceSummary[] = periods.map((period, index) => {
     if (noAdvances) {
       const line: TaxLine = { amount: 0, explanation: 'Primo anno di attività: nessun acconto dovuto.' }
       return { position: period.position, dueDate: period.dueDate, method: period.method, substituteTax: line, inps: line }
@@ -109,6 +115,12 @@ export function buildTaxSummary(input: TaxSummaryInput): TaxSummary {
       inps: { amount: toEuros(base.inpsDueCents), explanation: `${head}, INPS ${pct(parameters.inpsRate)}% ${formatAbsoluteAmount(toEuros(base.inpsDueCents))}.` },
     }
   })
+
+  const advances = computed.map((advance, index) => ({
+    ...advance,
+    substituteTax: savedLine(input.confirmedAdvances?.substituteTax, index) ?? advance.substituteTax,
+    inps: savedLine(input.confirmedAdvances?.inps, index) ?? advance.inps,
+  }))
 
   const balance = (dueCents: number, lines: readonly TaxLine[]): number | null => {
     if (lines.some((l) => l.amount === null)) return null
@@ -161,4 +173,20 @@ export function previousAdvancesAndInps(
       : []
   })
   return { previousAdvances: { substituteTax: advancesOf('substitute_tax_advance'), inps: advancesOf('inps_advance') }, inpsPayments }
+}
+
+/**
+ * Importi degli acconti dell'anno che valgono al posto del calcolo: scadenze con movimento collegato (versate)
+ * o con importo modificato a mano. Per posizione (primo, secondo acconto); `undefined` = segue il calcolo.
+ */
+export function confirmedAdvanceAmounts(
+  deadlines: readonly { reference_year: number; tax_type: string; due_date: string; amount: number; transaction_id: number | null; is_amount_manual: boolean }[],
+  year: number,
+): { substituteTax: (number | undefined)[]; inps: (number | undefined)[] } {
+  const byPosition = (type: string) =>
+    deadlines
+      .filter((d) => d.reference_year === year && d.tax_type === type)
+      .sort((a, b) => a.due_date.localeCompare(b.due_date))
+      .map((d) => (d.transaction_id !== null || d.is_amount_manual ? Number(d.amount) : undefined))
+  return { substituteTax: byPosition('substitute_tax_advance'), inps: byPosition('inps_advance') }
 }
