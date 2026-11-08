@@ -37,3 +37,13 @@ Le righe di `Bonifici` che non rientrano in nessuna forma non vengono indovinate
 npm run import:preview -- /percorso/file.xlsx ../docs/import-data/category-mapping.json [report.md]
 ```
 Esegue parser, normalizzazione e mappatura **senza accedere al database** e scrive il report (default `docs/import-data/preview-report.md`, ignorato da git): righe per foglio (lette = accettate + scartate), scarti con foglio, riga e motivo, totali per voce e mese, variazione per conto. Il terminale mostra solo i conteggi, mai commenti o categorie. I nomi dei conti per riconoscere i trasferimenti a riga singola sono quelli visti nei fogli `Spese` ed `Entrate`.
+
+## Anagrafiche mancanti (BP-122)
+```bash
+npm run import:setup -- /percorso/file.xlsx ../docs/import-data/category-mapping.json          # prova: non scrive
+npm run import:setup -- /percorso/file.xlsx ../docs/import-data/category-mapping.json --write  # scrive dopo conferma
+```
+Confronta le destinazioni della mappatura e i conti dell'export con il database (variabili `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`, da `.env` nella radice; nessuna variabile nuova) e crea solo categorie, voci e macro-aree mancanti. Senza `--write` elenca cosa creerebbe; con `--write` chiede di digitare `scrivi`, mostrando il progetto di destinazione. Rieseguirlo non crea doppioni.
+- Per creare una **voce nuova** la regola deve avere anche `targetMacroArea` e `targetKind` (`income` o `expense`); senza, errore. Le macro-aree nuove nascono con `is_professional = false`: marcala dall'app.
+- **Errori bloccanti** (non si scrive nulla): conto dell'export assente nel database (i conti non si creano), elemento esistente ma archiviato, categoria già presente sotto un'altra voce o mappata su due voci.
+- Fuori ambito: clienti e movimenti.

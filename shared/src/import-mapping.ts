@@ -17,6 +17,9 @@ export interface MappingRule {
   priority: number
   targetBudgetItem: string
   targetCategory: string
+  /** Servono solo se la voce di destinazione non esiste ancora (BP-122): macro-area e tipo con cui crearla. */
+  targetMacroArea?: string | null
+  targetKind?: 'income' | 'expense' | null
 }
 
 export interface MappedTransaction extends NormalizedTransaction {
@@ -50,12 +53,22 @@ export function parseMappingRules(input: unknown): MappingRule[] {
     if (comment !== undefined && comment !== null && (typeof comment !== 'string' || comment.trim() === '')) {
       throw new Error(`${where}: "commentContains" deve essere un testo non vuoto oppure assente.`)
     }
+    const macroArea = rule.targetMacroArea
+    if (macroArea !== undefined && macroArea !== null && (typeof macroArea !== 'string' || macroArea.trim() === '')) {
+      throw new Error(`${where}: "targetMacroArea" deve essere un testo non vuoto oppure assente.`)
+    }
+    const kind = rule.targetKind
+    if (kind !== undefined && kind !== null && kind !== 'income' && kind !== 'expense') {
+      throw new Error(`${where}: "targetKind" deve essere "income" o "expense".`)
+    }
     return {
       sourceCategory: rule.sourceCategory as string,
       commentContains: (comment as string | null | undefined) ?? null,
       priority: rule.priority,
       targetBudgetItem: rule.targetBudgetItem as string,
       targetCategory: rule.targetCategory as string,
+      targetMacroArea: (macroArea as string | null | undefined) ?? null,
+      targetKind: (kind as 'income' | 'expense' | null | undefined) ?? null,
     }
   })
 }

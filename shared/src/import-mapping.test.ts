@@ -80,7 +80,14 @@ describe('mapImportedTransactions', () => {
 describe('parseMappingRules', () => {
   it('legge un elenco valido, con o senza il contenitore "rules"', () => {
     const rule = { sourceCategory: 'A', priority: 1, targetBudgetItem: 'B', targetCategory: 'C' }
-    expect(parseMappingRules({ rules: [rule] })).toEqual([{ ...rule, commentContains: null }])
+    expect(parseMappingRules({ rules: [rule] })).toEqual([
+      { ...rule, commentContains: null, targetMacroArea: null, targetKind: null },
+    ])
+    expect(parseMappingRules([{ ...rule, targetMacroArea: 'M', targetKind: 'income' }])[0]).toMatchObject({
+      targetMacroArea: 'M',
+      targetKind: 'income',
+    })
+    expect(() => parseMappingRules([{ ...rule, targetKind: 'altro' }])).toThrow('"targetKind"')
     expect(parseMappingRules([rule])).toHaveLength(1)
   })
 
