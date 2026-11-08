@@ -59,14 +59,51 @@ describe('CashFlowPage: saldo progressivo', () => {
     expect(await screen.findByText(/Saldo iniziale 2026/)).toHaveTextContent('1.000,00')
     const january = await rowOf('gennaio')
     expect(within(january).getByText('Chiuso')).toBeInTheDocument()
-    expect(within(january).getByText('Reale')).toBeInTheDocument()
+    expect(within(january).getByText('Reale', { selector: '.cash-month__basis' })).toBeInTheDocument()
     // gen chiuso: +450 → 1.450; feb aperto previsto +300 −100 → 1.650, fino a dicembre
     expect(within(january).getByText('Saldo a fine mese').nextElementSibling).toHaveTextContent('1.450,00')
     const february = await rowOf('febbraio')
     expect(within(february).getByText('Aperto')).toBeInTheDocument()
-    expect(within(february).getByText('Previsto')).toBeInTheDocument()
+    expect(within(february).getByText('Previsto', { selector: '.cash-month__basis' })).toBeInTheDocument()
     expect(within(february).getByText('Saldo a fine mese').nextElementSibling).toHaveTextContent('1.650,00')
     expect(screen.getByText(/Saldo a fine anno/)).toHaveTextContent('1.650,00')
+  })
+})
+
+describe('CashFlowPage: dettaglio del mese', () => {
+  it('si apre da tastiera con aria-expanded e mostra previsto, reale parziale e scostamento', async () => {
+    const user = userEvent.setup()
+    setup()
+    const february = await rowOf('febbraio')
+    const toggle = within(february).getByRole('button', { name: 'Dettaglio di febbraio 2026' })
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    toggle.focus()
+    await user.keyboard('{Enter}')
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    const table = within(february).getByRole('table')
+    expect(within(table).getByRole('columnheader', { name: 'Reale parziale' })).toBeInTheDocument()
+    const rent = within(table).getByRole('row', { name: /Affitto/ })
+    // previsto −100, reale parziale −45 (40 + 5), scostamento +55
+    expect(rent).toHaveTextContent('100,00')
+    expect(rent).toHaveTextContent('45,00')
+    expect(rent).toHaveTextContent('+55,00')
+    expect(within(table).getByRole('row', { name: /Totale del mese \(previsto\)/ })).toHaveTextContent('+200,00')
+    expect(within(february).getByRole('link', { name: 'Movimenti di febbraio 2026' })).toHaveAttribute(
+      'href',
+      '/transactions?year=2026&month=2',
+    )
+    await user.keyboard('{Enter}')
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('nel mese chiuso la colonna è "Reale" e il totale è quello reale', async () => {
+    const user = userEvent.setup()
+    setup()
+    const january = await rowOf('gennaio')
+    await user.click(within(january).getByRole('button', { name: 'Dettaglio di gennaio 2026' }))
+    const table = within(january).getByRole('table')
+    expect(within(table).getByRole('columnheader', { name: 'Reale' })).toBeInTheDocument()
+    expect(within(table).getByRole('row', { name: /Totale del mese \(reale\)/ })).toHaveTextContent('+450,00')
   })
 })
 

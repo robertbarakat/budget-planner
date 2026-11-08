@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { AlertDialog } from 'radix-ui'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { useAccounts } from '../api/accounts.queries.ts'
 import { useCategories } from '../api/classification.queries.ts'
 import { useDeleteTransaction, useTransactions } from '../api/transactions.queries.ts'
@@ -8,6 +8,7 @@ import Amount from '../components/Amount.tsx'
 import Button from '../components/Button.tsx'
 import Field from '../components/Field.tsx'
 import { useSnackbar } from '../components/Snackbar.tsx'
+import { readPeriod } from '../lib/period.ts'
 import { formatAmount } from '../lib/format-amount.ts'
 import { formatDay, monthName, monthOptions, monthRange } from '../lib/months.ts'
 import { paths } from '../paths.ts'
@@ -16,10 +17,12 @@ import './TransactionsPage.css'
 const TYPE_LABEL = { expense: 'Spesa', income: 'Entrata', transfer: 'Trasferimento' } as const
 
 export default function TransactionsPage() {
-  const now = new Date()
-  const [month, setMonth] = useState(now.getMonth() + 1)
-  const [year, setYear] = useState(now.getFullYear())
-  const [yearText, setYearText] = useState(String(now.getFullYear()))
+  // Il periodo di partenza può arrivare dall'indirizzo (es. dal dettaglio del flusso di cassa): ?year=2026&month=3.
+  const [searchParams] = useSearchParams()
+  const [initial] = useState(() => readPeriod(searchParams, 'required'))
+  const [month, setMonth] = useState(initial.month ?? 1)
+  const [year, setYear] = useState(initial.year)
+  const [yearText, setYearText] = useState(String(initial.year))
 
   const transactions = useTransactions(monthRange(year, month))
   const remove = useDeleteTransaction()
