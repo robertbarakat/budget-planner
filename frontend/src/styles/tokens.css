@@ -83,6 +83,13 @@
   --shadow-md: 0 4px 12px rgb(20 33 43 / 12%);
   --shadow-lg: 0 8px 24px rgb(20 33 43 / 16%);
 
+  /* Breakpoint (mobile first: si usa solo min-width).
+   * Le custom properties non valgono dentro @media: i valori si ripetono nelle
+   * media query e nel modulo breakpoints.ts. Il test breakpoints.test.ts
+   * fallisce se divergono. Vedi docs/design-tokens.md. */
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+
   /* Target e focus */
   --target-min: 2.75rem; /* 44 */
   --focus-ring-width: 0.125rem;
