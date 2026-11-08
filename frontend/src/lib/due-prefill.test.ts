@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { newTransactionFromDuePath, readDuePrefill } from './due-prefill.ts'
+import { newTransactionFromDeadlinePath, newTransactionFromDuePath, readDeadlineId, readDuePrefill } from './due-prefill.ts'
 
 const groups = [
   { budgetItemId: 20, kind: 'expense' as const, categories: [{ id: 5 }, { id: 6 }] },
@@ -28,5 +28,19 @@ describe('due prefill', () => {
   it('senza parametri validi non precompila', () => {
     expect(readDuePrefill(new URLSearchParams(''), groups, [1])).toBeNull()
     expect(readDuePrefill(new URLSearchParams('amount=1,00&account=x&item=1'), groups, [1])).toBeNull()
+  })
+})
+
+describe('versamento di una scadenza F24', () => {
+  it("l'indirizzo porta importo, voce e scadenza; il conto resta da scegliere", () => {
+    const path = newTransactionFromDeadlinePath('/transactions/new', { amount: 513.25, budgetItemId: 20, deadlineId: 7 })
+    expect(path).toBe('/transactions/new?amount=513%2C25&item=20&deadline=7')
+    const params = new URLSearchParams(path.split('?')[1])
+    expect(readDeadlineId(params)).toBe(7)
+    expect(readDuePrefill(params, groups, [1, 2])).toEqual({ type: 'expense', amountText: '513,25', accountId: '', categoryId: '5' })
+  })
+  it("senza scadenza valida nell'indirizzo non collega nulla", () => {
+    expect(readDeadlineId(new URLSearchParams('amount=1,00'))).toBeNull()
+    expect(readDeadlineId(new URLSearchParams('deadline=abc'))).toBeNull()
   })
 })

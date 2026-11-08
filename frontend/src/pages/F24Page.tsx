@@ -1,15 +1,18 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { useBudgetEntries, useClosedMonths } from '../api/budget.queries.ts'
 import { useBudgetItems } from '../api/classification.queries.ts'
-import { useApplyTaxEntries, useF24DeadlinesDueInYear, useSyncF24Deadlines } from '../api/tax.queries.ts'
+import { useApplyTaxEntries, useF24Deadlines, useF24DeadlinesDueInYear, useLinkDeadlineToTransaction, useSyncF24Deadlines } from '../api/tax.queries.ts'
+import { useYearTransactions } from '../api/transactions.queries.ts'
 import ApplyDriverDialog from '../components/ApplyDriverDialog.tsx'
 import Field from '../components/Field.tsx'
 import Amount from '../components/Amount.tsx'
 import Button from '../components/Button.tsx'
 import F24AmountDialog from '../components/F24AmountDialog.tsx'
+import F24LinkDialog from '../components/F24LinkDialog.tsx'
 import { useSnackbar } from '../components/Snackbar.tsx'
 import YearSelector from '../components/YearSelector.tsx'
+import { newTransactionFromDeadlinePath } from '../lib/due-prefill.ts'
 import { planTaxApply } from '../lib/tax-apply.ts'
 import { deadlineStatus, planDeadlines, statusLabels, taxTypeLabels } from '../lib/f24-plan.ts'
 import { paths } from '../paths.ts'
@@ -40,6 +43,10 @@ export default function F24Page() {
   const taxEntries = useBudgetEntries({ source: 'tax' })
   const closedMonths = useClosedMonths()
   const applyTax = useApplyTaxEntries()
+  const navigate = useNavigate()
+  const allDeadlines = useF24Deadlines()
+  const yearTransactions = useYearTransactions(year)
+  const unlink = useLinkDeadlineToTransaction()
   const [itemId, setItemId] = useState(readItem)
   const expenseItems = (items.data ?? []).filter((i) => i.kind === 'expense' && !i.archived)
   const validItemId = expenseItems.some((i) => String(i.id) === itemId) ? Number(itemId) : null
@@ -59,6 +66,11 @@ export default function F24Page() {
   }
 
   const rows = saved.data ?? []
+  // Spese dell'anno non ancora collegate a nessuna scadenza: un movimento non chiude due scadenze.
+  const linkedIds = new Set((allDeadlines.data ?? []).flatMap((d) => (d.transaction_id === null ? [] : [d.transaction_id])))
+  const candidates = (yearTransactions.data ?? [])
+    .filter((t) => t.type === 'expense' && !linkedIds.has(t.id))
+    .map((t) => ({ id: t.id, date: t.transaction_date, amount: Number(t.amount), comment: t.comment }))
   const applyPlan = useMemo(() => {
     if (validItemId === null || !taxEntries.data || !closedMonths.data) return null
     return planTaxApply(
@@ -110,11 +122,46 @@ export default function F24Page() {
                       </div>
                       <Amount value={Number(d.amount)} colored={false} />
                       <span className={`f24-page__status f24-page__status--${status}`}>{statusLabels[status]}</span>
-                      {d.transaction_id === null && <F24AmountDialog id={d.id} label={`${taxTypeLabels[d.tax_type]} ${italianDate(d.due_date)}`} amount={Number(d.amount)} />}
+                      <div className="f24-page__actions">
+                        {d.transaction_id === null ? (
+                          <>
+                            <Button
+                              disabled={validItemId === null}
+                              aria-label={`Registra versamento ${taxTypeLabels[d.tax_type]} ${italianDate(d.due_date)}`}
+                              onClick={() => {
+                                if (validItemId !== null) {
+                                  void navigate(newTransactionFromDeadlinePath(paths.newTransaction, { amount: Number(d.amount), budgetItemId: validItemId, deadlineId: d.id }))
+                                }
+                              }}
+                            >
+                              Registra versamento
+                            </Button>
+                            <F24LinkDialog deadlineId={d.id} label={`${taxTypeLabels[d.tax_type]} ${italianDate(d.due_date)}`} candidates={candidates} />
+                            <F24AmountDialog id={d.id} label={`${taxTypeLabels[d.tax_type]} ${italianDate(d.due_date)}`} amount={Number(d.amount)} />
+                          </>
+                        ) : (
+                          <>
+                            <Link to={paths.editTransaction(d.transaction_id)} className="f24-page__back">
+                              Vedi movimento
+                            </Link>
+                            <Button
+                              variant="secondary"
+                              loading={unlink.isPending}
+                              aria-label={`Scollega il movimento da ${taxTypeLabels[d.tax_type]} ${italianDate(d.due_date)}`}
+                              onClick={() =>
+                                unlink.mutate({ deadlineId: d.id, transactionId: null }, { onSuccess: () => showSuccess('Movimento scollegato: la scadenza torna da versare.') })
+                              }
+                            >
+                              Scollega
+                            </Button>
+                          </>
+                        )}
+                      </div>
                     </li>
                   )
                 })}
               </ul>
+              {validItemId === null && <p className="f24-page__note">Per registrare un versamento scegli prima la voce del budget per le imposte (sezione Budget).</p>}
               <p className="f24-page__total">
                 Totale calendario: <Amount value={total} colored={false} />
               </p>

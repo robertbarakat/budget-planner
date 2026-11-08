@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
+import { useLinkDeadlineToTransaction } from '../api/tax.queries.ts'
 import { useCreateTransaction } from '../api/transactions.queries.ts'
-import { readDuePrefill } from '../lib/due-prefill.ts'
+import { readDeadlineId, readDuePrefill } from '../lib/due-prefill.ts'
 import { paths } from '../paths.ts'
 import { toTransactionPayload } from '../lib/transaction-payload.ts'
 import { useSnackbar } from '../components/Snackbar.tsx'
@@ -14,11 +15,14 @@ const SAVED_MESSAGE = { expense: 'Spesa salvata.', income: 'Entrata salvata.', t
 export default function NewTransactionPage() {
   const options = useTransactionFormOptions()
   const create = useCreateTransaction()
+  const link = useLinkDeadlineToTransaction()
   const { showSuccess } = useSnackbar()
   // Dopo un salvataggio il form riparte vuoto (nuova chiave = nuovo form), pronto per un altro inserimento.
   const [formKey, setFormKey] = useState(0)
   // Da "Registra pagamento" (scheda Prossime scadenze) il form parte precompilato; tutti i campi restano modificabili.
   const [searchParams, setSearchParams] = useSearchParams()
+  // Dal calendario F24 (Registra versamento): al salvataggio il movimento si collega alla scadenza.
+  const deadlineId = readDeadlineId(searchParams)
   const prefill = options.isPending || options.isError ? null : readDuePrefill(searchParams, options.groups, options.accounts.map((a) => a.id))
 
   return (
@@ -27,7 +31,7 @@ export default function NewTransactionPage() {
       {prefill && (
         <p className="new-transaction__status">
           Precompilato dalla scadenza: controlla i dati e salva.{' '}
-          <Link to={paths.home} className="new-transaction__back">
+          <Link to={deadlineId !== null ? paths.taxF24 : paths.home} className="new-transaction__back">
             Annulla
           </Link>
         </p>
@@ -48,15 +52,24 @@ export default function NewTransactionPage() {
           accounts={options.accounts}
           categoryGroups={options.groups}
           onSubmit={async (values) => {
+            let created
             try {
-              await create.mutateAsync(toTransactionPayload(values))
+              created = await create.mutateAsync(toTransactionPayload(values))
             } catch {
               // L'errore arriva dalla snackbar; il form non si svuota, così nulla va perso.
               return
             }
             showSuccess(SAVED_MESSAGE[values.type])
+            if (deadlineId !== null) {
+              try {
+                await link.mutateAsync({ deadlineId, transactionId: created.id })
+                showSuccess('Versamento collegato alla scadenza F24.')
+              } catch {
+                // Il movimento c'è già: l'errore (snackbar) dice cosa è andato storto, si può collegare dal calendario F24.
+              }
+            }
             // Il prossimo inserimento riparte vuoto: si tolgono i valori della scadenza dall'indirizzo.
-            if (prefill) setSearchParams({}, { replace: true })
+            if (prefill || deadlineId !== null) setSearchParams({}, { replace: true })
             setFormKey((key) => key + 1)
           }}
         />

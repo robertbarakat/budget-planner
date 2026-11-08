@@ -24,6 +24,22 @@ export function newTransactionFromDuePath(basePath: string, due: DuePrefill): st
   return `${basePath}?${params.toString()}`
 }
 
+/** Indirizzo del form Nuovo movimento per il versamento di una scadenza F24: importo e voce precompilati, conto da scegliere. */
+export function newTransactionFromDeadlinePath(basePath: string, deadline: { amount: number; budgetItemId: number; deadlineId: number }): string {
+  const params = new URLSearchParams({
+    amount: deadline.amount.toFixed(2).replace('.', ','),
+    item: String(deadline.budgetItemId),
+    deadline: String(deadline.deadlineId),
+  })
+  return `${basePath}?${params.toString()}`
+}
+
+/** Id della scadenza F24 da collegare al movimento che si sta registrando, se l'indirizzo lo indica. */
+export function readDeadlineId(params: URLSearchParams): number | null {
+  const value = Number(params.get('deadline'))
+  return params.get('deadline') !== null && Number.isInteger(value) && value > 0 ? value : null
+}
+
 /**
  * Valori iniziali del form da una scadenza, letti dall'indirizzo; `null` se i parametri mancano o non sono validi.
  * Tipo: spesa, o entrata se la voce è di entrata. La scadenza ha la voce di budget, il form la categoria:
@@ -35,9 +51,10 @@ export function readDuePrefill(
   accountIds: readonly number[],
 ): Partial<TransactionFormState> | null {
   const amountText = params.get('amount')
-  const account = Number(params.get('account'))
+  // Il conto è facoltativo (il versamento F24 non lo indica): se manca, resta da scegliere.
+  const account = params.get('account') === null ? 0 : Number(params.get('account'))
   const item = Number(params.get('item'))
-  if (!amountText || !Number.isInteger(account) || !Number.isInteger(item) || params.get('account') === null || params.get('item') === null) {
+  if (!amountText || !Number.isInteger(account) || !Number.isInteger(item) || params.get('item') === null) {
     return null
   }
   const group = groups.find((g) => g.budgetItemId === item)

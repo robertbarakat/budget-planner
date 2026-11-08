@@ -67,3 +67,10 @@
   flex-direction: column;
   gap: var(--space-5);
 }
+
+.f24-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  gap: var(--space-4);
+}

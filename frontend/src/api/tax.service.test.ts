@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { AppError } from './api-error.ts'
 import { fakeSupabase, type RecordedCall } from './test-utils.ts'
 import { TaxService } from './tax.service.ts'
 
@@ -121,5 +122,14 @@ describe('TaxService.applyTaxEntries', () => {
     ])
     expect(calls.filter((c) => c.method === 'rpc')).toHaveLength(2)
     expect(result).toEqual({ deletedCount: 2, insertedCount: 4 })
+  })
+})
+
+describe('TaxService.linkDeadlineToTransaction', () => {
+  it('un movimento già collegato a un\'altra scadenza dà un errore chiaro', async () => {
+    const { client } = fakeSupabase({ data: null, error: { code: '23505', message: 'duplicate key value' } })
+    const failure = await new TaxService(() => client).linkDeadlineToTransaction(1, 5).catch((e: unknown) => e)
+    expect(failure).toBeInstanceOf(AppError)
+    expect((failure as AppError).message).toBe('Questo movimento è già collegato a un\'altra scadenza.')
   })
 })

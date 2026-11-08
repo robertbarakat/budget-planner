@@ -1,3 +1,4 @@
+import { AppError } from './api-error.ts'
 import { BaseService, unwrap, type InsertOf, type RowOf } from './base-service.ts'
 import { toReplaceArgs, toReplaceResult, type BudgetEntryDraft, type MonthRange, type ReplaceResult } from './month-range.ts'
 import { getSupabase, type TypedSupabaseClient } from './supabase.ts'
@@ -66,8 +67,16 @@ export class TaxService {
   }
 
   /** Collega una scadenza al versamento reale (un movimento), o scollega con `null`. */
-  linkDeadlineToTransaction(deadlineId: number, transactionId: number | null) {
-    return this.f24Deadlines.update(deadlineId, { transaction_id: transactionId })
+  async linkDeadlineToTransaction(deadlineId: number, transactionId: number | null) {
+    try {
+      return await this.f24Deadlines.update(deadlineId, { transaction_id: transactionId })
+    } catch (error) {
+      // Indice unico sul movimento: lo stesso versamento non può chiudere due scadenze.
+      if (error instanceof AppError && error.kind === 'duplicate') {
+        throw new AppError('duplicate', error.code, error.cause, 'Questo movimento è già collegato a un\'altra scadenza.')
+      }
+      throw error
+    }
   }
 
   /**
