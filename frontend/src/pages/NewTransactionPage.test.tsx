@@ -151,7 +151,8 @@ describe('NewTransactionPage precompilata da una scadenza', () => {
       ['account_id', 'amount', 'budget_item_id', 'category_id', 'comment', 'destination_account_id', 'tag', 'transaction_date', 'type'].sort(),
     )
     expect(create.mock.calls[0]![0]).toMatchObject({ amount: 650, account_id: 2, budget_item_id: 10, category_id: 100, type: 'expense' })
-    expect(await screen.findByLabelText(/Importo/)).toHaveValue('')
+    // Il form riparte vuoto dopo che l'indirizzo è stato ripulito: si aspetta l'aggiornamento invece di leggerlo subito.
+    await vi.waitFor(() => expect(screen.getByLabelText(/Importo/)).toHaveValue(''))
   })
 
   it('tutti i campi restano modificabili e annullare non crea nulla', async () => {
