@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router'
 import App from './App.tsx'
 import RequireAuth from './components/RequireAuth.tsx'
+import BudgetPage from './pages/BudgetPage.tsx'
 import CashFlowPage from './pages/CashFlowPage.tsx'
 import HomePage from './pages/HomePage.tsx'
 import LoginPage from './pages/LoginPage.tsx'
@@ -30,6 +31,7 @@ export const routes: RouteObject[] = [
           { path: 'transactions/new', element: <NewTransactionPage /> },
           { path: 'transactions/:id/edit', element: <EditTransactionPage /> },
           { path: 'cash-flow', element: <CashFlowPage /> },
+          { path: 'budget', element: <BudgetPage /> },
           { path: 'macro-areas', element: <MacroAreasPage /> },
           { path: 'settings', element: <SettingsPage /> },
           { path: 'settings/macro-areas', element: <MacroAreasSettingsPage /> },

@@ -1,0 +1,9 @@
+.year-selector {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+
+.year-selector .field {
+  width: var(--grid-cell-width);
+}

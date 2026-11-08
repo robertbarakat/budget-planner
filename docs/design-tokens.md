@@ -74,6 +74,8 @@ Nei componenti e nei `.css` accanto ad essi **niente valori hardcoded** di color
 | `--sidebar-width` | `15rem` | Larghezza della barra laterale (web) |
 | `--nav-item-size` | `3.5rem` | Altezza/larghezza minima di una voce della barra |
 | `--fab-size` | `3.5rem` | Diametro del pulsante "nuovo movimento" |
+| `--grid-label-width` | `9rem` | Larghezza della colonna fissa delle griglie (voce, cliente) |
+| `--grid-cell-width` | `6.5rem` | Larghezza di una colonna mese delle griglie |
 | `--focus-ring-width` | `0.125rem` | Spessore anello di focus |
 | `--focus-ring-offset` | `0.125rem` | Distanza anello di focus |
 | `--focus-ring-color` | `var(--color-primary-strong)` | Colore anello di focus |

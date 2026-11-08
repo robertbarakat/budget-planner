@@ -6,6 +6,7 @@ export const paths = {
   transactions: '/transactions',
   editTransaction: (id: number | string) => `/transactions/${id}/edit`,
   cashFlow: '/cash-flow',
+  budget: '/budget',
   macroAreas: '/macro-areas',
   settings: '/settings',
   settingsMacroAreas: '/settings/macro-areas',

@@ -9,7 +9,7 @@ describe('SideNav', () => {
     const side = within(document.querySelector<HTMLElement>('.side-nav')!)
     const nav = side.getByRole('navigation', { name: 'Navigazione principale' })
     const links = within(nav).getAllByRole('link').map((l) => l.textContent)
-    expect(links).toEqual(['Home', 'Movimenti', 'Flusso di cassa', 'Macro-aree', 'Impostazioni'])
+    expect(links).toEqual(['Home', 'Movimenti', 'Flusso di cassa', 'Budget', 'Macro-aree', 'Impostazioni'])
     expect(within(nav).getByRole('link', { name: 'Macro-aree' })).toHaveAttribute('aria-current', 'page')
     expect(side.getByRole('link', { name: 'Nuovo movimento' })).toBeInTheDocument()
   })

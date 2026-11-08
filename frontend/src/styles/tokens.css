@@ -96,6 +96,8 @@
   --sidebar-width: 15rem; /* 240: barra laterale web */
   --nav-item-size: 3.5rem; /* 56: voce della barra */
   --fab-size: 3.5rem; /* 56: pulsante "nuovo movimento" */
+  --grid-label-width: 9rem; /* 144: colonna fissa delle griglie (voce, cliente) */
+  --grid-cell-width: 6.5rem; /* 104: colonna mese delle griglie */
   --focus-ring-width: 0.125rem;
   --focus-ring-offset: 0.125rem;
   --focus-ring-color: var(--color-primary-strong);

@@ -1,0 +1,74 @@
+/* Griglia con intestazione di riga fissa e scorrimento orizzontale (budget, giorni lavorati, driver). */
+.data-grid {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.data-grid__table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  font-size: var(--font-size-md);
+}
+
+.data-grid__table th,
+.data-grid__table td {
+  min-width: var(--grid-cell-width);
+  min-height: var(--target-min);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-subtle);
+  text-align: right;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.data-grid__table thead th {
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.data-grid__table .data-grid__label {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  min-width: var(--grid-label-width);
+  max-width: var(--grid-label-width);
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  font-weight: var(--font-weight-medium);
+}
+
+.data-grid__table thead .data-grid__label {
+  background: var(--color-surface-muted);
+}
+
+.data-grid__group th,
+.data-grid__group td {
+  background: var(--color-surface-muted);
+  font-weight: var(--font-weight-semibold);
+}
+
+.data-grid__group .data-grid__label {
+  background: var(--color-surface-muted);
+}
+
+.data-grid__total th,
+.data-grid__total td {
+  font-weight: var(--font-weight-semibold);
+  border-top: 1px solid var(--color-border-strong);
+}
+
+.data-grid__total .data-grid__label {
+  background: var(--color-surface);
+}
+
+.data-grid__sum {
+  font-weight: var(--font-weight-semibold);
+  border-left: 1px solid var(--color-border);
+}
