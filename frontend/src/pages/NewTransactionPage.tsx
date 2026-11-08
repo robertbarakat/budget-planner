@@ -1,5 +1,8 @@
+import { useState } from 'react'
 import { useAccounts } from '../api/accounts.queries.ts'
 import { useBudgetItems, useCategories, useMacroAreas } from '../api/classification.queries.ts'
+import { useCreateTransaction } from '../api/transactions.queries.ts'
+import { useSnackbar } from '../components/Snackbar.tsx'
 import TransactionForm, { type CategoryGroup } from '../components/TransactionForm.tsx'
 import './NewTransactionPage.css'
 
@@ -9,6 +12,11 @@ export default function NewTransactionPage() {
   const macroAreas = useMacroAreas()
   const budgetItems = useBudgetItems({ where: { archived: false }, orderBy: [{ column: 'sort_order' }, { column: 'id' }] })
   const categories = useCategories({ where: { archived: false }, orderBy: [{ column: 'sort_order' }, { column: 'id' }] })
+
+  const create = useCreateTransaction()
+  const { showSuccess } = useSnackbar()
+  // Dopo un salvataggio il form riparte vuoto (nuova chiave = nuovo form), pronto per un altro inserimento.
+  const [formKey, setFormKey] = useState(0)
 
   const queries = [accounts, macroAreas, budgetItems, categories]
   const areaName = new Map((macroAreas.data ?? []).map((area) => [area.id, area.name]))
@@ -40,10 +48,29 @@ export default function NewTransactionPage() {
         </p>
       ) : (
         <TransactionForm
+          key={formKey}
+          busy={create.isPending}
           accounts={(accounts.data ?? []).map((account) => ({ id: account.id, name: account.name }))}
           categoryGroups={groups}
-          // Il salvataggio arriva con il ticket successivo: qui il form si ferma alla validazione.
-          onSubmit={() => undefined}
+          onSubmit={async (values) => {
+            try {
+              await create.mutateAsync({
+                type: values.type,
+                amount: values.amount,
+                transaction_date: values.date,
+                account_id: values.accountId,
+                category_id: values.categoryId,
+                budget_item_id: values.budgetItemId,
+                comment: values.comment,
+                tag: values.tag,
+              })
+            } catch {
+              // L'errore arriva dalla snackbar; il form non si svuota, così nulla va perso.
+              return
+            }
+            showSuccess(values.type === 'expense' ? 'Spesa salvata.' : 'Entrata salvata.')
+            setFormKey((key) => key + 1)
+          }}
         />
       )}
     </main>

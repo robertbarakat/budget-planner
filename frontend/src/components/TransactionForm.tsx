@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import {
   validateTransactionForm,
   type TransactionFormErrors,
@@ -60,6 +60,8 @@ export default function TransactionForm({ accounts, categoryGroups, initial, bus
     ...initial,
   }))
   const [errors, setErrors] = useState<TransactionFormErrors>({})
+  // Blocca il secondo invio anche nello stesso istante del primo, prima che `busy` si aggiorni.
+  const submitting = useRef(false)
 
   const groups = categoryGroups.filter((group) => group.kind === state.type)
   const selectedGroup = groups.find((group) => group.categories.some((c) => String(c.id) === state.categoryId))
@@ -83,7 +85,7 @@ export default function TransactionForm({ accounts, categoryGroups, initial, bus
 
   async function submit(event: FormEvent) {
     event.preventDefault()
-    if (busy) return
+    if (busy || submitting.current) return
     const result = validateTransactionForm(state)
     if (!result.ok) {
       setErrors(result.errors)
@@ -95,7 +97,12 @@ export default function TransactionForm({ accounts, categoryGroups, initial, bus
       setErrors({ category: 'Scegli la categoria.' })
       return
     }
-    await onSubmit({ ...result.values, budgetItemId: group.budgetItemId })
+    submitting.current = true
+    try {
+      await onSubmit({ ...result.values, budgetItemId: group.budgetItemId })
+    } finally {
+      submitting.current = false
+    }
   }
 
   return (
