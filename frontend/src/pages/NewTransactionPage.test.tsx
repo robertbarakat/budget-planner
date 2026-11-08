@@ -1,5 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -97,6 +97,27 @@ describe('NewTransactionPage salvataggio', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Salva spesa' }))
     expect(await screen.findByText(/Spesa salvata\./)).toBeInTheDocument()
     expect(create).toHaveBeenCalledTimes(2)
+  })
+
+  it('salva un trasferimento con tipo transfer, destinazione e nessuna categoria', async () => {
+    const create = vi.spyOn(transactionsService, 'create').mockResolvedValue(row({ id: 3 }))
+    setup()
+    await userEvent.click(await screen.findByRole('radio', { name: /Trasferimento/ }))
+    await userEvent.type(screen.getByLabelText(/Importo/), '100')
+    await userEvent.click(within(screen.getByRole('radiogroup', { name: /Conto di origine/ })).getByRole('radio', { name: /Conto A/ }))
+    await userEvent.click(within(screen.getByRole('radiogroup', { name: /Conto di destinazione/ })).getByRole('radio', { name: /Conto B/ }))
+    await userEvent.click(screen.getByRole('button', { name: 'Salva trasferimento' }))
+    await vi.waitFor(() => expect(create).toHaveBeenCalledTimes(1))
+    expect(create).toHaveBeenCalledWith({
+      type: 'transfer',
+      amount: 100,
+      transaction_date: new Date().toLocaleDateString('sv-SE'),
+      account_id: 1,
+      destination_account_id: 2,
+      comment: null,
+      tag: null,
+    })
+    expect(await screen.findByText(/Trasferimento salvato\./)).toBeInTheDocument()
   })
 
   it('non salva se il form non è valido', async () => {

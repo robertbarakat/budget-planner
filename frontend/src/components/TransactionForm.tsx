@@ -1,10 +1,11 @@
 import { useRef, useState, type FormEvent } from 'react'
 import {
   validateTransactionForm,
+  type CategorizedValues,
   type TransactionFormErrors,
   type TransactionFormState,
   type TransactionFormType,
-  type TransactionFormValues,
+  type TransferValues,
 } from '../lib/transaction-form.ts'
 import { todayIso } from '../lib/dates.ts'
 import Button from './Button.tsx'
@@ -22,14 +23,16 @@ export interface CategoryGroup {
   budgetItemId: number
   budgetItemName: string
   macroAreaName: string
-  kind: TransactionFormType
+  kind: 'expense' | 'income'
   categories: { id: number; name: string }[]
 }
 
-export interface TransactionFormSubmit extends TransactionFormValues {
-  /** Voce di budget della categoria scelta. */
+/** Spesa o entrata: con la voce di budget della categoria scelta. */
+export interface CategorizedSubmit extends CategorizedValues {
   budgetItemId: number
 }
+
+export type TransactionFormSubmit = CategorizedSubmit | TransferValues
 
 export interface TransactionFormProps {
   accounts: AccountOption[]
@@ -44,8 +47,13 @@ export interface TransactionFormProps {
 const TYPE_OPTIONS = [
   { value: 'expense', label: 'Spesa' },
   { value: 'income', label: 'Entrata' },
+  { value: 'transfer', label: 'Trasferimento' },
 ]
-const SUBMIT_LABEL: Record<TransactionFormType, string> = { expense: 'Salva spesa', income: 'Salva entrata' }
+const SUBMIT_LABEL: Record<TransactionFormType, string> = {
+  expense: 'Salva spesa',
+  income: 'Salva entrata',
+  transfer: 'Salva trasferimento',
+}
 
 /** Form "Nuovo movimento" per spesa ed entrata. La voce di budget si ricava dalla categoria scelta. */
 export default function TransactionForm({ accounts, categoryGroups, initial, busy = false, onSubmit }: TransactionFormProps) {
@@ -53,6 +61,7 @@ export default function TransactionForm({ accounts, categoryGroups, initial, bus
     type: 'expense',
     amountText: '',
     accountId: '',
+    destinationAccountId: '',
     categoryId: '',
     date: todayIso(),
     comment: '',
@@ -63,7 +72,9 @@ export default function TransactionForm({ accounts, categoryGroups, initial, bus
   // Blocca il secondo invio anche nello stesso istante del primo, prima che `busy` si aggiorni.
   const submitting = useRef(false)
 
+  const isTransfer = state.type === 'transfer'
   const groups = categoryGroups.filter((group) => group.kind === state.type)
+  const accountOptions = accounts.map((account) => ({ value: String(account.id), label: account.name }))
   const selectedGroup = groups.find((group) => group.categories.some((c) => String(c.id) === state.categoryId))
 
   function update<K extends keyof TransactionFormState>(key: K, value: TransactionFormState[K]) {
@@ -74,13 +85,14 @@ export default function TransactionForm({ accounts, categoryGroups, initial, bus
 
   function changeType(type: TransactionFormType) {
     setState((current) => {
+      if (type === 'transfer') return { ...current, type, categoryId: '' }
       // Una categoria di spesa non vale per un'entrata (e viceversa): si riparte dalla scelta.
       const stillValid = categoryGroups.some(
         (group) => group.kind === type && group.categories.some((c) => String(c.id) === current.categoryId),
       )
       return { ...current, type, categoryId: stillValid ? current.categoryId : '' }
     })
-    setErrors((current) => ({ ...current, category: undefined }))
+    setErrors((current) => ({ ...current, category: undefined, destination: undefined }))
   }
 
   async function submit(event: FormEvent) {
@@ -92,14 +104,21 @@ export default function TransactionForm({ accounts, categoryGroups, initial, bus
       return
     }
     setErrors({})
-    const group = groups.find((g) => g.categories.some((c) => c.id === result.values.categoryId))
-    if (!group) {
-      setErrors({ category: 'Scegli la categoria.' })
-      return
+    let payload: TransactionFormSubmit
+    if (result.values.type === 'transfer') {
+      payload = result.values
+    } else {
+      const categoryId = result.values.categoryId
+      const group = groups.find((g) => g.categories.some((c) => c.id === categoryId))
+      if (!group) {
+        setErrors({ category: 'Scegli la categoria.' })
+        return
+      }
+      payload = { ...result.values, budgetItemId: group.budgetItemId }
     }
     submitting.current = true
     try {
-      await onSubmit({ ...result.values, budgetItemId: group.budgetItemId })
+      await onSubmit(payload)
     } finally {
       submitting.current = false
     }
@@ -132,15 +151,28 @@ export default function TransactionForm({ accounts, categoryGroups, initial, bus
       </div>
 
       <ChoiceChips
-        label="Conto"
+        label={isTransfer ? 'Conto di origine' : 'Conto'}
         required
         error={errors.account}
-        options={accounts.map((account) => ({ value: String(account.id), label: account.name }))}
+        options={accountOptions}
         value={state.accountId}
         onChange={(value) => update('accountId', value)}
       />
       {accounts.length === 0 && <p className="transaction-form__hint">Nessun conto: aggiungine uno nelle Impostazioni.</p>}
 
+      {isTransfer && (
+        <ChoiceChips
+          label="Conto di destinazione"
+          required
+          error={errors.destination}
+          options={accountOptions}
+          value={state.destinationAccountId}
+          onChange={(value) => update('destinationAccountId', value)}
+        />
+      )}
+
+      {!isTransfer && (
+        <>
       <Field label="Categoria" required error={errors.category}>
         {(p) => (
           <select {...p} value={state.categoryId} onChange={(e) => update('categoryId', e.target.value)}>
@@ -164,6 +196,8 @@ export default function TransactionForm({ accounts, categoryGroups, initial, bus
           {selectedGroup ? `${selectedGroup.budgetItemName} · ${selectedGroup.macroAreaName}` : 'Si sceglie con la categoria'}
         </span>
       </p>
+        </>
+      )}
 
       <Field label="Data" required error={errors.date}>
         {(p) => <input {...p} type="date" value={state.date} onChange={(e) => update('date', e.target.value)} />}
@@ -191,6 +225,7 @@ export default function TransactionForm({ accounts, categoryGroups, initial, bus
 const ERROR_KEY: Partial<Record<keyof TransactionFormState, keyof TransactionFormErrors>> = {
   amountText: 'amount',
   accountId: 'account',
+  destinationAccountId: 'destination',
   categoryId: 'category',
   date: 'date',
 }

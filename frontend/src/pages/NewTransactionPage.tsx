@@ -6,6 +6,8 @@ import { useSnackbar } from '../components/Snackbar.tsx'
 import TransactionForm, { type CategoryGroup } from '../components/TransactionForm.tsx'
 import './NewTransactionPage.css'
 
+const SAVED_MESSAGE = { expense: 'Spesa salvata.', income: 'Entrata salvata.', transfer: 'Trasferimento salvato.' } as const
+
 export default function NewTransactionPage() {
   // Solo elementi non archiviati: un elemento archiviato sparisce dalle scelte di inserimento.
   const accounts = useAccounts({ where: { archived: false }, orderBy: [{ column: 'sort_order' }, { column: 'id' }] })
@@ -54,21 +56,23 @@ export default function NewTransactionPage() {
           categoryGroups={groups}
           onSubmit={async (values) => {
             try {
-              await create.mutateAsync({
-                type: values.type,
+              const common = {
                 amount: values.amount,
                 transaction_date: values.date,
                 account_id: values.accountId,
-                category_id: values.categoryId,
-                budget_item_id: values.budgetItemId,
                 comment: values.comment,
                 tag: values.tag,
-              })
+              }
+              await create.mutateAsync(
+                values.type === 'transfer'
+                  ? { ...common, type: 'transfer', destination_account_id: values.destinationAccountId }
+                  : { ...common, type: values.type, category_id: values.categoryId, budget_item_id: values.budgetItemId },
+              )
             } catch {
               // L'errore arriva dalla snackbar; il form non si svuota, così nulla va perso.
               return
             }
-            showSuccess(values.type === 'expense' ? 'Spesa salvata.' : 'Entrata salvata.')
+            showSuccess(SAVED_MESSAGE[values.type])
             setFormKey((key) => key + 1)
           }}
         />

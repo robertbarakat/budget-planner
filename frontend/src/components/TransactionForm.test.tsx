@@ -125,3 +125,54 @@ describe('TransactionForm', () => {
     expect(screen.getByRole('button', { name: /Salva spesa/ })).toBeDisabled()
   })
 })
+
+describe('TransactionForm: trasferimento', () => {
+  it('mostra origine e destinazione, nasconde categoria e voce di budget', async () => {
+    setup()
+    await userEvent.click(screen.getByRole('radio', { name: /Trasferimento/ }))
+    expect(screen.getByRole('radiogroup', { name: /Conto di origine/ })).toBeInTheDocument()
+    expect(screen.getByRole('radiogroup', { name: /Conto di destinazione/ })).toBeInTheDocument()
+    expect(screen.queryByLabelText(/Categoria/)).not.toBeInTheDocument()
+    expect(screen.queryByText('Voce di budget')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Salva trasferimento' })).toBeInTheDocument()
+  })
+
+  it('con origine uguale alla destinazione mostra l\'errore e non salva', async () => {
+    const onSubmit = setup()
+    await userEvent.click(screen.getByRole('radio', { name: /Trasferimento/ }))
+    await userEvent.type(screen.getByLabelText(/Importo/), '50')
+    const origin = within(screen.getByRole('radiogroup', { name: /Conto di origine/ }))
+    const destination = within(screen.getByRole('radiogroup', { name: /Conto di destinazione/ }))
+    await userEvent.click(origin.getByRole('radio', { name: /Conto A/ }))
+    await userEvent.click(destination.getByRole('radio', { name: /Conto A/ }))
+    await userEvent.click(screen.getByRole('button', { name: 'Salva trasferimento' }))
+    expect(screen.getByText('Il conto di destinazione deve essere diverso da quello di origine.')).toBeInTheDocument()
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it('con conti diversi consegna un trasferimento senza categoria né voce', async () => {
+    const onSubmit = setup()
+    await userEvent.click(screen.getByRole('radio', { name: /Trasferimento/ }))
+    await userEvent.type(screen.getByLabelText(/Importo/), '50')
+    await userEvent.click(within(screen.getByRole('radiogroup', { name: /Conto di origine/ })).getByRole('radio', { name: /Conto A/ }))
+    await userEvent.click(within(screen.getByRole('radiogroup', { name: /Conto di destinazione/ })).getByRole('radio', { name: /Conto B/ }))
+    await userEvent.click(screen.getByRole('button', { name: 'Salva trasferimento' }))
+    expect(onSubmit).toHaveBeenCalledWith({
+      type: 'transfer',
+      amount: 50,
+      accountId: 1,
+      destinationAccountId: 2,
+      date: new Date().toLocaleDateString('sv-SE'),
+      comment: null,
+      tag: null,
+    })
+  })
+
+  it('passando da trasferimento a spesa riappare la categoria e sparisce la destinazione', async () => {
+    setup()
+    await userEvent.click(screen.getByRole('radio', { name: /Trasferimento/ }))
+    await userEvent.click(screen.getByRole('radio', { name: /Spesa/ }))
+    expect(screen.getByLabelText(/Categoria/)).toBeInTheDocument()
+    expect(screen.queryByRole('radiogroup', { name: /Conto di destinazione/ })).not.toBeInTheDocument()
+  })
+})
