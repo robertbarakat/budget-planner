@@ -1,0 +1,91 @@
+/*
+ * Design token del Budget Planner (valori ricavati da docs/mockups/).
+ * Nei componenti si usano solo questi token: niente valori hardcoded.
+ * Documentazione: docs/design-tokens.md.
+ */
+:root {
+  /* Colori: marchio */
+  --color-primary: #0b6e6a;
+  --color-primary-soft: #e3f1f0;
+  --color-primary-strong: #0b4f4c;
+  --color-on-primary: #ffffff;
+
+  /* Colori: superfici e bordi */
+  --color-background: #f3f5f7;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f6f8fa;
+  --color-surface-sunken: #edf0f3;
+  --color-border: #dde3e8;
+  --color-border-subtle: #e4e9ed;
+  --color-border-strong: #c5cfd7; /* solo decorativo: contrasto < 4,5:1 */
+
+  /* Colori: testo */
+  --color-text: #14212b;
+  --color-text-muted: #55646f;
+
+  /* Colori: stati. Il significato non va mai affidato solo al colore. */
+  --color-negative: #b23a0a;
+  --color-negative-soft: #e7b9a6;
+  --color-positive: #0b6e6a;
+  --color-warning: #8a5a00;
+  --color-info: #1b4fd1;
+  --color-info-soft: #a9bdf0;
+
+  /* Font */
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Scala tipografica (px dei mockup espressi in rem, base 16px) */
+  --font-size-2xs: 0.625rem; /* 10 */
+  --font-size-xs: 0.6875rem; /* 11 */
+  --font-size-sm: 0.75rem; /* 12 */
+  --font-size-md: 0.8125rem; /* 13 */
+  --font-size-base: 0.875rem; /* 14 */
+  --font-size-lg: 1rem; /* 16 */
+  --font-size-xl: 1.0625rem; /* 17 */
+  --font-size-2xl: 1.5rem; /* 24 */
+  --font-size-3xl: 1.75rem; /* 28 */
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  --line-height-tight: 1.2;
+  --line-height-base: 1.5;
+  --letter-spacing-tight: -0.019rem;
+
+  /* Spazi */
+  --space-0: 0;
+  --space-1: 0.125rem; /* 2 */
+  --space-2: 0.25rem; /* 4 */
+  --space-3: 0.375rem; /* 6 */
+  --space-4: 0.5rem; /* 8 */
+  --space-5: 0.625rem; /* 10 */
+  --space-6: 0.75rem; /* 12 */
+  --space-7: 0.875rem; /* 14 */
+  --space-8: 1rem; /* 16 */
+  --space-9: 1.25rem; /* 20 */
+  --space-10: 1.5rem; /* 24 */
+  --space-11: 2rem; /* 32 */
+  --space-12: 2.5rem; /* 40 */
+
+  /* Raggi */
+  --radius-xs: 0.1875rem; /* 3 */
+  --radius-sm: 0.5rem; /* 8 */
+  --radius-md: 0.625rem; /* 10 */
+  --radius-lg: 0.75rem; /* 12 */
+  --radius-xl: 0.875rem; /* 14 */
+  --radius-2xl: 1rem; /* 16 */
+  --radius-full: 9999px;
+
+  /* Ombre */
+  --shadow-sm: 0 1px 2px rgb(20 33 43 / 12%);
+  --shadow-md: 0 4px 12px rgb(20 33 43 / 12%);
+  --shadow-lg: 0 8px 24px rgb(20 33 43 / 16%);
+
+  /* Target e focus */
+  --target-min: 2.75rem; /* 44 */
+  --focus-ring-width: 0.125rem;
+  --focus-ring-offset: 0.125rem;
+  --focus-ring-color: var(--color-primary-strong);
+}

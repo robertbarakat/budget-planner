@@ -1,6 +1,6 @@
 # Frontend
 
-React + Vite + TypeScript, lint con Oxlint. L'autore scrive il front-end: qui Claude revisiona, suggerisce, o fa solo ciò che il ticket chiede. Il livello dati (`src/api/`) lo scrive Claude (decisione del 2026-11-08, ticket BP-38 e BP-158..164).
+React + Vite + TypeScript, lint con Oxlint. Claude implementa i ticket frontend per intero (decisione dell'autore, 2026-11-08). Il livello dati (`src/api/`) lo scrive Claude dal ticket BP-38 (BP-158..164).
 
 ## Librerie
 - Dati dal server: React Query (cache, stati di caricamento ed errore). Stato locale (grafica, preferenze salvate in locale): Jotai.
