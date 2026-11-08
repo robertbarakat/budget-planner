@@ -24,3 +24,21 @@
   font-size: var(--font-size-2xs);
   line-height: var(--line-height-base);
 }
+
+.budget-cell__button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  min-height: var(--target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.budget-cell__button:hover {
+  background: var(--color-primary-soft);
+}

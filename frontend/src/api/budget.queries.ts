@@ -19,6 +19,16 @@ export function useBudgetEntries(filters: BudgetEntryFilters = {}) {
   })
 }
 
+/** Salva (o elimina, con `amount: null`) la riga manuale di una cella del budget. */
+export function useSetManualBudgetAmount() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (args: { budgetItemId: number; year: number; month: number; amount: number | null }) =>
+      budgetService.setManualAmount(args.budgetItemId, args.year, args.month, args.amount),
+    onSuccess: () => invalidateAll(queryClient, invalidate),
+  })
+}
+
 export function useClosedMonths(year?: number) {
   return useQuery({
     queryKey: [...queryKeys.budget.closedMonths, 'list', year ?? null],

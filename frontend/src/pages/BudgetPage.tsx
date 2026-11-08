@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
-import { useBudgetEntries } from '../api/budget.queries.ts'
+import { useBudgetEntries, useSetManualBudgetAmount } from '../api/budget.queries.ts'
 import { useBudgetItems, useMacroAreas } from '../api/classification.queries.ts'
 import Amount from '../components/Amount.tsx'
+import BudgetCellDialog from '../components/BudgetCellDialog.tsx'
+import { useSnackbar } from '../components/Snackbar.tsx'
 import YearSelector from '../components/YearSelector.tsx'
 import { buildBudgetGrid, sourceLabel, sourceShortLabel, type GridCell } from '../lib/budget-grid.ts'
 import { monthOptions } from '../lib/months.ts'
@@ -15,6 +17,8 @@ export default function BudgetPage() {
   const macroAreas = useMacroAreas()
   const budgetItems = useBudgetItems()
   const entries = useBudgetEntries({ year })
+  const setManual = useSetManualBudgetAmount()
+  const { showSuccess } = useSnackbar()
 
   const queries = [macroAreas, budgetItems, entries]
   const grid = useMemo(() => {
@@ -94,8 +98,21 @@ export default function BudgetPage() {
                       {item.archived ? `${item.name} (archiviata)` : item.name}
                     </th>
                     {item.months.map((cell, index) => (
-                      <td key={index} aria-label={`${item.name}, ${MONTHS[index]!.label}`}>
-                        <BudgetCell cell={cell} />
+                      <td key={index}>
+                        <BudgetCellDialog
+                          title={`${item.name}, ${MONTHS[index]!.label} ${year}`}
+                          kind={item.kind}
+                          entries={cell.entries}
+                          onSave={async (amount) => {
+                            await setManual.mutateAsync({ budgetItemId: item.budgetItemId, year, month: index + 1, amount })
+                            showSuccess(amount === null ? 'Riga manuale eliminata.' : 'Budget salvato.')
+                          }}
+                          trigger={
+                            <button type="button" className="budget-cell__button" aria-label={`Modifica ${item.name}, ${MONTHS[index]!.label} ${year}`}>
+                              <BudgetCell cell={cell} />
+                            </button>
+                          }
+                        />
                       </td>
                     ))}
                     <td className="data-grid__sum">

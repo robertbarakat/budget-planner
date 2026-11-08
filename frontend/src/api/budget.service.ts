@@ -34,6 +34,25 @@ export class BudgetService {
     return [...new Set(rows.map((row) => row.budget_item_id))]
   }
 
+  /**
+   * Imposta l'importo manuale di una cella (voce + anno + mese). Le righe con altra origine non si toccano.
+   * `null` elimina le righe manuali; con più righe manuali ne resta una sola con l'importo indicato.
+   */
+  async setManualAmount(budgetItemId: number, year: number, month: number, amount: number | null): Promise<void> {
+    const manual = await this.listEntries({ year, month, budgetItemId, source: 'manual' })
+    if (amount === null) {
+      await Promise.all(manual.map((row) => this.entries.remove(row.id)))
+      return
+    }
+    const [first, ...extra] = manual
+    if (!first) {
+      await this.entries.create({ budget_item_id: budgetItemId, year, month, amount, source: 'manual' })
+    } else if (first.amount !== amount) {
+      await this.entries.update(first.id, { amount })
+    }
+    await Promise.all(extra.map((row) => this.entries.remove(row.id)))
+  }
+
   /** Mesi chiusi, opzionalmente di un solo anno. */
   listClosedMonths(year?: number) {
     return this.closedMonths.list({
