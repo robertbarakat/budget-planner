@@ -1,0 +1,44 @@
+.tax-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: calc(var(--sidebar-width) * 4);
+}
+
+.tax-page__note {
+  color: var(--color-text-muted);
+}
+
+.tax-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: var(--space-4);
+}
+
+.tax-page__grid > div,
+.tax-page__advance {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.tax-page__grid dt,
+.tax-page__advance h4 {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.tax-page__grid dd,
+.tax-page__value {
+  font-weight: var(--font-weight-semibold);
+}
+
+.tax-page__why {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}

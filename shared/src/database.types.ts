@@ -299,14 +299,14 @@ isOneToOne: false
                   ]
                 },"tax_parameters": {
                   Row: {
-                    "activity_start_year": number,"created_at": string,"has_other_pension_coverage": boolean,"id": number,"inps_rate": number,"is_startup": boolean,"profitability_coefficient": number,"substitute_tax_rate": number,"year": number
+                    "activity_start_year": number,"created_at": string,"first_advance_due_date": string | null,"first_advance_method": Database["public"]["Enums"]["advance_method"],"has_other_pension_coverage": boolean,"id": number,"inps_rate": number,"is_startup": boolean,"profitability_coefficient": number,"second_advance_due_date": string | null,"second_advance_method": Database["public"]["Enums"]["advance_method"],"substitute_tax_rate": number,"year": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "activity_start_year": number,"created_at"?: string,"has_other_pension_coverage"?: boolean,"id"?: never,"inps_rate": number,"is_startup"?: boolean,"profitability_coefficient": number,"substitute_tax_rate": number,"year": number
+                    "activity_start_year": number,"created_at"?: string,"first_advance_due_date"?: string | null,"first_advance_method"?: Database["public"]["Enums"]["advance_method"],"has_other_pension_coverage"?: boolean,"id"?: never,"inps_rate": number,"is_startup"?: boolean,"profitability_coefficient": number,"second_advance_due_date"?: string | null,"second_advance_method"?: Database["public"]["Enums"]["advance_method"],"substitute_tax_rate": number,"year": number
                   }
                   Update: {
-                    "activity_start_year"?: number,"created_at"?: string,"has_other_pension_coverage"?: boolean,"id"?: never,"inps_rate"?: number,"is_startup"?: boolean,"profitability_coefficient"?: number,"substitute_tax_rate"?: number,"year"?: number
+                    "activity_start_year"?: number,"created_at"?: string,"first_advance_due_date"?: string | null,"first_advance_method"?: Database["public"]["Enums"]["advance_method"],"has_other_pension_coverage"?: boolean,"id"?: never,"inps_rate"?: number,"is_startup"?: boolean,"profitability_coefficient"?: number,"second_advance_due_date"?: string | null,"second_advance_method"?: Database["public"]["Enums"]["advance_method"],"substitute_tax_rate"?: number,"year"?: number
                   }
                   Relationships: [
                     
@@ -404,7 +404,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "balance_source": "manual"|"carried_over","budget_entry_source": "manual"|"revenue_driver"|"recurrence"|"tax","budget_item_kind": "income"|"expense","recurrence_frequency": "monthly"|"bimonthly"|"quarterly"|"semiannual"|"annual","tax_type": "substitute_tax"|"substitute_tax_advance"|"substitute_tax_balance"|"inps"|"inps_advance"|"inps_balance","transaction_type": "expense"|"income"|"transfer"
+            "advance_method": "historic"|"forecast","balance_source": "manual"|"carried_over","budget_entry_source": "manual"|"revenue_driver"|"recurrence"|"tax","budget_item_kind": "income"|"expense","recurrence_frequency": "monthly"|"bimonthly"|"quarterly"|"semiannual"|"annual","tax_type": "substitute_tax"|"substitute_tax_advance"|"substitute_tax_balance"|"inps"|"inps_advance"|"inps_balance","transaction_type": "expense"|"income"|"transfer"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -524,7 +524,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "balance_source": ["manual", "carried_over"],"budget_entry_source": ["manual", "revenue_driver", "recurrence", "tax"],"budget_item_kind": ["income", "expense"],"recurrence_frequency": ["monthly", "bimonthly", "quarterly", "semiannual", "annual"],"tax_type": ["substitute_tax", "substitute_tax_advance", "substitute_tax_balance", "inps", "inps_advance", "inps_balance"],"transaction_type": ["expense", "income", "transfer"]
+            "advance_method": ["historic", "forecast"],"balance_source": ["manual", "carried_over"],"budget_entry_source": ["manual", "revenue_driver", "recurrence", "tax"],"budget_item_kind": ["income", "expense"],"recurrence_frequency": ["monthly", "bimonthly", "quarterly", "semiannual", "annual"],"tax_type": ["substitute_tax", "substitute_tax_advance", "substitute_tax_balance", "inps", "inps_advance", "inps_balance"],"transaction_type": ["expense", "income", "transfer"]
           }
         }
 } as const

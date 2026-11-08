@@ -24,6 +24,7 @@ export const useUpdateInstallment = installments.useUpdate
 export const useDeleteInstallment = installments.useRemove
 
 const deadlines = createCrudHooks({ service: taxService.f24Deadlines, key: queryKeys.tax.f24Deadlines, invalidate })
+export const useF24Deadlines = deadlines.useList
 export const useCreateF24Deadline = deadlines.useCreate
 export const useUpdateF24Deadline = deadlines.useUpdate
 export const useDeleteF24Deadline = deadlines.useRemove

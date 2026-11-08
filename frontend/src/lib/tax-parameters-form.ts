@@ -8,9 +8,17 @@ export interface TaxParametersDraft {
   isStartup: boolean
   hasOtherPensionCoverage: boolean
   activityStartYear: string
+  firstAdvanceDueDate: string
+  secondAdvanceDueDate: string
+  firstAdvanceMethod: AdvanceMethod
+  secondAdvanceMethod: AdvanceMethod
 }
 
-export type TaxParametersErrors = Partial<Record<'profitabilityCoefficient' | 'inpsRate' | 'substituteTaxRate' | 'activityStartYear', string>>
+export type AdvanceMethod = 'historic' | 'forecast'
+
+export type TaxParametersErrors = Partial<
+  Record<'profitabilityCoefficient' | 'inpsRate' | 'substituteTaxRate' | 'activityStartYear' | 'firstAdvanceDueDate' | 'secondAdvanceDueDate', string>
+>
 
 export const emptyTaxParametersDraft: TaxParametersDraft = {
   profitabilityCoefficient: '',
@@ -19,8 +27,31 @@ export const emptyTaxParametersDraft: TaxParametersDraft = {
   isStartup: false,
   hasOtherPensionCoverage: false,
   activityStartYear: '',
+  firstAdvanceDueDate: '',
+  secondAdvanceDueDate: '',
+  firstAdvanceMethod: 'historic',
+  secondAdvanceMethod: 'forecast',
 }
 
+/** Scadenze di partenza della prima volta (30 giugno e 30 novembre): poi si ripropone l'ultimo anno salvato. */
+const DEFAULT_FIRST_ADVANCE = '06-30'
+const DEFAULT_SECOND_ADVANCE = '11-30'
+
+/**
+ * Date degli acconti da proporre per un anno: quelle dell'ultimo anno salvato (stesso giorno e mese),
+ * altrimenti 30 giugno e 30 novembre.
+ */
+export function defaultAdvanceDates(
+  year: number,
+  saved: readonly { year: number; first_advance_due_date: string | null; second_advance_due_date: string | null }[],
+): { firstAdvanceDueDate: string; secondAdvanceDueDate: string } {
+  const latest = [...saved].filter((r) => r.first_advance_due_date && r.second_advance_due_date).sort((a, b) => b.year - a.year)[0]
+  const monthDay = (date: string | null | undefined, fallback: string) => (date ? date.slice(5) : fallback)
+  return {
+    firstAdvanceDueDate: `${year}-${monthDay(latest?.first_advance_due_date, DEFAULT_FIRST_ADVANCE)}`,
+    secondAdvanceDueDate: `${year}-${monthDay(latest?.second_advance_due_date, DEFAULT_SECOND_ADVANCE)}`,
+  }
+}
 const MIN_START_YEAR = 2000
 
 /** Legge una percentuale ("26,07" o "26.07"): `null` se non è un numero con al massimo 2 decimali. */
@@ -55,6 +86,14 @@ export function validateTaxParameters(
   else if (!Number.isInteger(startYear) || startYear < MIN_START_YEAR) errors.activityStartYear = `L'anno di inizio attività deve essere un anno dal ${MIN_START_YEAR} in poi.`
   else if (startYear > year) errors.activityStartYear = `L'anno di inizio attività non può essere dopo il ${year}.`
 
+  const first = draft.firstAdvanceDueDate
+  const second = draft.secondAdvanceDueDate
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(first)) errors.firstAdvanceDueDate = 'La data del primo acconto è obbligatoria.'
+  else if (Number(first.slice(0, 4)) !== year) errors.firstAdvanceDueDate = `La data del primo acconto deve cadere nel ${year}.`
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(second)) errors.secondAdvanceDueDate = 'La data del secondo acconto è obbligatoria.'
+  else if (Number(second.slice(0, 4)) !== year) errors.secondAdvanceDueDate = `La data del secondo acconto deve cadere nel ${year}.`
+  else if (!errors.firstAdvanceDueDate && second <= first) errors.secondAdvanceDueDate = 'Il secondo acconto deve essere dopo il primo.'
+
   if (Object.keys(errors).length > 0) return { errors }
   return {
     values: {
@@ -64,6 +103,10 @@ export function validateTaxParameters(
       is_startup: draft.isStartup,
       has_other_pension_coverage: draft.hasOtherPensionCoverage,
       activity_start_year: startYear,
+      first_advance_due_date: first,
+      second_advance_due_date: second,
+      first_advance_method: draft.firstAdvanceMethod,
+      second_advance_method: draft.secondAdvanceMethod,
     },
   }
 }
@@ -76,6 +119,10 @@ export function draftFromTaxParameters(row: {
   is_startup: boolean
   has_other_pension_coverage: boolean
   activity_start_year: number
+  first_advance_due_date: string | null
+  second_advance_due_date: string | null
+  first_advance_method: AdvanceMethod
+  second_advance_method: AdvanceMethod
 }): TaxParametersDraft {
   const percent = (n: number) => String(n).replace('.', ',')
   return {
@@ -85,5 +132,9 @@ export function draftFromTaxParameters(row: {
     isStartup: row.is_startup,
     hasOtherPensionCoverage: row.has_other_pension_coverage,
     activityStartYear: String(row.activity_start_year),
+    firstAdvanceDueDate: row.first_advance_due_date ?? '',
+    secondAdvanceDueDate: row.second_advance_due_date ?? '',
+    firstAdvanceMethod: row.first_advance_method,
+    secondAdvanceMethod: row.second_advance_method,
   }
 }

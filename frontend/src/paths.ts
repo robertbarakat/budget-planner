@@ -9,6 +9,7 @@ export const paths = {
   budget: '/budget',
   macroAreas: '/macro-areas',
   matrix: '/matrix',
+  tax: '/tax',
   settings: '/settings',
   settingsMacroAreas: '/settings/macro-areas',
   settingsBudgetItems: '/settings/budget-items',

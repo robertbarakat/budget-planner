@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { useSaveTaxParameters, useTaxParameters } from '../../api/tax.queries.ts'
+import { useSaveTaxParameters, useTaxParameters, useTaxParametersList } from '../../api/tax.queries.ts'
 import Button from '../../components/Button.tsx'
 import Field from '../../components/Field.tsx'
 import { useSnackbar } from '../../components/Snackbar.tsx'
 import YearSelector from '../../components/YearSelector.tsx'
 import {
+  defaultAdvanceDates,
   draftFromTaxParameters,
   emptyTaxParametersDraft,
+  type AdvanceMethod,
   validateTaxParameters,
   type TaxParametersDraft,
   type TaxParametersErrors,
@@ -19,6 +21,7 @@ import './settings.css'
 export default function TaxParametersPage() {
   const [year, setYear] = useState(() => new Date().getFullYear())
   const parameters = useTaxParameters(year)
+  const saved = useTaxParametersList()
 
   return (
     <main className="settings">
@@ -28,11 +31,11 @@ export default function TaxParametersPage() {
       <h1>Parametri fiscali</h1>
       <p className="settings__status">Valori per anno: coefficiente, aliquote e dati dell'attività. I calcoli fiscali usano quelli dell'anno scelto.</p>
       <YearSelector year={year} onChange={setYear} />
-      {parameters.isError ? (
+      {parameters.isError || saved.isError ? (
         <p role="alert" className="settings__status">
           Non riesco a leggere i parametri fiscali. Riprova più tardi.
         </p>
-      ) : parameters.isPending ? (
+      ) : parameters.isPending || saved.isPending ? (
         <p role="status" className="settings__status">
           Caricamento…
         </p>
@@ -41,7 +44,7 @@ export default function TaxParametersPage() {
         <TaxParametersForm
           key={`${year}-${parameters.data?.id ?? 'new'}`}
           year={year}
-          initial={parameters.data ? draftFromTaxParameters(parameters.data) : emptyTaxParametersDraft}
+          initial={parameters.data ? draftFromTaxParameters(parameters.data) : { ...emptyTaxParametersDraft, ...defaultAdvanceDates(year, saved.data ?? []) }}
           exists={parameters.data !== null}
         />
       )}
@@ -86,6 +89,28 @@ function TaxParametersForm({ year, initial, exists }: { year: number; initial: T
       </Field>
       <Field label="Anno di inizio attività" error={errors.activityStartYear} required>
         {(control) => <input {...control} inputMode="numeric" value={draft.activityStartYear} onChange={(e) => set('activityStartYear', e.target.value)} />}
+      </Field>
+      <Field label="Data primo acconto (vale anche per il saldo dell'anno prima)" error={errors.firstAdvanceDueDate} required>
+        {(control) => <input {...control} type="date" value={draft.firstAdvanceDueDate} onChange={(e) => set('firstAdvanceDueDate', e.target.value)} />}
+      </Field>
+      <Field label="Metodo del primo acconto" help="Storico: come l'anno scorso. Previsionale: sugli incassi reali.">
+        {(control) => (
+          <select {...control} value={draft.firstAdvanceMethod} onChange={(e) => set('firstAdvanceMethod', e.target.value as AdvanceMethod)}>
+            <option value="historic">Storico</option>
+            <option value="forecast">Previsionale</option>
+          </select>
+        )}
+      </Field>
+      <Field label="Data secondo acconto" error={errors.secondAdvanceDueDate} required>
+        {(control) => <input {...control} type="date" value={draft.secondAdvanceDueDate} onChange={(e) => set('secondAdvanceDueDate', e.target.value)} />}
+      </Field>
+      <Field label="Metodo del secondo acconto">
+        {(control) => (
+          <select {...control} value={draft.secondAdvanceMethod} onChange={(e) => set('secondAdvanceMethod', e.target.value as AdvanceMethod)}>
+            <option value="historic">Storico</option>
+            <option value="forecast">Previsionale</option>
+          </select>
+        )}
       </Field>
       <label className="tax-parameters__check">
         <input type="checkbox" checked={draft.isStartup} onChange={(e) => set('isStartup', e.target.checked)} />

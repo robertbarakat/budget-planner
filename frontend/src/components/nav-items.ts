@@ -9,5 +9,6 @@ export const navItems: readonly { to: string; label: string; end: boolean; deskt
   { to: paths.budget, label: 'Budget', end: false },
   { to: paths.macroAreas, label: 'Macro-aree', end: false },
   { to: paths.matrix, label: 'Matrice', end: false, desktopOnly: true },
+  { to: paths.tax, label: 'Fiscale', end: false, desktopOnly: true },
   { to: paths.settings, label: 'Impostazioni', end: false },
 ]

@@ -19,13 +19,17 @@ function setup() {
   )
 }
 
-beforeEach(() => vi.restoreAllMocks())
+beforeEach(() => {
+  vi.restoreAllMocks()
+  vi.spyOn(taxService.parameters, 'list').mockResolvedValue([])
+})
 
 describe('TaxParametersPage', () => {
   it('mostra i parametri salvati dell\'anno', async () => {
     vi.spyOn(taxService, 'getParametersForYear').mockResolvedValue({
       id: 1, year: 2026, profitability_coefficient: 67, inps_rate: 26.07, substitute_tax_rate: 15,
       is_startup: false, has_other_pension_coverage: false, activity_start_year: 2025, created_at: '',
+      first_advance_due_date: null, second_advance_due_date: null, first_advance_method: 'historic', second_advance_method: 'forecast',
     })
     setup()
     expect(await screen.findByLabelText(/Aliquota INPS/)).toHaveValue('26,07')
@@ -33,6 +37,7 @@ describe('TaxParametersPage', () => {
 
   it('non salva percentuali fuori da 0–100', async () => {
     vi.spyOn(taxService, 'getParametersForYear').mockResolvedValue(null)
+    vi.spyOn(taxService.parameters, 'list').mockResolvedValue([])
     const save = vi.spyOn(taxService, 'saveParametersForYear')
     setup()
     const user = userEvent.setup()
@@ -47,6 +52,7 @@ describe('TaxParametersPage', () => {
 
   it('salva i valori validi', async () => {
     vi.spyOn(taxService, 'getParametersForYear').mockResolvedValue(null)
+    vi.spyOn(taxService.parameters, 'list').mockResolvedValue([])
     const save = vi.spyOn(taxService, 'saveParametersForYear').mockResolvedValue({} as never)
     setup()
     const user = userEvent.setup()
