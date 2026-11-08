@@ -95,7 +95,7 @@ function parseDateTime(value: ImportCell): ParsedDate | null {
 }
 
 /** Cents with sign, or null if empty/not numeric. Accepts 12.5, "12,5", "1.234,56". */
-function parseAmountCents(value: ImportCell): number | null {
+export function parseAmountCents(value: ImportCell): number | null {
   if (typeof value === 'number') return Number.isFinite(value) ? eurosToCents(value) : null
   if (typeof value !== 'string') return null
   let s = value.trim().replace(/\s/g, '')

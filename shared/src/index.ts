@@ -98,3 +98,6 @@ export type {
 } from './import-normalize.ts'
 export { mapImportedTransactions, normalizeMappingText, parseMappingRules } from './import-mapping.ts'
 export type { MappedTransaction, MappingResult, MappingRule } from './import-mapping.ts'
+export { parseAmountCents } from './import-normalize.ts'
+export { diffBalances, diffTotals, totalsFromTransactions } from './import-reconcile.ts'
+export type { BalanceDifference, ReconcileTransaction, TotalsDifference, TotalsEntry, TotalsKind } from './import-reconcile.ts'

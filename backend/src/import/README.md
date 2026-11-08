@@ -55,3 +55,10 @@ npm run import:run -- /percorso/file.xlsx ../docs/import-data/category-mapping.j
 Ordine: database vuoto? (se no, si ferma) → anteprima → scarti entro `--max-rejected`? (se no, si ferma; la soglia è obbligatoria) → conferma **digitata** (`importa`; qualunque altra risposta o input chiuso = nessuna scrittura) → funzione SQL `import_transactions` (una transazione). A fine scrittura controlla che i movimenti inseriti siano quelli dell'anteprima. Niente deduplica: dopo un import riuscito rilanciarlo si ferma (database non vuoto).
 - **Solo database locale** per default (`SUPABASE_URL` su 127.0.0.1/localhost). Per un progetto remoto serve `--allow-remote`: da usare solo il giorno del passaggio, dopo `import:preview` e `import:setup`.
 - Prova locale: `cd database && npx supabase start`, poi esporta `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` da `npx supabase status -o env`.
+
+## Riconciliazione (BP-126)
+```bash
+npm run import:reconcile -- /percorso/file.xlsx ../docs/import-data/category-mapping.json [--balances saldi.json --year 2026] [--out report.md]
+```
+Solo lettura. Confronta, per anno, conto e tipo (spese, entrate, trasferimenti in uscita/entrata), i totali del database con quelli dei movimenti accettati dall'anteprima. Report in `docs/import-data/reconcile-report.md` con le **sole differenze** e, per spiegarle, righe e importi scartati per foglio. A terminale solo conteggi. Esce con codice 2 se ci sono differenze.
+- `--balances`: file JSON `{ "Nome conto": saldo attuale in euro }`; con `--year` confronta i saldi calcolati con `computeAccountBalances` (saldo iniziale dell'anno + movimenti dal 1 gennaio) con quelli digitati. Va usato dopo aver salvato i saldi iniziali (BP-151).
