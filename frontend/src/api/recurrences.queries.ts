@@ -41,10 +41,10 @@ export function useActiveRecurrences() {
   })
 }
 
-export function useUpcomingOccurrences(fromDate: string, limit = 5) {
+export function useOccurrencesInRange(from: string, to: string) {
   return useQuery({
-    queryKey: [...queryKeys.recurrences.occurrences, 'upcoming', fromDate, limit],
-    queryFn: () => recurrencesService.listUpcomingOccurrences(fromDate, limit),
+    queryKey: [...queryKeys.recurrences.occurrences, 'range', from, to],
+    queryFn: () => recurrencesService.listOccurrencesInRange(from, to),
   })
 }
 

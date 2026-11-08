@@ -85,14 +85,18 @@ describe('RecurrencesService', () => {
     ])
   })
 
-  it('listUpcomingOccurrences esclude le ricorrenze archiviate e limita il numero', async () => {
+  it('listOccurrencesInRange filtra per date ed esclude le ricorrenze archiviate', async () => {
     const occ = (id: number, recurrence_id: number, due_date: string) => ({ id, recurrence_id, due_date, amount: 1, budget_entry_id: null, created_at: '', is_manually_modified: false })
-    const { client } = fakeSupabase({
+    const { client, calls } = fakeSupabase({
       recurrence_occurrences: { data: [occ(1, 1, '2026-03-01'), occ(2, 2, '2026-03-02'), occ(3, 1, '2026-03-03')], error: null },
       recurrences: { data: [{ id: 1 }], error: null },
     })
-    const rows = await new RecurrencesService(() => client).listUpcomingOccurrences('2026-03-01', 2)
+    const rows = await new RecurrencesService(() => client).listOccurrencesInRange('2026-03-01', '2026-03-31')
     expect(rows.map((r) => r.id)).toEqual([1, 3])
+    expect(calls.filter((c) => c.method === 'gte' || c.method === 'lte').map((c) => c.args)).toEqual([
+      ['due_date', '2026-03-01'],
+      ['due_date', '2026-03-31'],
+    ])
   })
 
   it('un errore del database sulla creazione diventa AppError in italiano', async () => {

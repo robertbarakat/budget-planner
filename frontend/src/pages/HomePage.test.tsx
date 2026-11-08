@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { accountsService } from '../api/accounts.service.ts'
 import { budgetService } from '../api/budget.service.ts'
 import { classificationService } from '../api/classification.service.ts'
+import { recurrencesService } from '../api/recurrences.service.ts'
 import { transactionsService } from '../api/transactions.service.ts'
 import { SnackbarProvider } from '../components/Snackbar.tsx'
 import { AppError } from '../api/api-error.ts'
@@ -51,6 +52,8 @@ beforeEach(() => {
     { id: 3, type: 'expense', account_id: 1, category_id: 2, transaction_date: '2026-03-05', amount: 120 } as never,
     { id: 1, type: 'income', account_id: 2, category_id: 1, transaction_date: '2026-01-10', amount: 900 } as never,
   ])
+  vi.spyOn(recurrencesService.recurrences, 'list').mockResolvedValue([])
+  vi.spyOn(recurrencesService, 'listOccurrencesInRange').mockResolvedValue([])
 })
 
 afterEach(() => vi.useRealTimers())
@@ -90,6 +93,36 @@ describe('HomePage', () => {
     expect(within(card).getByText('Scostamento').nextElementSibling).toHaveTextContent('+380,00')
     expect(within(card).getByText('Reale').nextElementSibling).toHaveTextContent('−')
     expect(within(card).getByText('Spese sotto il previsto.')).toBeInTheDocument()
+  })
+
+  it('le prossime scadenze mostrano nome, data, importo con segno e "Scaduta" per le passate non registrate', async () => {
+    vi.spyOn(recurrencesService.recurrences, 'list').mockResolvedValue([
+      { id: 1, name: 'Mutuo', archived: false, budget_item_id: 20, account_id: 1, base_amount: 650 } as never,
+      { id: 2, name: 'Affitto studio', archived: false, budget_item_id: 10, account_id: 1, base_amount: 300 } as never,
+      { id: 3, name: 'Vecchio abbonamento', archived: true, budget_item_id: 20, account_id: 1, base_amount: 9 } as never,
+    ])
+    vi.spyOn(recurrencesService, 'listOccurrencesInRange').mockResolvedValue([
+      { id: 1, recurrence_id: 1, due_date: '2026-03-10', amount: 650 } as never,
+      { id: 3, recurrence_id: 3, due_date: '2026-03-16', amount: 9 } as never,
+      { id: 2, recurrence_id: 2, due_date: '2026-03-20', amount: 300 } as never,
+    ])
+    wrap(<HomePage />)
+    const card = await screen.findByRole('region', { name: 'Prossime scadenze' })
+    const items = await within(card).findAllByRole('listitem')
+    expect(items).toHaveLength(2)
+    expect(items[0]).toHaveTextContent('Mutuo')
+    expect(items[0]).toHaveTextContent('Scaduta')
+    expect(items[0]).toHaveTextContent('−')
+    expect(items[0]).toHaveTextContent('650,00')
+    expect(items[1]).toHaveTextContent('Affitto studio')
+    expect(items[1]).toHaveTextContent('+')
+    expect(within(card).queryByText('Vecchio abbonamento')).not.toBeInTheDocument()
+  })
+
+  it('senza scadenze mostra lo stato vuoto', async () => {
+    wrap(<HomePage />)
+    const card = await screen.findByRole('region', { name: 'Prossime scadenze' })
+    expect(await within(card).findByText('Nessuna scadenza nei prossimi 30 giorni.')).toBeInTheDocument()
   })
 
   it('mostra caricamento ed errore', async () => {

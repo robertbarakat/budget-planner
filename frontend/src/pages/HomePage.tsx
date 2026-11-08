@@ -4,6 +4,7 @@ import Amount from '../components/Amount.tsx'
 import CurrentBalances from '../components/CurrentBalances.tsx'
 import MonthStatusBadge from '../components/MonthStatusBadge.tsx'
 import RecentTransactions from '../components/RecentTransactions.tsx'
+import UpcomingDues from '../components/UpcomingDues.tsx'
 import { buildCashFlow } from '../lib/cash-flow.ts'
 import { summarizeMonthExpenses } from '../lib/home.ts'
 import { buildMacroAreaReport } from '../lib/macro-areas.ts'
@@ -108,6 +109,7 @@ export default function HomePage() {
         </div>
       )}
       <RecentTransactions />
+      <UpcomingDues />
     </main>
   )
 }

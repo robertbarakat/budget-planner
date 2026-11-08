@@ -31,14 +31,14 @@ export class RecurrencesService {
     })
   }
 
-  /** Prossime scadenze (dalla data indicata in poi, dalla più vicina) delle sole ricorrenze attive. */
-  async listUpcomingOccurrences(fromDate: string, limit = 5): Promise<RecurrenceOccurrence[]> {
+  /** Scadenze tra due date (estremi inclusi), dalla più vicina, delle sole ricorrenze attive. */
+  async listOccurrencesInRange(from: string, to: string): Promise<RecurrenceOccurrence[]> {
     const [occurrences, recurrences] = await Promise.all([
-      this.occurrences.list({ range: { column: 'due_date', from: fromDate }, orderBy: [{ column: 'due_date' }] }),
+      this.occurrences.list({ range: { column: 'due_date', from, to }, orderBy: [{ column: 'due_date' }] }),
       this.listRecurrences(false),
     ])
     const activeIds = new Set(recurrences.map((recurrence) => recurrence.id))
-    return occurrences.filter((occurrence) => activeIds.has(occurrence.recurrence_id)).slice(0, limit)
+    return occurrences.filter((occurrence) => activeIds.has(occurrence.recurrence_id))
   }
 
   /** Scadenze di una ricorrenza, dalla più vicina. */
