@@ -57,6 +57,7 @@ describe('NewTransactionPage salvataggio', () => {
       amount: 14.9,
       transaction_date: new Date().toLocaleDateString('sv-SE'),
       account_id: 2,
+      destination_account_id: null,
       category_id: 100,
       budget_item_id: 10,
       comment: 'cena',
@@ -114,6 +115,8 @@ describe('NewTransactionPage salvataggio', () => {
       transaction_date: new Date().toLocaleDateString('sv-SE'),
       account_id: 1,
       destination_account_id: 2,
+      category_id: null,
+      budget_item_id: null,
       comment: null,
       tag: null,
     })

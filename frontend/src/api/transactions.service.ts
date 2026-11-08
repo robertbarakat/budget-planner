@@ -1,5 +1,5 @@
 import { AppError } from './api-error.ts'
-import { BaseService, unwrap, type InsertOf, type RowOf } from './base-service.ts'
+import { BaseService, unwrap, type InsertOf, type RowOf, type UpdateOf } from './base-service.ts'
 import { getSupabase, type TypedSupabaseClient } from './supabase.ts'
 
 export interface TransactionFilters {
@@ -38,6 +38,15 @@ export class TransactionsService extends BaseService<'transactions'> {
   async listCategoryIdsInUse(): Promise<number[]> {
     const rows = await this.listColumn('category_id')
     return [...new Set(rows.flatMap((row) => (row.category_id === null ? [] : [row.category_id])))]
+  }
+
+  /**
+   * Aggiorna un movimento. Se la modifica include il tipo (come fa il form, che invia sempre i valori
+   * completi) controlla prima le regole del vincolo; gli aggiornamenti parziali senza tipo passano così come sono.
+   */
+  override async update(id: number, values: UpdateOf<'transactions'>): Promise<RowOf<'transactions'>> {
+    if (values.type !== undefined) checkTransactionShape(values as InsertOf<'transactions'>)
+    return await super.update(id, values)
   }
 
   /** Crea un movimento dopo aver controllato le regole che il database imposta con un vincolo. */

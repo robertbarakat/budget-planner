@@ -1,10 +1,16 @@
 import { useState } from 'react'
+import { AlertDialog } from 'radix-ui'
+import { Link } from 'react-router'
 import { useAccounts } from '../api/accounts.queries.ts'
 import { useCategories } from '../api/classification.queries.ts'
-import { useTransactions } from '../api/transactions.queries.ts'
+import { useDeleteTransaction, useTransactions } from '../api/transactions.queries.ts'
 import Amount from '../components/Amount.tsx'
+import Button from '../components/Button.tsx'
 import Field from '../components/Field.tsx'
+import { useSnackbar } from '../components/Snackbar.tsx'
+import { formatAmount } from '../lib/format-amount.ts'
 import { formatDay, monthName, monthOptions, monthRange } from '../lib/months.ts'
+import { paths } from '../paths.ts'
 import './TransactionsPage.css'
 
 const TYPE_LABEL = { expense: 'Spesa', income: 'Entrata', transfer: 'Trasferimento' } as const
@@ -16,6 +22,9 @@ export default function TransactionsPage() {
   const [yearText, setYearText] = useState(String(now.getFullYear()))
 
   const transactions = useTransactions(monthRange(year, month))
+  const remove = useDeleteTransaction()
+  const { showSuccess } = useSnackbar()
+  const [pendingDelete, setPendingDelete] = useState<{ id: number; summary: string } | null>(null)
   // Tutti i conti e le categorie, anche archiviati: lo storico li mostra comunque.
   const accounts = useAccounts()
   const categories = useCategories()
@@ -113,6 +122,23 @@ export default function TransactionsPage() {
                       explicitPlus={row.type === 'income'}
                       colored={!isTransfer}
                     />
+                    <div className="transactions__actions">
+                      <Link to={paths.editTransaction(row.id)} className="button button--secondary" aria-label={`Modifica ${title}`}>
+                        Modifica
+                      </Link>
+                      <Button
+                        variant="secondary"
+                        aria-label={`Elimina ${title}`}
+                        onClick={() =>
+                          setPendingDelete({
+                            id: row.id,
+                            summary: `${formatDay(row.transaction_date)}, ${formatAmount(amount)}, ${title}`,
+                          })
+                        }
+                      >
+                        Elimina
+                      </Button>
+                    </div>
                   </li>
                 )
               })}
@@ -120,6 +146,41 @@ export default function TransactionsPage() {
           </section>
         ))
       )}
+
+      <AlertDialog.Root open={pendingDelete !== null} onOpenChange={(open) => !open && setPendingDelete(null)}>
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay className="transactions__overlay" />
+          <AlertDialog.Content className="transactions__dialog">
+            <AlertDialog.Title className="transactions__dialog-title">Eliminare questo movimento?</AlertDialog.Title>
+            <AlertDialog.Description className="transactions__dialog-text">
+              {pendingDelete?.summary}. L'eliminazione non si può annullare.
+            </AlertDialog.Description>
+            <div className="transactions__dialog-actions">
+              <AlertDialog.Cancel asChild>
+                <Button variant="secondary">Annulla</Button>
+              </AlertDialog.Cancel>
+              <AlertDialog.Action asChild>
+                <Button
+                  variant="destructive"
+                  onClick={async () => {
+                    const target = pendingDelete
+                    setPendingDelete(null)
+                    if (!target) return
+                    try {
+                      await remove.mutateAsync(target.id)
+                      showSuccess('Movimento eliminato.')
+                    } catch {
+                      // L'errore arriva dalla snackbar: il movimento resta nell'elenco.
+                    }
+                  }}
+                >
+                  Elimina
+                </Button>
+              </AlertDialog.Action>
+            </div>
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
     </main>
   )
 }

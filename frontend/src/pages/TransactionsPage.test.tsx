@@ -1,10 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, within } from '@testing-library/react'
+import { MemoryRouter } from 'react-router'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { accountsService } from '../api/accounts.service.ts'
 import { classificationService } from '../api/classification.service.ts'
 import { transactionsService } from '../api/transactions.service.ts'
+import { SnackbarProvider } from '../components/Snackbar.tsx'
 import TransactionsPage from './TransactionsPage.tsx'
 
 type TransactionRow = Awaited<ReturnType<typeof transactionsService.listFiltered>>[number]
@@ -18,7 +20,11 @@ const y = now.getFullYear()
 function setup() {
   render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-      <TransactionsPage />
+      <SnackbarProvider>
+        <MemoryRouter>
+          <TransactionsPage />
+        </MemoryRouter>
+      </SnackbarProvider>
     </QueryClientProvider>,
   )
 }
@@ -118,5 +124,59 @@ describe('TransactionsPage', () => {
     vi.spyOn(transactionsService, 'listFiltered').mockRejectedValue(new Error('rete'))
     setup()
     expect(await screen.findByRole('alert')).toHaveTextContent('Non riesco a leggere i movimenti')
+  })
+})
+
+describe('TransactionsPage modifica ed eliminazione', () => {
+  const rows = () => [
+    row({ id: 7, type: 'expense', transaction_date: `${y}-${mm}-05`, amount: 14.9, account_id: 1, category_id: 100 }),
+    row({ id: 8, type: 'income', transaction_date: `${y}-${mm}-04`, amount: 1000, account_id: 1, category_id: 101 }),
+  ]
+
+  it('ogni riga ha "Modifica", che porta al form di quel movimento', async () => {
+    vi.spyOn(transactionsService, 'listFiltered').mockResolvedValue(rows())
+    setup()
+    expect(await screen.findByRole('link', { name: 'Modifica Pizza' })).toHaveAttribute('href', '/transactions/7/edit')
+    expect(screen.getByRole('link', { name: 'Modifica Cliente X' })).toHaveAttribute('href', '/transactions/8/edit')
+  })
+
+  it('l\'eliminazione chiede conferma con data, importo e categoria; annullando non elimina nulla', async () => {
+    vi.spyOn(transactionsService, 'listFiltered').mockResolvedValue(rows())
+    const remove = vi.spyOn(transactionsService, 'remove').mockResolvedValue()
+    setup()
+    await userEvent.click(await screen.findByRole('button', { name: 'Elimina Pizza' }))
+    const dialog = await screen.findByRole('alertdialog', { name: 'Eliminare questo movimento?' })
+    expect(dialog).toHaveTextContent('14,90')
+    expect(dialog).toHaveTextContent('Pizza')
+    expect(dialog).toHaveTextContent(/5 .* 20\d\d/)
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Annulla' }))
+    expect(remove).not.toHaveBeenCalled()
+    expect(screen.getByText('Pizza')).toBeInTheDocument()
+  })
+
+  it('confermando elimina il movimento, lo toglie dall\'elenco e conferma', async () => {
+    let current = rows()
+    vi.spyOn(transactionsService, 'listFiltered').mockImplementation(async () => current)
+    const remove = vi.spyOn(transactionsService, 'remove').mockImplementation(async (id) => {
+      current = current.filter((r) => r.id !== id)
+    })
+    setup()
+    await userEvent.click(await screen.findByRole('button', { name: 'Elimina Pizza' }))
+    await userEvent.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Elimina' }))
+    await vi.waitFor(() => expect(remove).toHaveBeenCalledWith(7))
+    await vi.waitFor(() => expect(screen.queryByRole('button', { name: 'Elimina Pizza' })).not.toBeInTheDocument())
+    expect(screen.getByRole('button', { name: 'Elimina Cliente X' })).toBeInTheDocument()
+    expect(await screen.findByText(/Movimento eliminato\./)).toBeInTheDocument()
+  })
+
+  it('se l\'eliminazione fallisce il movimento resta nell\'elenco', async () => {
+    vi.spyOn(transactionsService, 'listFiltered').mockResolvedValue(rows())
+    vi.spyOn(transactionsService, 'remove').mockRejectedValue(new Error('rete'))
+    setup()
+    await userEvent.click(await screen.findByRole('button', { name: 'Elimina Pizza' }))
+    await userEvent.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Elimina' }))
+    await vi.waitFor(() => expect(transactionsService.remove).toHaveBeenCalled())
+    expect(screen.getByRole('button', { name: 'Elimina Pizza' })).toBeInTheDocument()
+    expect(screen.queryByText(/Movimento eliminato/)).not.toBeInTheDocument()
   })
 })

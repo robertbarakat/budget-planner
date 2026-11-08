@@ -39,6 +39,8 @@ export interface TransactionFormProps {
   categoryGroups: CategoryGroup[]
   /** Valori di partenza (modifica di un movimento); senza, oggi e spesa. */
   initial?: Partial<TransactionFormState>
+  /** Testo del pulsante di salvataggio; senza, dipende dal tipo ("Salva spesa"...). */
+  submitLabel?: string
   /** Operazione in corso: il pulsante non risponde (niente doppio invio). */
   busy?: boolean
   onSubmit: (values: TransactionFormSubmit) => void | Promise<void>
@@ -56,7 +58,7 @@ const SUBMIT_LABEL: Record<TransactionFormType, string> = {
 }
 
 /** Form "Nuovo movimento" per spesa ed entrata. La voce di budget si ricava dalla categoria scelta. */
-export default function TransactionForm({ accounts, categoryGroups, initial, busy = false, onSubmit }: TransactionFormProps) {
+export default function TransactionForm({ accounts, categoryGroups, initial, submitLabel, busy = false, onSubmit }: TransactionFormProps) {
   const [state, setState] = useState<TransactionFormState>(() => ({
     type: 'expense',
     amountText: '',
@@ -215,7 +217,7 @@ export default function TransactionForm({ accounts, categoryGroups, initial, bus
 
       <div className="transaction-form__submit">
         <Button type="submit" loading={busy}>
-          {SUBMIT_LABEL[state.type]}
+          {submitLabel ?? SUBMIT_LABEL[state.type]}
         </Button>
       </div>
     </form>

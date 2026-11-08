@@ -70,3 +70,24 @@ describe('TransactionsService.listCategoryIdsInUse', () => {
     expect(calls.find((c) => c.method === 'select')?.args).toEqual(['category_id'])
   })
 })
+
+describe('TransactionsService.update', () => {
+  const row = { id: 1 }
+  it('con il tipo controlla le regole prima di scrivere', async () => {
+    const { client, calls } = fakeSupabase({ data: row, error: null })
+    const service = new TransactionsService(() => client)
+    await expect(service.update(1, { type: 'transfer', account_id: 1, destination_account_id: 1 })).rejects.toMatchObject({
+      message: 'Il conto di destinazione deve essere diverso da quello di origine.',
+    })
+    await expect(service.update(1, { type: 'expense', account_id: 1 })).rejects.toBeInstanceOf(AppError)
+    expect(calls.some((c) => c.method === 'update')).toBe(false)
+  })
+
+  it('un aggiornamento completo valido passa; uno parziale senza tipo non viene bloccato', async () => {
+    const { client, calls } = fakeSupabase({ data: row, error: null })
+    const service = new TransactionsService(() => client)
+    await service.update(1, { type: 'income', category_id: 5, budget_item_id: 6, destination_account_id: null })
+    await service.update(1, { comment: 'nuovo' })
+    expect(calls.filter((c) => c.method === 'update')).toHaveLength(2)
+  })
+})

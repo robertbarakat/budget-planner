@@ -7,3 +7,11 @@
 .new-transaction__status {
   color: var(--color-text-muted);
 }
+
+.new-transaction__back {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target-min);
+  color: var(--color-primary-strong);
+  font-weight: var(--font-weight-medium);
+}

@@ -4,6 +4,7 @@ export const paths = {
   login: '/login',
   newTransaction: '/transactions/new',
   transactions: '/transactions',
+  editTransaction: (id: number | string) => `/transactions/${id}/edit`,
   cashFlow: '/cash-flow',
   macroAreas: '/macro-areas',
   settings: '/settings',
