@@ -10,6 +10,7 @@ import {
   useSetArchivedClient,
   useUpdateClient,
 } from '../../api/revenue.queries.ts'
+import '../../components/Button.css'
 import EditableList from '../../components/EditableList.tsx'
 import Field from '../../components/Field.tsx'
 import MoveDialog from '../../components/MoveDialog.tsx'
@@ -103,7 +104,12 @@ export default function ClientsSettingsPage() {
             renderActions={(item) => {
               const current = rows.find((row) => row.id === item.id)?.budget_item_id
               const options = incomeItems.filter((option) => option.id !== current)
-              return options.length > 0 ? (
+              return (
+                <>
+                  <Link to={paths.settingsClient(item.id)} className="button button--secondary" aria-label={`Tariffe e ritardo di ${item.name}`}>
+                    Tariffe e ritardo
+                  </Link>
+                  {options.length > 0 && (
                 <MoveDialog
                   triggerLabel="Cambia voce"
                   triggerAriaLabel={`Cambia voce di ${item.name}`}
@@ -115,7 +121,9 @@ export default function ClientsSettingsPage() {
                     await update.mutateAsync({ id: Number(item.id), values: { budget_item_id: budgetItemId } })
                   }}
                 />
-              ) : null
+                  )}
+                </>
+              )
             }}
           />
         </>
