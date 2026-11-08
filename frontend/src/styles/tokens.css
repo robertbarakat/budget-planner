@@ -93,6 +93,7 @@
   /* Target e focus */
   --target-min: 2.75rem; /* 44 */
   --nav-height: 4.5rem; /* 72: barra inferiore mobile */
+  --sidebar-width: 15rem; /* 240: barra laterale web */
   --nav-item-size: 3.5rem; /* 56: voce della barra */
   --fab-size: 3.5rem; /* 56: pulsante "nuovo movimento" */
   --focus-ring-width: 0.125rem;

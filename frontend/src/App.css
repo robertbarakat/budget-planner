@@ -7,3 +7,16 @@
   padding: var(--space-9) var(--space-9)
     calc(var(--nav-height) + var(--fab-size) + var(--space-10) + env(safe-area-inset-bottom));
 }
+
+@media (min-width: 1024px) {
+  .app-shell {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .app-content {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-10) var(--space-11) var(--space-12);
+  }
+}

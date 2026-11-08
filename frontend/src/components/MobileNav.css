@@ -87,3 +87,10 @@
   color: var(--color-on-primary);
   box-shadow: var(--shadow-md);
 }
+
+/* Da desktop la navigazione è la barra laterale */
+@media (min-width: 1024px) {
+  .mobile-nav {
+    display: none;
+  }
+}
