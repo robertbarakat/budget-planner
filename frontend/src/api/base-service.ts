@@ -55,6 +55,17 @@ export class BaseService<T extends TableName> {
     return unwrap(await query)
   }
 
+  /** Una colonna delle righe che soddisfano un'uguaglianza (es. `{ category_id: 5 }`). */
+  async listColumnsWhere<K extends keyof RowOf<T> & string>(
+    where: Partial<RowOf<T>>,
+    column: K,
+  ): Promise<Pick<RowOf<T>, K>[]> {
+    const query = (this.client.from(this.table).select(column) as unknown as FilterableQuery<Pick<RowOf<T>, K>[]>).match(
+      where as Record<string, unknown>,
+    )
+    return unwrap(await query)
+  }
+
   /** Una riga per id; `AppError` di tipo `not_found` se non esiste. */
   async getById(id: number): Promise<RowOf<T>> {
     const query = this.client.from(this.table).select('*').eq('id' as never, id as never) as unknown as SingleQuery<

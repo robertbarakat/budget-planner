@@ -13,13 +13,14 @@ describe('ClassificationService.moveCategoryToBudgetItem', () => {
     expect(calls.find((c) => c.method === 'update')?.args).toEqual([{ budget_item_id: 9 }])
   })
 
-  it('con riclassificazione aggiorna anche i movimenti della categoria', async () => {
-    const { client, calls } = fakeSupabase({ data: category, error: null })
+  it('con riclassificazione chiama la funzione SQL dopo aver spostato la categoria', async () => {
+    const { client, calls } = fakeSupabase({ categories: { data: category, error: null }, reclassify_category_history: { data: 3, error: null } })
     await new ClassificationService(() => client).moveCategoryToBudgetItem(5, 9, { reclassifyHistory: true })
-    const tables = calls.filter((c) => c.method === 'from').map((c) => c.args[0])
-    expect(tables).toEqual(['categories', 'transactions'])
-    const eqOnTransactions = calls.filter((c) => c.method === 'eq').at(-1)
-    expect(eqOnTransactions?.args).toEqual(['category_id', 5])
+    expect(calls.filter((c) => c.method === 'from').map((c) => c.args[0])).toEqual(['categories'])
+    expect(calls.find((c) => c.method === 'rpc')?.args).toEqual([
+      'reclassify_category_history',
+      { p_category_id: 5, p_budget_item_id: 9 },
+    ])
   })
 
   it('se la categoria non si aggiorna non tocca i movimenti e lancia AppError', async () => {
@@ -29,6 +30,16 @@ describe('ClassificationService.moveCategoryToBudgetItem', () => {
       kind: 'in_use',
     })
     expect(calls.filter((c) => c.method === 'from').map((c) => c.args[0])).toEqual(['categories'])
+  })
+
+  it('reclassifyCategoryHistory restituisce quanti movimenti ha modificato', async () => {
+    const { client } = fakeSupabase({ reclassify_category_history: { data: 4, error: null } })
+    await expect(new ClassificationService(() => client).reclassifyCategoryHistory(5, 9)).resolves.toBe(4)
+  })
+
+  it('reclassifyCategoryHistory trasforma un errore del database in AppError', async () => {
+    const { client } = fakeSupabase({ reclassify_category_history: { data: null, error: { code: '23503', message: 'x' } } })
+    await expect(new ClassificationService(() => client).reclassifyCategoryHistory(5, 999)).rejects.toMatchObject({ kind: 'in_use' })
   })
 
   it('archive, unarchive e reorder aggiornano le colonne giuste', async () => {
@@ -42,5 +53,20 @@ describe('ClassificationService.moveCategoryToBudgetItem', () => {
       { archived: false },
       { sort_order: 3 },
     ])
+  })
+})
+
+describe('ClassificationService.countHistoryToReclassify', () => {
+  it('conta solo i movimenti della categoria che hanno un\'altra voce', async () => {
+    const { client, calls } = fakeSupabase({
+      transactions: { data: [{ budget_item_id: 1 }, { budget_item_id: 9 }, { budget_item_id: 1 }, { budget_item_id: 2 }], error: null },
+    })
+    await expect(new ClassificationService(() => client).countHistoryToReclassify(5, 9)).resolves.toBe(3)
+    expect(calls.find((c) => c.method === 'match')?.args[0]).toEqual({ category_id: 5 })
+  })
+
+  it('nessun movimento da riclassificare: 0', async () => {
+    const { client } = fakeSupabase({ transactions: { data: [{ budget_item_id: 9 }], error: null } })
+    await expect(new ClassificationService(() => client).countHistoryToReclassify(5, 9)).resolves.toBe(0)
   })
 })

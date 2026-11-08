@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { classificationService } from '../../api/classification.service.ts'
 import { transactionsService } from '../../api/transactions.service.ts'
+import { SnackbarProvider } from '../../components/Snackbar.tsx'
 import CategoriesSettingsPage from './CategoriesSettingsPage.tsx'
 
 type MacroRow = Awaited<ReturnType<typeof classificationService.macroAreas.list>>[number]
@@ -23,9 +24,11 @@ let categories: CategoryRow[]
 function setup() {
   render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-      <MemoryRouter>
-        <CategoriesSettingsPage />
-      </MemoryRouter>
+      <SnackbarProvider>
+        <MemoryRouter>
+          <CategoriesSettingsPage />
+        </MemoryRouter>
+      </SnackbarProvider>
     </QueryClientProvider>,
   )
 }
@@ -83,6 +86,7 @@ describe('CategoriesSettingsPage', () => {
 
   it('lo spostamento cambia solo la categoria, senza toccare i movimenti', async () => {
     const transactionsUpdate = vi.spyOn(transactionsService, 'update')
+    vi.spyOn(classificationService.transactions, 'listColumnsWhere').mockResolvedValue([] as never)
     setup()
     await screen.findByRole('heading', { level: 2, name: 'Utenze (Casa)' })
     await userEvent.click(group('Utenze (Casa)').getByRole('button', { name: 'Sposta Luce' }))
@@ -107,5 +111,96 @@ describe('CategoriesSettingsPage', () => {
     items = []
     setup()
     expect(await screen.findByText(/Prima crea almeno una voce di budget/)).toBeInTheDocument()
+  })
+})
+
+describe('CategoriesSettingsPage: riclassificare lo storico', () => {
+  async function moveLuceToFood() {
+    await screen.findByRole('heading', { level: 2, name: 'Utenze (Casa)' })
+    await userEvent.click(group('Utenze (Casa)').getByRole('button', { name: 'Sposta Luce' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Sposta Luce' })
+    await userEvent.selectOptions(within(dialog).getByLabelText(/Nuova voce di budget/), 'Food (Casa)')
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Sposta' }))
+  }
+  // Luce (id 10) ha 3 movimenti: due sulla voce di prima (1), uno già sulla nuova (2)
+  const history = [{ budget_item_id: 1 }, { budget_item_id: 1 }, { budget_item_id: 2 }]
+
+  it('dopo lo spostamento chiede se riclassificare, con il numero di movimenti; nessuna risposta è preselezionata', async () => {
+    vi.spyOn(classificationService.transactions, 'listColumnsWhere').mockResolvedValue(history as never)
+    setup()
+    await moveLuceToFood()
+    const question = await screen.findByRole('alertdialog', { name: 'Riclassificare anche lo storico?' })
+    expect(question).toHaveTextContent('2 movimenti')
+    const yes = within(question).getByRole('button', { name: 'Sì, riclassifica 2 movimenti' })
+    const no = within(question).getByRole('button', { name: 'No, lascia lo storico' })
+    expect(yes).toBeEnabled()
+    expect(no).toBeEnabled()
+    expect(within(question).queryByRole('radio')).not.toBeInTheDocument()
+    expect(within(question).queryByRole('checkbox')).not.toBeInTheDocument()
+    // Nulla si è mosso senza una scelta
+    expect(classificationService.categories.update).toHaveBeenCalledWith(10, { budget_item_id: 2 })
+  })
+
+  it('con "No" i movimenti già registrati restano invariati', async () => {
+    vi.spyOn(classificationService.transactions, 'listColumnsWhere').mockResolvedValue(history as never)
+    const rpc = vi.spyOn(classificationService, 'reclassifyCategoryHistory')
+    setup()
+    await moveLuceToFood()
+    await userEvent.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'No, lascia lo storico' }))
+    expect(rpc).not.toHaveBeenCalled()
+    expect(await screen.findByText(/Lo storico non è cambiato/)).toBeInTheDocument()
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  })
+
+  it('chiudere la finestra con Esc vale "no"', async () => {
+    vi.spyOn(classificationService.transactions, 'listColumnsWhere').mockResolvedValue(history as never)
+    const rpc = vi.spyOn(classificationService, 'reclassifyCategoryHistory')
+    setup()
+    await moveLuceToFood()
+    await screen.findByRole('alertdialog')
+    await userEvent.keyboard('{Escape}')
+    await vi.waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument())
+    expect(rpc).not.toHaveBeenCalled()
+  })
+
+  it('con "Sì" chiama la funzione SQL con categoria e nuova voce e mostra l\'esito con il numero modificato', async () => {
+    vi.spyOn(classificationService.transactions, 'listColumnsWhere').mockResolvedValue(history as never)
+    const rpc = vi.spyOn(classificationService, 'reclassifyCategoryHistory').mockResolvedValue(2)
+    setup()
+    await moveLuceToFood()
+    await userEvent.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Sì, riclassifica 2 movimenti' }))
+    await vi.waitFor(() => expect(rpc).toHaveBeenCalledWith(10, 2))
+    expect(await screen.findByText(/Riclassificati 2 movimenti alla voce «Food \(Casa\)»/)).toBeInTheDocument()
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  })
+
+  it('se la riclassificazione fallisce la finestra resta aperta per riprovare', async () => {
+    vi.spyOn(classificationService.transactions, 'listColumnsWhere').mockResolvedValue(history as never)
+    const rpc = vi.spyOn(classificationService, 'reclassifyCategoryHistory').mockRejectedValueOnce(new Error('rete'))
+    setup()
+    await moveLuceToFood()
+    await userEvent.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Sì, riclassifica 2 movimenti' }))
+    await vi.waitFor(() => expect(rpc).toHaveBeenCalledTimes(1))
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument()
+    rpc.mockResolvedValueOnce(2)
+    await userEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Sì, riclassifica 2 movimenti' }))
+    expect(await screen.findByText(/Riclassificati 2 movimenti/)).toBeInTheDocument()
+  })
+
+  it('senza movimenti da riclassificare non fa la domanda', async () => {
+    vi.spyOn(classificationService.transactions, 'listColumnsWhere').mockResolvedValue([{ budget_item_id: 2 }] as never)
+    setup()
+    await moveLuceToFood()
+    expect(await screen.findByText(/Nessun movimento da riclassificare/)).toBeInTheDocument()
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  })
+
+  it('con un solo movimento usa il singolare', async () => {
+    vi.spyOn(classificationService.transactions, 'listColumnsWhere').mockResolvedValue([{ budget_item_id: 1 }] as never)
+    setup()
+    await moveLuceToFood()
+    const question = await screen.findByRole('alertdialog')
+    expect(within(question).getByRole('button', { name: 'Sì, riclassifica 1 movimento' })).toBeInTheDocument()
+    expect(question).toHaveTextContent('1 movimento già registrato')
   })
 })

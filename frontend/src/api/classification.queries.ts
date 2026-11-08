@@ -53,3 +53,21 @@ export function useMoveCategoryToBudgetItem() {
     onSuccess: () => invalidateAll(queryClient, invalidate),
   })
 }
+
+/** Quanti movimenti della categoria passerebbero alla voce indicata (lettura al momento, senza cache). */
+export function useCountHistoryToReclassify() {
+  return useMutation({
+    mutationFn: (args: { categoryId: number; budgetItemId: number }) =>
+      classificationService.countHistoryToReclassify(args.categoryId, args.budgetItemId),
+  })
+}
+
+/** Riclassifica lo storico di una categoria (solo su scelta esplicita dell'utente). */
+export function useReclassifyCategoryHistory() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (args: { categoryId: number; budgetItemId: number }) =>
+      classificationService.reclassifyCategoryHistory(args.categoryId, args.budgetItemId),
+    onSuccess: () => invalidateAll(queryClient, invalidate),
+  })
+}

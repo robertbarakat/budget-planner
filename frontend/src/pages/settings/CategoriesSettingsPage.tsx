@@ -1,11 +1,14 @@
+import { useRef, useState } from 'react'
 import { Link } from 'react-router'
 import {
   useBudgetItems,
   useCategories,
+  useCountHistoryToReclassify,
   useCreateCategory,
   useDeleteCategory,
   useMacroAreas,
   useMoveCategoryToBudgetItem,
+  useReclassifyCategoryHistory,
   useReorderCategories,
   useSetArchivedCategory,
   useUpdateCategory,
@@ -13,6 +16,8 @@ import {
 import { useCategoryIdsInUse } from '../../api/transactions.queries.ts'
 import EditableList from '../../components/EditableList.tsx'
 import MoveDialog from '../../components/MoveDialog.tsx'
+import ReclassifyHistoryDialog from '../../components/ReclassifyHistoryDialog.tsx'
+import { useSnackbar } from '../../components/Snackbar.tsx'
 import { paths } from '../../paths.ts'
 import './settings.css'
 
@@ -27,6 +32,40 @@ export default function CategoriesSettingsPage() {
   const reorder = useReorderCategories()
   const remove = useDeleteCategory()
   const move = useMoveCategoryToBudgetItem()
+  const countHistory = useCountHistoryToReclassify()
+  const reclassify = useReclassifyCategoryHistory()
+  const { showSuccess } = useSnackbar()
+  // Dopo lo spostamento, se ci sono movimenti con la voce di prima, si chiede se riclassificarli.
+  const [question, setQuestion] = useState<{
+    categoryId: number
+    categoryName: string
+    budgetItemId: number
+    budgetItemName: string
+    count: number
+  } | null>(null)
+  const answered = useRef(false)
+
+  async function answer(yes: boolean) {
+    const current = question
+    if (!current || answered.current) return
+    answered.current = true
+    try {
+      if (!yes) {
+        setQuestion(null)
+        showSuccess(`«${current.categoryName}» spostata. Lo storico non è cambiato.`)
+        return
+      }
+      const updated = await reclassify.mutateAsync({ categoryId: current.categoryId, budgetItemId: current.budgetItemId })
+      setQuestion(null)
+      showSuccess(
+        `Riclassificat${updated === 1 ? 'o 1 movimento' : `i ${updated} movimenti`} alla voce «${current.budgetItemName}».`,
+      )
+    } catch {
+      // L'errore arriva dalla snackbar: la finestra resta aperta per riprovare (o per rispondere "no").
+    } finally {
+      answered.current = false
+    }
+  }
 
   const queries = [macroAreas, budgetItems, categories, categoryIdsInUse]
   const items = budgetItems.data ?? []
@@ -107,7 +146,18 @@ export default function CategoriesSettingsPage() {
                       fieldLabel="Nuova voce di budget"
                       options={options}
                       onConfirm={async (budgetItemId) => {
-                        await move.mutateAsync({ categoryId: Number(category.id), budgetItemId })
+                        const categoryId = Number(category.id)
+                        await move.mutateAsync({ categoryId, budgetItemId })
+                        const target = targets.find((t) => t.id === budgetItemId)
+                        const budgetItemName = target ? label(target) : ''
+                        // Se il conteggio fallisce la snackbar lo dice già; la categoria è comunque spostata.
+                        const count = await countHistory.mutateAsync({ categoryId, budgetItemId }).catch(() => null)
+                        if (count === null) return
+                        if (count > 0) {
+                          setQuestion({ categoryId, categoryName: category.name, budgetItemId, budgetItemName, count })
+                        } else {
+                          showSuccess(`«${category.name}» spostata. Nessun movimento da riclassificare.`)
+                        }
                       }}
                     />
                   ) : null
@@ -117,6 +167,13 @@ export default function CategoriesSettingsPage() {
           )
         })
       )}
+
+      <ReclassifyHistoryDialog
+        request={question && { categoryName: question.categoryName, budgetItemName: question.budgetItemName, count: question.count }}
+        busy={reclassify.isPending}
+        onYes={() => void answer(true)}
+        onNo={() => void answer(false)}
+      />
     </main>
   )
 }
