@@ -5,6 +5,12 @@
   max-width: calc(var(--sidebar-width) * 4);
 }
 
+/* Pagine con griglie: occupano tutta la larghezza disponibile. */
+.settings--wide {
+  max-width: none;
+  min-width: 0;
+}
+
 .settings__back {
   display: inline-flex;
   align-items: center;

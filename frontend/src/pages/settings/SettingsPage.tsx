@@ -9,6 +9,7 @@ const sections = [
   { to: paths.settingsCategories, title: 'Categorie', description: 'Il livello dell\'inserimento, raggruppato per voce di budget.' },
   { to: paths.settingsAccounts, title: 'Conti', description: 'Dove stanno i soldi: aggiungi, riordina, archivia.' },
   { to: paths.settingsClients, title: 'Clienti', description: 'Chi ti paga: ogni cliente alimenta una voce di entrata.' },
+  { to: paths.settingsWorkedDays, title: 'Giorni lavorati', description: 'Giorni previsti per cliente e mese: l\'input della previsione dei ricavi.' },
 ] as const
 
 export default function SettingsPage() {

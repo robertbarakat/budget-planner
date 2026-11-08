@@ -1,0 +1,30 @@
+.worked-days-cell {
+  width: 100%;
+  min-height: var(--target-min);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-md);
+  text-align: right;
+}
+
+.worked-days-cell:hover {
+  border-color: var(--color-border);
+}
+
+.worked-days-cell:focus {
+  background: var(--color-surface);
+}
+
+.worked-days-cell[aria-invalid='true'] {
+  border-color: var(--color-negative);
+  /* il bordo non è l'unico segnale: sfondo e messaggio nella snackbar */
+  background: var(--color-negative-soft);
+}
+
+.worked-days-cell::placeholder {
+  color: var(--color-text-muted);
+}
