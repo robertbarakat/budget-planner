@@ -1,5 +1,5 @@
 import { mapImportedTransactions, normalizeImportedRows } from 'budget-planner-shared'
-import type { MappingRule, RejectedRow } from 'budget-planner-shared'
+import type { MappedTransaction, MappingRule, RejectedRow } from 'budget-planner-shared'
 import { SHEET_NAMES } from './excel-parser.ts'
 import type { RawExport, SheetName } from './excel-parser.ts'
 
@@ -19,6 +19,8 @@ export interface ImportPreview {
   /** Variazione netta per conto in centesimi (spese -, entrate +, trasferimenti -/+). */
   totalsByAccount: Map<string, number>
   acceptedTransactions: number
+  /** Movimenti normalizzati e mappati, pronti per la scrittura (BP-125). */
+  transactions: MappedTransaction[]
 }
 
 const add = (map: Map<string, number>, key: string, cents: number) => map.set(key, (map.get(key) ?? 0) + cents)
@@ -59,7 +61,14 @@ export function buildImportPreview(raw: RawExport, rules: readonly MappingRule[]
     add(totalsByItemAndMonth, `${t.targetBudgetItem}|${t.transactionDate.slice(0, 7)}`, signed)
   }
 
-  return { sheets, rejected, totalsByItemAndMonth, totalsByAccount, acceptedTransactions: mapping.mapped.length }
+  return {
+    sheets,
+    rejected,
+    totalsByItemAndMonth,
+    totalsByAccount,
+    acceptedTransactions: mapping.mapped.length,
+    transactions: mapping.mapped,
+  }
 }
 
 const euros = (cents: number): string => (cents / 100).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
