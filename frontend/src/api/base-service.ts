@@ -13,17 +13,19 @@ export interface ListOptions<T extends TableName> {
   where?: Partial<RowOf<T>>
   /** Ordinamento; se omesso, nessun ordine garantito. */
   orderBy?: ReadonlyArray<{ column: keyof RowOf<T> & string; ascending?: boolean }>
+  /** Intervallo (estremi inclusi) su una colonna, tipicamente una data (`YYYY-MM-DD`). */
+  range?: { column: keyof RowOf<T> & string; from?: string; to?: string }
 }
 
 /**
  * Classe base dei servizi: CRUD generico su una tabella. Ogni area logica ne estende una o più istanze
  * e aggiunge i propri metodi specifici. Gli errori di Supabase diventano sempre `AppError`.
  */
-export abstract class BaseService<T extends TableName> {
+export class BaseService<T extends TableName> {
   protected readonly table: T
   private readonly getClient: () => TypedSupabaseClient
 
-  protected constructor(table: T, getClient: () => TypedSupabaseClient) {
+  constructor(table: T, getClient: () => TypedSupabaseClient) {
     this.table = table
     this.getClient = getClient
   }
@@ -37,6 +39,8 @@ export abstract class BaseService<T extends TableName> {
     // I tipi generici di Supabase non seguono un nome di tabella generico: il cast è confinato qui.
     let query = this.client.from(this.table).select('*') as unknown as FilterableQuery<RowOf<T>[]>
     if (options.where) query = query.match(options.where as Record<string, unknown>)
+    if (options.range?.from !== undefined) query = query.gte(options.range.column, options.range.from)
+    if (options.range?.to !== undefined) query = query.lte(options.range.column, options.range.to)
     for (const order of options.orderBy ?? []) {
       query = query.order(order.column, { ascending: order.ascending ?? true })
     }
@@ -74,6 +78,26 @@ export abstract class BaseService<T extends TableName> {
   }
 }
 
+/** Servizio per le tabelle con `archived` e `sort_order` (anagrafiche): aggiunge archivia, ripristina, riordina. */
+export class ArchivableService<T extends ArchivableTable> extends BaseService<T> {
+  /** Archivia: l'elemento sparisce dalle scelte ma resta nello storico (specifica, sezione 3). */
+  archive(id: number): Promise<RowOf<T>> {
+    return this.update(id, { archived: true } as UpdateOf<T>)
+  }
+
+  unarchive(id: number): Promise<RowOf<T>> {
+    return this.update(id, { archived: false } as UpdateOf<T>)
+  }
+
+  /** Imposta la posizione nell'elenco. */
+  reorder(id: number, sortOrder: number): Promise<RowOf<T>> {
+    return this.update(id, { sort_order: sortOrder } as UpdateOf<T>)
+  }
+}
+
+/** Tabelle con le colonne `archived` e `sort_order`. */
+export type ArchivableTable = 'macro_areas' | 'budget_items' | 'categories' | 'accounts' | 'clients'
+
 export interface QueryResult<D> {
   data: D | null
   error: unknown
@@ -81,6 +105,8 @@ export interface QueryResult<D> {
 
 interface FilterableQuery<D> extends PromiseLike<QueryResult<D>> {
   match(values: Record<string, unknown>): FilterableQuery<D>
+  gte(column: string, value: string): FilterableQuery<D>
+  lte(column: string, value: string): FilterableQuery<D>
   order(column: string, options: { ascending: boolean }): FilterableQuery<D>
 }
 
