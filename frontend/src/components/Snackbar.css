@@ -1,0 +1,121 @@
+/* In alto: in basso ci sono la barra di navigazione e il pulsante "nuovo movimento" (mobile). */
+.snackbar__viewport {
+  position: fixed;
+  top: env(safe-area-inset-top);
+  left: 0;
+  right: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  margin: 0;
+  list-style: none;
+  outline: none;
+  pointer-events: none;
+}
+
+.snackbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  min-height: var(--target-min);
+  padding: var(--space-4) var(--space-4) var(--space-4) var(--space-6);
+  border: 1px solid var(--color-border);
+  border-left-width: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-md);
+  pointer-events: auto;
+}
+
+.snackbar--error {
+  border-left-color: var(--color-negative);
+}
+
+.snackbar--success {
+  border-left-color: var(--color-positive);
+}
+
+.snackbar__icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-10);
+  height: var(--space-10);
+  border-radius: var(--radius-full);
+  color: var(--color-on-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.snackbar--error .snackbar__icon {
+  background: var(--color-negative);
+}
+
+.snackbar--success .snackbar__icon {
+  background: var(--color-positive);
+}
+
+.snackbar__message {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-base);
+  overflow-wrap: anywhere;
+}
+
+.snackbar__close {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--target-min);
+  height: var(--target-min);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-2xl);
+  line-height: 1;
+}
+
+.snackbar__close:hover {
+  background: var(--color-surface-sunken);
+}
+
+.snackbar[data-state='open'] {
+  animation: snackbar-in 150ms ease-out;
+}
+
+.snackbar[data-state='closed'] {
+  animation: snackbar-out 100ms ease-in;
+}
+
+@keyframes snackbar-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--space-10) * -1));
+  }
+}
+
+@keyframes snackbar-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .snackbar[data-state] {
+    animation: none;
+  }
+}
+
+/* Da desktop: in alto a destra, accanto al contenuto e non sopra la barra laterale */
+@media (min-width: 1024px) {
+  .snackbar__viewport {
+    left: auto;
+    width: calc(var(--sidebar-width) * 2);
+    padding: var(--space-10);
+  }
+}

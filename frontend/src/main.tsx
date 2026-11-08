@@ -14,6 +14,7 @@ import { EnvError } from './api/env.ts'
 import { queryClient } from './api/query-client.ts'
 import { SessionProvider } from './api/auth.queries.tsx'
 import { getSupabase } from './api/supabase.ts'
+import { SnackbarProvider } from './components/Snackbar.tsx'
 import { routes } from './routes.tsx'
 
 function startupError(): string | null {
@@ -35,9 +36,11 @@ createRoot(document.getElementById('root')!).render(
       <p role="alert">{error}</p>
     ) : (
       <QueryClientProvider client={queryClient}>
-        <SessionProvider>
-          <RouterProvider router={router} />
-        </SessionProvider>
+        <SnackbarProvider>
+          <SessionProvider>
+            <RouterProvider router={router} />
+          </SessionProvider>
+        </SnackbarProvider>
       </QueryClientProvider>
     )}
   </StrictMode>,
