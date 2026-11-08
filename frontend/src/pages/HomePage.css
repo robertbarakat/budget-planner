@@ -86,3 +86,23 @@
     max-width: calc(var(--sidebar-width) * 3);
   }
 }
+
+/* Scheda che contiene un componente con il proprio bordo e titolo (Conti). */
+.home-card--plain {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.home-card--plain .current-balances {
+  padding: var(--space-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+}
+
+.home-card--plain .current-balances__title {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}

@@ -1,6 +1,6 @@
-import { useCurrentBalances } from '../../api/accounts.queries.ts'
-import Amount from '../../components/Amount.tsx'
-import { todayIso } from '../../lib/dates.ts'
+import { useCurrentBalances } from '../api/accounts.queries.ts'
+import Amount from './Amount.tsx'
+import { todayIso } from '../lib/dates.ts'
 import './CurrentBalances.css'
 
 interface AccountLike {
@@ -10,7 +10,15 @@ interface AccountLike {
 }
 
 /** Saldo corrente di ogni conto e totale. Il calcolo sta nel servizio (funzione pura di `shared/`): qui si mostra. */
-export default function CurrentBalances({ accounts }: { accounts: AccountLike[] }) {
+export interface CurrentBalancesProps {
+  accounts: AccountLike[]
+  /** Titolo della scheda (predefinito "Saldo corrente"). */
+  title?: string
+  /** Nasconde la nota esplicativa (es. nella Home). */
+  hideNote?: boolean
+}
+
+export default function CurrentBalances({ accounts, title = 'Saldo corrente', hideNote = false }: CurrentBalancesProps) {
   const today = todayIso()
   const year = Number(today.slice(0, 4))
   const balances = useCurrentBalances(year, today)
@@ -22,21 +30,23 @@ export default function CurrentBalances({ accounts }: { accounts: AccountLike[] 
   return (
     <section className="current-balances" aria-labelledby="current-balances-title">
       <h2 id="current-balances-title" className="current-balances__title">
-        Saldo corrente
+        {title}
       </h2>
-      <p className="current-balances__note">
-        Saldo iniziale {year} più i movimenti dell&apos;anno fino a oggi. Se un conto non ha il saldo iniziale, parte da zero.
-      </p>
+      {!hideNote && (
+        <p className="current-balances__note">
+          Saldo iniziale {year} più i movimenti dell&apos;anno fino a oggi. Se un conto non ha il saldo iniziale, parte da zero.
+        </p>
+      )}
       {balances.isPending ? (
-        <p role="status" className="settings__status">
+        <p role="status" className="current-balances__status">
           Caricamento…
         </p>
       ) : balances.isError || !data ? (
-        <p role="alert" className="settings__status">
+        <p role="alert" className="current-balances__status">
           Non riesco a calcolare i saldi. Riprova più tardi.
         </p>
       ) : shown.length === 0 ? (
-        <p className="settings__status">Nessun conto.</p>
+        <p className="current-balances__status">Nessun conto.</p>
       ) : (
         <>
           <ul className="current-balances__list">

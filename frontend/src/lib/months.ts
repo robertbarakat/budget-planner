@@ -1,4 +1,5 @@
 const monthFormatter = new Intl.DateTimeFormat('it-IT', { month: 'long', timeZone: 'UTC' })
+const shortDayFormatter = new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'short', timeZone: 'UTC' })
 const dayFormatter = new Intl.DateTimeFormat('it-IT', {
   weekday: 'long',
   day: 'numeric',
@@ -28,6 +29,12 @@ export function monthRange(year: number, month: number): { from: string; to: str
 export function formatDay(isoDate: string): string {
   const [year, month, day] = isoDate.split('-').map(Number) as [number, number, number]
   return dayFormatter.format(new Date(Date.UTC(year, month - 1, day)))
+}
+
+/** Data `YYYY-MM-DD` breve in italiano, es. "21 ott". */
+export function formatShortDay(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-').map(Number) as [number, number, number]
+  return shortDayFormatter.format(new Date(Date.UTC(year, month - 1, day))).replace('.', '')
 }
 
 function capitalize(text: string): string {

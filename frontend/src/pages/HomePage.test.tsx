@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { accountsService } from '../api/accounts.service.ts'
@@ -8,6 +8,7 @@ import { classificationService } from '../api/classification.service.ts'
 import { transactionsService } from '../api/transactions.service.ts'
 import { SnackbarProvider } from '../components/Snackbar.tsx'
 import { AppError } from '../api/api-error.ts'
+import { queryKeys } from '../api/query-keys.ts'
 import CashFlowPage from './CashFlowPage.tsx'
 import HomePage from './HomePage.tsx'
 
@@ -37,13 +38,28 @@ beforeEach(() => {
     { id: 3, type: 'expense', budget_item_id: 20, category_id: 2, transaction_date: '2026-03-05', amount: 120 } as never,
   ])
   vi.spyOn(accountsService.openingBalances, 'list').mockResolvedValue([{ id: 1, account_id: 1, year: 2026, amount: 1000 } as never])
+  vi.spyOn(accountsService.accounts, 'list').mockResolvedValue([
+    { id: 1, name: 'Bancoposta', archived: false, sort_order: 0 } as never,
+    { id: 2, name: 'Cash', archived: false, sort_order: 1 } as never,
+  ])
+  vi.spyOn(accountsService, 'currentBalances').mockResolvedValue({ balances: { 1: 1500.5, 2: 200 }, total: 1700.5 })
+  vi.spyOn(classificationService.categories, 'list').mockResolvedValue([
+    { id: 1, name: 'Stipendio', budget_item_id: 10, archived: false } as never,
+    { id: 2, name: 'Affitto', budget_item_id: 20, archived: false } as never,
+  ])
+  vi.spyOn(transactionsService, 'listFiltered').mockResolvedValue([
+    { id: 3, type: 'expense', account_id: 1, category_id: 2, transaction_date: '2026-03-05', amount: 120 } as never,
+    { id: 1, type: 'income', account_id: 2, category_id: 1, transaction_date: '2026-01-10', amount: 900 } as never,
+  ])
 })
 
 afterEach(() => vi.useRealTimers())
 
-function wrap(ui: React.ReactNode, url = '/') {
+const makeClient = () => new QueryClient({ defaultOptions: { queries: { retry: false } } })
+
+function wrap(ui: React.ReactNode, url = '/', client = makeClient()) {
   return render(
-    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+    <QueryClientProvider client={client}>
       <SnackbarProvider>
         <MemoryRouter initialEntries={[url]}>{ui}</MemoryRouter>
       </SnackbarProvider>
@@ -79,7 +95,48 @@ describe('HomePage', () => {
   it('mostra caricamento ed errore', async () => {
     vi.spyOn(transactionsService, 'listForYear').mockRejectedValue(new AppError('network', null, undefined, 'Rete assente.'))
     wrap(<HomePage />)
-    expect(screen.getByRole('status')).toHaveTextContent('Caricamento')
-    expect(await screen.findByRole('alert')).toHaveTextContent('Non riesco a leggere i dati')
+    expect(screen.getAllByRole('status')[0]).toHaveTextContent('Caricamento')
+    expect(await screen.findByText('Non riesco a leggere i dati. Riprova più tardi.')).toBeInTheDocument()
+  })
+
+  it('la scheda Conti mostra il saldo di ogni conto e un totale uguale alla somma', async () => {
+    wrap(<HomePage />)
+    const card = await screen.findByRole('region', { name: 'Conti' })
+    const rows = await within(card).findAllByRole('listitem')
+    expect(rows).toHaveLength(2)
+    expect(rows[0]).toHaveTextContent('Bancoposta')
+    expect(rows[0]).toHaveTextContent('1.500,50')
+    expect(rows[1]).toHaveTextContent('200,00')
+    expect(within(card).getByText('Totale').parentElement).toHaveTextContent('1.700,50')
+    expect(1500.5 + 200).toBe(1700.5)
+  })
+
+  it('le ultime registrazioni hanno segno e conto e rimandano a tutti i movimenti', async () => {
+    wrap(<HomePage />)
+    const card = await screen.findByRole('region', { name: 'Ultime registrazioni' })
+    const rows = await within(card).findAllByRole('listitem')
+    expect(rows[0]).toHaveTextContent('Affitto')
+    expect(rows[0]).toHaveTextContent('5 mar')
+    expect(rows[0]).toHaveTextContent('−120,00')
+    expect(rows[1]).toHaveTextContent('+900,00')
+    expect(within(card).getByRole('link', { name: 'Tutti i movimenti' })).toHaveAttribute('href', '/transactions')
+    expect(transactionsService.listFiltered).toHaveBeenCalledWith({ limit: 5 })
+  })
+
+  it('dopo un nuovo movimento (invalidazione come nelle mutazioni) mostra la registrazione e i saldi aggiornati', async () => {
+    const client = makeClient()
+    wrap(<HomePage />, '/', client)
+    const card = await screen.findByRole('region', { name: 'Ultime registrazioni' })
+    await within(card).findAllByRole('listitem')
+    vi.spyOn(transactionsService, 'listFiltered').mockResolvedValue([
+      { id: 9, type: 'expense', account_id: 1, category_id: 2, transaction_date: '2026-03-15', amount: 7 } as never,
+    ])
+    vi.spyOn(accountsService, 'currentBalances').mockResolvedValue({ balances: { 1: 1493.5, 2: 200 }, total: 1693.5 })
+    await act(async () => {
+      // Le mutazioni dei movimenti invalidano movimenti, conti e budget (transactions.queries.ts).
+      await Promise.all([queryKeys.transactions.all, queryKeys.accounts.all, queryKeys.budget.all].map((queryKey) => client.invalidateQueries({ queryKey })))
+    })
+    await waitFor(() => expect(within(card).getByText('15 mar · Spesa · Bancoposta')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByRole('region', { name: 'Conti' })).toHaveTextContent('1.693,50'))
   })
 })

@@ -105,3 +105,18 @@ describe('TransactionsService.listForYear', () => {
     await expect(new TransactionsService(() => client).listForYear(2026)).rejects.toBeInstanceOf(AppError)
   })
 })
+
+describe('TransactionsService.listFiltered con limit', () => {
+  it('limita il numero di movimenti dopo l\'ordinamento', async () => {
+    const { client, calls } = fakeSupabase({ data: [], error: null })
+    await new TransactionsService(() => client).listFiltered({ limit: 5 })
+    expect(calls.find((c) => c.method === 'limit')?.args).toEqual([5])
+    expect(calls.filter((c) => c.method === 'order').map((c) => c.args[0])).toEqual(['transaction_date', 'id'])
+  })
+
+  it('senza limit non lo applica', async () => {
+    const { client, calls } = fakeSupabase({ data: [], error: null })
+    await new TransactionsService(() => client).listFiltered({})
+    expect(calls.some((c) => c.method === 'limit')).toBe(false)
+  })
+})

@@ -1,6 +1,9 @@
 import { useMemo } from 'react'
+import { useAccounts } from '../api/accounts.queries.ts'
 import Amount from '../components/Amount.tsx'
+import CurrentBalances from '../components/CurrentBalances.tsx'
 import MonthStatusBadge from '../components/MonthStatusBadge.tsx'
+import RecentTransactions from '../components/RecentTransactions.tsx'
 import { buildCashFlow } from '../lib/cash-flow.ts'
 import { summarizeMonthExpenses } from '../lib/home.ts'
 import { buildMacroAreaReport } from '../lib/macro-areas.ts'
@@ -13,6 +16,7 @@ export default function HomePage() {
   const year = now.getFullYear()
   const month = now.getMonth() + 1
   const { inputs, isError } = useYearInputs(year)
+  const accounts = useAccounts()
 
   const summary = useMemo(() => {
     if (!inputs) return null
@@ -94,6 +98,16 @@ export default function HomePage() {
           </section>
         </>
       )}
+      {accounts.isError ? (
+        <p role="alert" className="home-page__note">
+          Non riesco a leggere i conti. Riprova più tardi.
+        </p>
+      ) : (
+        <div className="home-card home-card--plain">
+          <CurrentBalances accounts={accounts.data ?? []} title="Conti" hideNote />
+        </div>
+      )}
+      <RecentTransactions />
     </main>
   )
 }

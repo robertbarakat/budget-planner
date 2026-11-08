@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatDay, monthName, monthOptions, monthRange } from './months.ts'
+import { formatDay, formatShortDay, monthName, monthOptions, monthRange } from './months.ts'
 
 describe('months', () => {
   it('nomi dei mesi in italiano', () => {
@@ -23,5 +23,12 @@ describe('months', () => {
   it('formatDay scrive il giorno esteso', () => {
     expect(formatDay('2026-11-08')).toBe('domenica 8 novembre 2026')
     expect(formatDay('2026-01-01')).toBe('giovedì 1 gennaio 2026')
+  })
+})
+
+describe('formatShortDay', () => {
+  it('mostra giorno e mese breve', () => {
+    expect(formatShortDay('2026-10-21')).toBe('21 ott')
+    expect(formatShortDay('2026-03-05')).toBe('5 mar')
   })
 })

@@ -12,6 +12,8 @@ export interface TransactionFilters {
   categoryId?: number
   budgetItemId?: number
   type?: RowOf<'transactions'>['type']
+  /** Numero massimo di movimenti (i più recenti, per l'ordinamento). */
+  limit?: number
 }
 
 /** Area "movimenti": spese, entrate e trasferimenti reali. */
@@ -31,7 +33,9 @@ export class TransactionsService extends BaseService<'transactions'> {
     if (filters.categoryId !== undefined) query = query.eq('category_id', filters.categoryId)
     if (filters.budgetItemId !== undefined) query = query.eq('budget_item_id', filters.budgetItemId)
     if (filters.type !== undefined) query = query.eq('type', filters.type)
-    return unwrap(await query.order('transaction_date', { ascending: false }).order('id', { ascending: false }))
+    query = query.order('transaction_date', { ascending: false }).order('id', { ascending: false })
+    if (filters.limit !== undefined) query = query.limit(filters.limit)
+    return unwrap(await query)
   }
 
   /** Tutti i movimenti di un anno solare, dal più recente al più vecchio. */

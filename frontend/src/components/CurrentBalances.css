@@ -50,3 +50,7 @@
   color: var(--color-primary-strong);
   font-weight: var(--font-weight-semibold);
 }
+
+.current-balances__status {
+  color: var(--color-text-muted);
+}

@@ -1,9 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { accountsService } from '../../api/accounts.service.ts'
-import { queryKeys } from '../../api/query-keys.ts'
-import { todayIso } from '../../lib/dates.ts'
+import { accountsService } from '../api/accounts.service.ts'
+import { queryKeys } from '../api/query-keys.ts'
+import { todayIso } from '../lib/dates.ts'
 import CurrentBalances from './CurrentBalances.tsx'
 
 const accounts = [
