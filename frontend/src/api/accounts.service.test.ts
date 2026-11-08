@@ -77,3 +77,17 @@ describe('AccountsService.setOpeningBalance', () => {
     expect(present.calls.find((c) => c.method === 'update')?.args[0]).toEqual({ amount: 10, source: 'manual' })
   })
 })
+
+describe('AccountsService.listAccountIdsInUse', () => {
+  it('unisce origine, destinazione e saldi iniziali senza doppioni né nulli', async () => {
+    const resultsByColumn = (calls: { method: string; args: unknown[] }[]) => {
+      const column = calls.find((c) => c.method === 'select')?.args[0]
+      return column === 'destination_account_id'
+        ? { data: [{ destination_account_id: 2 }, { destination_account_id: null }], error: null }
+        : { data: [{ account_id: 1 }, { account_id: 3 }], error: null }
+    }
+    const fake = fakeSupabase(resultsByColumn)
+    const ids = await new AccountsService(() => fake.client).listAccountIdsInUse()
+    expect(ids.toSorted()).toEqual([1, 2, 3])
+  })
+})

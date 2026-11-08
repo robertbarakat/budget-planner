@@ -7,7 +7,7 @@ import { createCrudHooks } from './crud-hooks.ts'
 import { queryKeys } from './query-keys.ts'
 import { fakeSupabase } from './test-utils.ts'
 
-const row = { id: 1, name: 'Cash', sort_order: 0, archived: false, created_at: '2026-01-01' }
+const row = { id: 1, name: 'Conto di prova', sort_order: 0, archived: false, created_at: '2026-01-01' }
 
 function setup() {
   const { client } = fakeSupabase({ data: [row], error: null })

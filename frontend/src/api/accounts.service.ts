@@ -48,6 +48,23 @@ export class AccountsService {
     return this.saveOpeningBalance(accountId, year, balanceCents / 100, 'carried_over')
   }
 
+  /**
+   * Id dei conti collegati a movimenti (come origine o destinazione) o a saldi iniziali:
+   * quelli non si eliminano, si archiviano.
+   */
+  async listAccountIdsInUse(): Promise<number[]> {
+    const [fromRows, toRows, balanceRows] = await Promise.all([
+      this.transactions.listColumn('account_id'),
+      this.transactions.listColumn('destination_account_id'),
+      this.openingBalances.listColumn('account_id'),
+    ])
+    const ids = new Set<number>()
+    for (const row of fromRows) ids.add(row.account_id)
+    for (const row of toRows) if (row.destination_account_id !== null) ids.add(row.destination_account_id)
+    for (const row of balanceRows) ids.add(row.account_id)
+    return [...ids]
+  }
+
   private async saveOpeningBalance(accountId: number, year: number, amount: number, source: 'manual' | 'carried_over') {
     const [existing] = await this.openingBalances.list({ where: { account_id: accountId, year } })
     return existing

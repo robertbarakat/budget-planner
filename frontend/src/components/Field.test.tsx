@@ -41,7 +41,7 @@ describe('Field', () => {
       <Field label="Conto" required>
         {(p) => (
           <select {...p}>
-            <option>Bancoposta</option>
+            <option>Conto principale</option>
           </select>
         )}
       </Field>,

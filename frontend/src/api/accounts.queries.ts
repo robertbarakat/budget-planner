@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { accountsService } from './accounts.service.ts'
 import { createArchivableHooks, createCrudHooks, invalidateAll } from './crud-hooks.ts'
 import { queryKeys } from './query-keys.ts'
@@ -39,5 +39,13 @@ export function useCarryOverOpeningBalance() {
     mutationFn: (args: { accountId: number; year: number }) =>
       accountsService.carryOverOpeningBalance(args.accountId, args.year),
     onSuccess: () => invalidateAll(queryClient, invalidate),
+  })
+}
+
+/** Id dei conti con movimenti o saldi iniziali collegati. */
+export function useAccountIdsInUse() {
+  return useQuery({
+    queryKey: [...queryKeys.accounts.all, 'ids-in-use'],
+    queryFn: () => accountsService.listAccountIdsInUse(),
   })
 }

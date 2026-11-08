@@ -9,6 +9,7 @@ import NewTransactionPage from './pages/NewTransactionPage.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
 import SettingsPage from './pages/settings/SettingsPage.tsx'
 import BudgetItemsSettingsPage from './pages/settings/BudgetItemsSettingsPage.tsx'
+import AccountsSettingsPage from './pages/settings/AccountsSettingsPage.tsx'
 import CategoriesSettingsPage from './pages/settings/CategoriesSettingsPage.tsx'
 import MacroAreasSettingsPage from './pages/settings/MacroAreasSettingsPage.tsx'
 
@@ -30,6 +31,7 @@ export const routes: RouteObject[] = [
           { path: 'settings/macro-areas', element: <MacroAreasSettingsPage /> },
           { path: 'settings/budget-items', element: <BudgetItemsSettingsPage /> },
           { path: 'settings/categories', element: <CategoriesSettingsPage /> },
+          { path: 'settings/accounts', element: <AccountsSettingsPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

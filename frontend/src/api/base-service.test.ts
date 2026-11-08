@@ -10,7 +10,7 @@ class TestAccountsService extends BaseService<'accounts'> {
   }
 }
 
-const row = { id: 1, name: 'Cash', sort_order: 0, archived: false, created_at: '2026-01-01' }
+const row = { id: 1, name: 'Conto di prova', sort_order: 0, archived: false, created_at: '2026-01-01' }
 
 describe('BaseService', () => {
   it('list applica filtri e ordinamento e restituisce le righe', async () => {
@@ -26,7 +26,7 @@ describe('BaseService', () => {
   it('create, update e remove usano la tabella e l\'id giusti', async () => {
     const { client, calls } = fakeSupabase({ data: row, error: null })
     const service = new TestAccountsService(() => client)
-    await expect(service.create({ name: 'Cash' })).resolves.toEqual(row)
+    await expect(service.create({ name: 'Conto di prova' })).resolves.toEqual(row)
     await expect(service.update(1, { archived: true })).resolves.toEqual(row)
     await expect(service.remove(1)).resolves.toBeUndefined()
     expect(calls.filter((c) => c.method === 'from').every((c) => c.args[0] === 'accounts')).toBe(true)

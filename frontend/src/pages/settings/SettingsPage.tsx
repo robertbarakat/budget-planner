@@ -7,6 +7,7 @@ const sections = [
   { to: paths.settingsMacroAreas, title: 'Macro-aree', description: 'Raggruppamenti per la vista di sintesi.' },
   { to: paths.settingsBudgetItems, title: 'Voci di budget', description: 'Il livello della previsione, raggruppato per macro-area.' },
   { to: paths.settingsCategories, title: 'Categorie', description: 'Il livello dell\'inserimento, raggruppato per voce di budget.' },
+  { to: paths.settingsAccounts, title: 'Conti', description: 'Dove stanno i soldi: aggiungi, riordina, archivia.' },
 ] as const
 
 export default function SettingsPage() {
