@@ -164,7 +164,7 @@ export function previousAdvancesAndInps(
   year: number,
 ): { previousAdvances: TaxSummaryInput['previousAdvances']; inpsPayments: TaxSummaryInput['inpsPayments'] } {
   const advancesOf = (type: string) =>
-    deadlines.filter((d) => d.reference_year === year - 1 && d.tax_type === type).sort((a, b) => a.due_date.localeCompare(b.due_date)).map((d) => d.amount)
+    deadlines.filter((d) => d.installment_id === null && d.reference_year === year - 1 && d.tax_type === type).sort((a, b) => a.due_date.localeCompare(b.due_date)).map((d) => d.amount)
   const byId = new Map(transactions.map((t) => [t.id, t]))
   const inpsPayments = deadlines.flatMap((d) => {
     const transaction = d.transaction_id === null ? undefined : byId.get(d.transaction_id)
@@ -180,12 +180,12 @@ export function previousAdvancesAndInps(
  * o con importo modificato a mano. Per posizione (primo, secondo acconto); `undefined` = segue il calcolo.
  */
 export function confirmedAdvanceAmounts(
-  deadlines: readonly { reference_year: number; tax_type: string; due_date: string; amount: number; transaction_id: number | null; is_amount_manual: boolean }[],
+  deadlines: readonly { reference_year: number; tax_type: string; due_date: string; amount: number; transaction_id: number | null; installment_id: number | null; is_amount_manual: boolean }[],
   year: number,
 ): { substituteTax: (number | undefined)[]; inps: (number | undefined)[] } {
   const byPosition = (type: string) =>
     deadlines
-      .filter((d) => d.reference_year === year && d.tax_type === type)
+      .filter((d) => d.installment_id === null && d.reference_year === year && d.tax_type === type)
       .sort((a, b) => a.due_date.localeCompare(b.due_date))
       .map((d) => (d.transaction_id !== null || d.is_amount_manual ? Number(d.amount) : undefined))
   return { substituteTax: byPosition('substitute_tax_advance'), inps: byPosition('inps_advance') }

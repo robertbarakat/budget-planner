@@ -26,6 +26,7 @@ export default function TaxPage() {
     <main className="tax-page">
       <h1>Fiscale</h1>
       <Link to={paths.taxF24} className="tax-page__link">Calendario F24 →</Link>
+      <Link to={paths.taxInstallments} className="tax-page__link">Rateizzazioni →</Link>
       <YearSelector year={year} onChange={setYear} />
       {failed ? (
         <p role="alert" className="tax-page__note">Non riesco a leggere i dati fiscali. Riprova più tardi.</p>

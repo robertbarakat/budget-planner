@@ -28,7 +28,9 @@ export function planDeadlines(
   year: number,
   current: { summary: TaxSummary; firstAdvanceDueDate: string },
   previous: { summary: TaxSummary } | null,
-): { deadlines: F24Deadline[]; totalCents: number } {
+  /** Rate delle rateizzazioni non archiviate (importi in euro). */
+  installments: readonly { id: number; referenceYear: number; taxType: F24TaxType; number: number; dueDate: string; amount: number }[] = [],
+): { deadlines: (F24Deadline & { installmentId?: number })[]; totalCents: number } {
   const cents = (value: number | null) => eurosToCents(value ?? 0)
   const monthDay = current.firstAdvanceDueDate.slice(4)
   const source = (referenceYear: number, tax: 'substitute_tax' | 'inps', summary: TaxSummary, balanceDate: string, withAdvances: boolean): F24TaxSource => ({
@@ -47,5 +49,18 @@ export function planDeadlines(
     // Anno prima: gli acconti sono già passati, resta il saldo alla data del primo acconto.
     ...(previous ? [source(year - 1, tax, previous.summary, current.firstAdvanceDueDate, false)] : []),
   ])
-  return buildF24Calendar({ year, sources, installments: [] })
+  const calendar = buildF24Calendar({
+    year,
+    sources,
+    installments: installments.map((i) => ({ referenceYear: i.referenceYear, taxType: i.taxType, number: i.number, dueDate: i.dueDate, amountCents: cents(i.amount) })),
+  })
+  // Le rate tornano con il loro id (riferimento, tributo, numero e data le identificano).
+  const idOf = new Map(installments.map((i) => [`${i.referenceYear}|${i.taxType}|${i.number}|${i.dueDate}`, i.id]))
+  return {
+    ...calendar,
+    deadlines: calendar.deadlines.map((d) => {
+      const installmentId = d.installmentNumber === undefined ? undefined : idOf.get(`${d.referenceYear}|${d.taxType}|${d.installmentNumber}|${d.dueDate}`)
+      return installmentId === undefined ? d : { ...d, installmentId }
+    }),
+  }
 }

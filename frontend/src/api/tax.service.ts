@@ -8,6 +8,8 @@ export type TaxParametersValues = Omit<InsertOf<'tax_parameters'>, 'year'>
 
 /** Scadenza calcolata da salvare nel calendario (importo in euro). */
 export interface PlannedDeadline {
+  /** Id della rata, se la scadenza è una rata di una rateizzazione. */
+  installmentId?: number
   referenceYear: number
   taxType: RowOf<'f24_deadlines'>['tax_type']
   dueDate: string
@@ -53,6 +55,29 @@ export class TaxService {
       : this.parameters.create({ ...values, year })
   }
 
+  /**
+   * Crea una rateizzazione con le sue rate. Se una rata non si salva, la rateizzazione appena creata viene
+   * tolta (con le rate già scritte), così non resta un'entità a metà.
+   */
+  async createPlanWithInstallments(
+    plan: InsertOf<'installment_plans'>,
+    installments: readonly { number: number; dueDate: string; amount: number }[],
+  ): Promise<RowOf<'installment_plans'>> {
+    const created = await this.installmentPlans.create(plan)
+    const written: number[] = []
+    try {
+      for (const item of installments) {
+        const row = await this.installments.create({ plan_id: created.id, number: item.number, due_date: item.dueDate, amount: item.amount })
+        written.push(row.id)
+      }
+    } catch (error) {
+      for (const id of written) await this.installments.remove(id)
+      await this.installmentPlans.remove(created.id)
+      throw error
+    }
+    return created
+  }
+
   /** Rate di una rateizzazione, in ordine di numero. */
   listInstallments(planId: number): Promise<RowOf<'installments'>[]> {
     return this.installments.list({ where: { plan_id: planId }, orderBy: [{ column: 'number' }] })
@@ -88,9 +113,18 @@ export class TaxService {
     const existing = await this.listDeadlinesDueInYear(year)
     const result: SyncResult = { created: 0, updated: 0, kept: 0 }
     for (const item of planned) {
-      const found = existing.find((d) => d.reference_year === item.referenceYear && d.tax_type === item.taxType && d.due_date === item.dueDate)
+      const found =
+        item.installmentId !== undefined
+          ? existing.find((d) => d.installment_id === item.installmentId)
+          : existing.find((d) => d.installment_id === null && d.reference_year === item.referenceYear && d.tax_type === item.taxType && d.due_date === item.dueDate)
       if (!found) {
-        await this.f24Deadlines.create({ reference_year: item.referenceYear, tax_type: item.taxType, due_date: item.dueDate, amount: item.amount })
+        await this.f24Deadlines.create({
+          reference_year: item.referenceYear,
+          tax_type: item.taxType,
+          due_date: item.dueDate,
+          amount: item.amount,
+          installment_id: item.installmentId ?? null,
+        })
         result.created += 1
       } else if (found.transaction_id === null && !found.is_amount_manual && Number(found.amount) !== item.amount) {
         await this.f24Deadlines.update(found.id, { amount: item.amount })

@@ -94,8 +94,9 @@ describe('previousAdvancesAndInps', () => {
 
 describe('confirmedAdvanceAmounts', () => {
   it('conta solo scadenze versate o modificate a mano, per posizione', () => {
-    const d = (o: object) => ({ reference_year: 2026, tax_type: 'inps_advance', due_date: '2026-06-30', amount: 100, transaction_id: null, is_amount_manual: false, ...o })
+    const d = (o: object) => ({ reference_year: 2026, tax_type: 'inps_advance', due_date: '2026-06-30', amount: 100, transaction_id: null, installment_id: null, is_amount_manual: false, ...o })
     expect(confirmedAdvanceAmounts([d({}), d({ due_date: '2026-11-30', is_amount_manual: true, amount: 250 })], 2026).inps).toEqual([undefined, 250])
     expect(confirmedAdvanceAmounts([d({ transaction_id: 3 })], 2026).inps).toEqual([100])
+    expect(confirmedAdvanceAmounts([d({ transaction_id: 3, installment_id: 8 })], 2026).inps).toEqual([])
   })
 })

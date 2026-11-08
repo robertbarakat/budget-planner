@@ -1,0 +1,33 @@
+.installment-form {
+  max-height: calc(100% - var(--space-11));
+  overflow-y: auto;
+}
+
+.installment-form__fields,
+.installment-form__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.installment-form__rows {
+  min-width: 0;
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.installment-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: end;
+  gap: var(--space-4);
+}
+
+.installment-form__row > button {
+  grid-column: 1 / -1;
+}
+
+.installment-form__error {
+  color: var(--color-negative);
+}

@@ -9,6 +9,7 @@ import MacroAreasPage from './pages/MacroAreasPage.tsx'
 import MatrixPage from './pages/MatrixPage.tsx'
 import NewTransactionPage from './pages/NewTransactionPage.tsx'
 import EditTransactionPage from './pages/EditTransactionPage.tsx'
+import InstallmentsPage from './pages/InstallmentsPage.tsx'
 import F24Page from './pages/F24Page.tsx'
 import TaxPage from './pages/TaxPage.tsx'
 import TransactionsPage from './pages/TransactionsPage.tsx'
@@ -45,6 +46,7 @@ export const routes: RouteObject[] = [
           { path: 'matrix', element: <MatrixPage /> },
           { path: 'tax', element: <TaxPage /> },
           { path: 'tax/f24', element: <F24Page /> },
+          { path: 'tax/installments', element: <InstallmentsPage /> },
           { path: 'settings', element: <SettingsPage /> },
           { path: 'settings/macro-areas', element: <MacroAreasSettingsPage /> },
           { path: 'settings/budget-items', element: <BudgetItemsSettingsPage /> },

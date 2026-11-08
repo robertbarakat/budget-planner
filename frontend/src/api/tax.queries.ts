@@ -14,11 +14,11 @@ export const useDeleteTaxParameters = parameters.useRemove
 const plans = createCrudHooks({ service: taxService.installmentPlans, key: queryKeys.tax.installmentPlans, invalidate })
 export const useInstallmentPlans = plans.useList
 export const useInstallmentPlan = plans.useById
-export const useCreateInstallmentPlan = plans.useCreate
 export const useUpdateInstallmentPlan = plans.useUpdate
 export const useDeleteInstallmentPlan = plans.useRemove
 
 const installments = createCrudHooks({ service: taxService.installments, key: queryKeys.tax.installments, invalidate })
+export const useAllInstallments = installments.useList
 export const useCreateInstallment = installments.useCreate
 export const useUpdateInstallment = installments.useUpdate
 export const useDeleteInstallment = installments.useRemove
@@ -90,6 +90,14 @@ export function useApplyTaxEntries() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (segments: Parameters<typeof taxService.applyTaxEntries>[0]) => taxService.applyTaxEntries(segments),
+    onSuccess: () => invalidateAll(queryClient, invalidate),
+  })
+}
+
+export function useCreateInstallmentPlanWithInstallments() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (args: Parameters<typeof taxService.createPlanWithInstallments>) => taxService.createPlanWithInstallments(...args),
     onSuccess: () => invalidateAll(queryClient, invalidate),
   })
 }

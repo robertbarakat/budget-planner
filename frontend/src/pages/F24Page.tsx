@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { useBudgetEntries, useClosedMonths } from '../api/budget.queries.ts'
 import { useBudgetItems } from '../api/classification.queries.ts'
-import { useApplyTaxEntries, useF24Deadlines, useF24DeadlinesDueInYear, useLinkDeadlineToTransaction, useSyncF24Deadlines } from '../api/tax.queries.ts'
+import { useAllInstallments, useApplyTaxEntries, useF24Deadlines, useF24DeadlinesDueInYear, useLinkDeadlineToTransaction, useInstallmentPlans, useSyncF24Deadlines } from '../api/tax.queries.ts'
 import { useYearTransactions } from '../api/transactions.queries.ts'
 import ApplyDriverDialog from '../components/ApplyDriverDialog.tsx'
 import Field from '../components/Field.tsx'
@@ -46,6 +46,8 @@ export default function F24Page() {
   const navigate = useNavigate()
   const allDeadlines = useF24Deadlines()
   const yearTransactions = useYearTransactions(year)
+  const plans = useInstallmentPlans()
+  const allInstallments = useAllInstallments()
   const unlink = useLinkDeadlineToTransaction()
   const [itemId, setItemId] = useState(readItem)
   const expenseItems = (items.data ?? []).filter((i) => i.kind === 'expense' && !i.archived)
@@ -53,12 +55,18 @@ export default function F24Page() {
 
   const plan = useMemo(() => {
     if (!current.summary || !current.parameters) return null
-    return planDeadlines(year, { summary: current.summary, firstAdvanceDueDate: current.parameters.firstAdvanceDueDate }, previous.summary ? { summary: previous.summary } : null)
-  }, [year, current.summary, current.parameters, previous.summary])
+    // Rate delle rateizzazioni non archiviate: compaiono nel calendario alle loro scadenze.
+    const active = new Map((plans.data ?? []).filter((p) => !p.archived).map((p) => [p.id, p]))
+    const rates = (allInstallments.data ?? []).flatMap((i) => {
+      const plan = active.get(i.plan_id)
+      return plan ? [{ id: i.id, referenceYear: plan.reference_year, taxType: plan.tax_type, number: i.number, dueDate: i.due_date, amount: Number(i.amount) }] : []
+    })
+    return planDeadlines(year, { summary: current.summary, firstAdvanceDueDate: current.parameters.firstAdvanceDueDate }, previous.summary ? { summary: previous.summary } : null, rates)
+  }, [year, current.summary, current.parameters, previous.summary, plans.data, allInstallments.data])
 
   function generate() {
     if (!plan) return
-    const planned = plan.deadlines.map((d) => ({ referenceYear: d.referenceYear, taxType: d.taxType, dueDate: d.dueDate, amount: d.amountCents / 100 }))
+    const planned = plan.deadlines.map((d) => ({ installmentId: d.installmentId, referenceYear: d.referenceYear, taxType: d.taxType, dueDate: d.dueDate, amount: d.amountCents / 100 }))
     sync.mutate(
       { year, planned },
       { onSuccess: (r) => showSuccess(`Calendario ${year} aggiornato: ${r.created} create, ${r.updated} aggiornate, ${r.kept} invariate.`) },
@@ -117,7 +125,7 @@ export default function F24Page() {
                   return (
                     <li key={d.id} className="f24-page__row">
                       <div>
-                        <strong>{taxTypeLabels[d.tax_type]}</strong> · anno {d.reference_year}
+                        <strong>{taxTypeLabels[d.tax_type]}</strong> · anno {d.reference_year}{d.installment_id !== null ? ' · rata' : ''}
                         <div className="f24-page__meta">{italianDate(d.due_date)}{d.is_amount_manual ? ' · importo modificato a mano' : ''}</div>
                       </div>
                       <Amount value={Number(d.amount)} colored={false} />

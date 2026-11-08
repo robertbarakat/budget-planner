@@ -133,3 +133,29 @@ describe('TaxService.linkDeadlineToTransaction', () => {
     expect((failure as AppError).message).toBe('Questo movimento è già collegato a un\'altra scadenza.')
   })
 })
+
+describe('TaxService.createPlanWithInstallments', () => {
+  const plan = { description: 'Saldo 2024', total_amount: 1000, tax_type: 'substitute_tax' as const, reference_year: 2024 }
+  const rows = [{ number: 1, dueDate: '2026-03-31', amount: 550 }, { number: 2, dueDate: '2026-06-30', amount: 550 }]
+  it('crea la rateizzazione e poi le rate con il suo id', async () => {
+    const { client, calls } = fakeSupabase({ data: { id: 4 }, error: null })
+    await new TaxService(() => client).createPlanWithInstallments(plan, rows)
+    const inserts = calls.filter((c) => c.method === 'insert').map((c) => c.args[0])
+    expect(inserts).toEqual([plan, { plan_id: 4, number: 1, due_date: '2026-03-31', amount: 550 }, { plan_id: 4, number: 2, due_date: '2026-06-30', amount: 550 }])
+  })
+  it('se una rata fallisce toglie la rateizzazione e le rate già scritte', async () => {
+    let inserts = 0
+    const { client, calls } = fakeSupabase({
+      installment_plans: { data: { id: 4 }, error: null },
+      installments: (q) => {
+        if (q.some((c) => c.method === 'insert')) {
+          inserts += 1
+          if (inserts === 2) return { data: null, error: { code: '23505', message: 'duplicate' } }
+        }
+        return { data: { id: 100 + inserts }, error: null }
+      },
+    })
+    await expect(new TaxService(() => client).createPlanWithInstallments(plan, rows)).rejects.toBeInstanceOf(AppError)
+    expect(calls.filter((c) => c.method === 'delete')).toHaveLength(2)
+  })
+})

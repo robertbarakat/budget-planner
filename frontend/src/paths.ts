@@ -11,6 +11,7 @@ export const paths = {
   matrix: '/matrix',
   tax: '/tax',
   taxF24: '/tax/f24',
+  taxInstallments: '/tax/installments',
   settings: '/settings',
   settingsMacroAreas: '/settings/macro-areas',
   settingsBudgetItems: '/settings/budget-items',

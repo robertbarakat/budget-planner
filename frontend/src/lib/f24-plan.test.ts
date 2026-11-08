@@ -39,3 +39,17 @@ describe('deadlineStatus', () => {
     expect(deadlineStatus({ due_date: '2030-01-01', transaction_id: null }, '2026-11-08')).toBe('due')
   })
 })
+
+describe('rate delle rateizzazioni nel calendario', () => {
+  it('compaiono alla loro scadenza con l\'id della rata e contano nel totale', () => {
+    const plan = planDeadlines(
+      2026,
+      { summary: summary([0, 0], [0, 0], 0, 0), firstAdvanceDueDate: '2026-06-30' },
+      null,
+      [{ id: 9, referenceYear: 2024, taxType: 'substitute_tax_balance', number: 1, dueDate: '2026-03-31', amount: 550 }, { id: 10, referenceYear: 2024, taxType: 'substitute_tax_balance', number: 2, dueDate: '2027-03-31', amount: 550 }],
+    )
+    expect(plan.deadlines).toHaveLength(1)
+    expect(plan.deadlines[0]).toMatchObject({ dueDate: '2026-03-31', amountCents: 55000, installmentId: 9, installmentNumber: 1 })
+    expect(plan.totalCents).toBe(55000)
+  })
+})
