@@ -1,11 +1,11 @@
-import { render, screen, within } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createMemoryRouter, RouterProvider } from 'react-router'
 import { describe, expect, it } from 'vitest'
-import { routes } from '../routes.tsx'
+import { renderApp } from '../test-render.tsx'
 
-function renderAt(path: string) {
-  render(<RouterProvider router={createMemoryRouter(routes, { initialEntries: [path] })} />)
+async function renderAt(path: string) {
+  renderApp(path)
+  await screen.findByRole('heading', { level: 1 })
 }
 
 // In jsdom il CSS non c'è: barra mobile e laterale sono entrambe nel DOM, quindi si limita la ricerca.
@@ -14,8 +14,8 @@ function mobileNav() {
 }
 
 describe('MobileNav', () => {
-  it('mostra le voci e il pulsante nuovo movimento', () => {
-    renderAt('/')
+  it('mostra le voci e il pulsante nuovo movimento', async () => {
+    await renderAt('/')
     const nav = mobileNav().getByRole('navigation', { name: 'Navigazione principale' })
     expect(nav).toHaveTextContent('Home')
     expect(nav).toHaveTextContent('Flusso di cassa')
@@ -27,7 +27,7 @@ describe('MobileNav', () => {
   })
 
   it('la voce attiva ha aria-current e segue la rotta', async () => {
-    renderAt('/')
+    await renderAt('/')
     expect(mobileNav().getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'page')
     await userEvent.click(mobileNav().getByRole('link', { name: 'Flusso di cassa' }))
     expect(screen.getByRole('heading', { level: 1, name: 'Flusso di cassa' })).toBeInTheDocument()
@@ -39,7 +39,7 @@ describe('MobileNav', () => {
   })
 
   it('il pulsante porta a Nuovo movimento', async () => {
-    renderAt('/')
+    await renderAt('/')
     await userEvent.click(mobileNav().getByRole('link', { name: 'Nuovo movimento' }))
     expect(screen.getByRole('heading', { level: 1, name: 'Nuovo movimento' })).toBeInTheDocument()
   })

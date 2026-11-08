@@ -12,6 +12,7 @@ import './styles/tokens.css'
 import './styles/base.css'
 import { EnvError } from './api/env.ts'
 import { queryClient } from './api/query-client.ts'
+import { SessionProvider } from './api/auth.queries.tsx'
 import { getSupabase } from './api/supabase.ts'
 import { routes } from './routes.tsx'
 
@@ -34,7 +35,9 @@ createRoot(document.getElementById('root')!).render(
       <p role="alert">{error}</p>
     ) : (
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <SessionProvider>
+          <RouterProvider router={router} />
+        </SessionProvider>
       </QueryClientProvider>
     )}
   </StrictMode>,

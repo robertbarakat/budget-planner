@@ -1,12 +1,6 @@
-import { render, screen } from '@testing-library/react'
-import { createMemoryRouter, RouterProvider } from 'react-router'
+import { screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { routes } from './routes.tsx'
-
-function renderAt(path: string) {
-  const router = createMemoryRouter(routes, { initialEntries: [path] })
-  render(<RouterProvider router={router} />)
-}
+import { renderApp } from './test-render.tsx'
 
 describe('rotte', () => {
   it.each([
@@ -14,15 +8,15 @@ describe('rotte', () => {
     ['/transactions/new', 'Nuovo movimento'],
     ['/cash-flow', 'Flusso di cassa'],
     ['/macro-areas', 'Macro-aree'],
-  ])('%s mostra il titolo "%s"', (path, title) => {
-    renderAt(path)
-    expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument()
+  ])('%s mostra il titolo "%s"', async (path, title) => {
+    renderApp(path)
+    expect(await screen.findByRole('heading', { level: 1, name: title })).toBeInTheDocument()
   })
 
-  it('un indirizzo inesistente mostra "Pagina non trovata"', () => {
-    renderAt('/non-esiste')
+  it('un indirizzo inesistente mostra "Pagina non trovata"', async () => {
+    renderApp('/non-esiste')
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Pagina non trovata' }),
+      await screen.findByRole('heading', { level: 1, name: 'Pagina non trovata' }),
     ).toBeInTheDocument()
   })
 })

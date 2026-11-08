@@ -85,3 +85,7 @@
   font-weight: var(--font-weight-semibold);
   text-decoration: none;
 }
+
+.side-nav__sign-out {
+  width: 100%;
+}

@@ -8,7 +8,19 @@
     calc(var(--nav-height) + var(--fab-size) + var(--space-10) + env(safe-area-inset-bottom));
 }
 
+/* Uscita su mobile; da desktop sta nella barra laterale */
+.app-topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-6);
+}
+
 @media (min-width: 1024px) {
+  .app-topbar {
+    display: none;
+  }
+
+
   .app-shell {
     display: flex;
     align-items: flex-start;

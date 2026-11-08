@@ -1,0 +1,53 @@
+.login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: var(--space-9);
+}
+
+.login__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  width: 100%;
+  max-width: calc(var(--sidebar-width) * 2);
+  padding: var(--space-10);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.login__title {
+  font-size: var(--font-size-2xl);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.login__intro {
+  margin-top: calc(var(--space-6) * -1);
+  color: var(--color-text-muted);
+}
+
+/* Errore: icona e testo, non solo il colore */
+.login__error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-negative);
+}
+
+.login__error-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-8);
+  height: var(--space-8);
+  border-radius: var(--radius-full);
+  background: var(--color-negative);
+  color: var(--color-on-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}

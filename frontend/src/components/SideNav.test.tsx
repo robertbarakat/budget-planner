@@ -1,11 +1,11 @@
-import { render, within } from '@testing-library/react'
-import { createMemoryRouter, RouterProvider } from 'react-router'
+import { screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { routes } from '../routes.tsx'
+import { renderApp } from '../test-render.tsx'
 
 describe('SideNav', () => {
-  it('ha le stesse voci della barra mobile e segna quella attiva', () => {
-    render(<RouterProvider router={createMemoryRouter(routes, { initialEntries: ['/macro-areas'] })} />)
+  it('ha le stesse voci della barra mobile e segna quella attiva', async () => {
+    renderApp('/macro-areas')
+    await screen.findByRole('heading', { level: 1 })
     const side = within(document.querySelector<HTMLElement>('.side-nav')!)
     const nav = side.getByRole('navigation', { name: 'Navigazione principale' })
     const links = within(nav).getAllByRole('link').map((l) => l.textContent)

@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router'
 import SideNav from './components/SideNav.tsx'
+import SignOutButton from './components/SignOutButton.tsx'
 import MobileNav from './components/MobileNav.tsx'
 import './App.css'
 
@@ -9,6 +10,9 @@ export default function App() {
     <div className="app-shell">
       <SideNav />
       <div className="app-content">
+        <div className="app-topbar">
+          <SignOutButton />
+        </div>
         <Outlet />
       </div>
       <MobileNav />

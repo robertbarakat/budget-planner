@@ -1,5 +1,6 @@
 import { Link, NavLink } from 'react-router'
 import { paths } from '../paths.ts'
+import SignOutButton from './SignOutButton.tsx'
 import { navItems } from './nav-items.ts'
 import './SideNav.css'
 
@@ -25,6 +26,7 @@ export default function SideNav() {
       <Link to={paths.newTransaction} className="side-nav__new">
         Nuovo movimento
       </Link>
+      <SignOutButton className="side-nav__sign-out" />
     </aside>
   )
 }
