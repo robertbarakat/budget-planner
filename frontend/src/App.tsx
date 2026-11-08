@@ -1,14 +1,7 @@
+import { Outlet } from 'react-router'
 import './App.css'
 
-function App() {
-
-
-    return (
-        <div>
-            Budget Planner
-        </div>
-
-    )
+// Layout radice: la navigazione (mobile e web) si aggiunge qui.
+export default function App() {
+  return <Outlet />
 }
-
-export default App
