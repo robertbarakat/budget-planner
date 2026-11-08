@@ -1,0 +1,10 @@
+.macro-areas-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  min-width: 0;
+}
+
+.macro-areas-page__note {
+  color: var(--color-text-muted);
+}
