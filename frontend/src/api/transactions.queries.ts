@@ -20,3 +20,11 @@ export function useTransactions(filters: TransactionFilters = {}) {
     queryFn: () => transactionsService.listFiltered(filters),
   })
 }
+
+/** Id delle categorie con movimenti collegati. */
+export function useCategoryIdsInUse() {
+  return useQuery({
+    queryKey: [...queryKeys.transactions.all, 'category-ids-in-use'],
+    queryFn: () => transactionsService.listCategoryIdsInUse(),
+  })
+}

@@ -34,6 +34,12 @@ export class TransactionsService extends BaseService<'transactions'> {
     return unwrap(await query.order('transaction_date', { ascending: false }).order('id', { ascending: false }))
   }
 
+  /** Id delle categorie che hanno almeno un movimento: servono a sapere quali non si possono eliminare. */
+  async listCategoryIdsInUse(): Promise<number[]> {
+    const rows = await this.listColumn('category_id')
+    return [...new Set(rows.flatMap((row) => (row.category_id === null ? [] : [row.category_id])))]
+  }
+
   /** Crea un movimento dopo aver controllato le regole che il database imposta con un vincolo. */
   override async create(values: InsertOf<'transactions'>): Promise<RowOf<'transactions'>> {
     checkTransactionShape(values)

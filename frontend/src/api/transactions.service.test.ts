@@ -60,3 +60,13 @@ describe('TransactionsService.create', () => {
     expect(calls.find((c) => c.method === 'insert')?.args[0]).toEqual(expense)
   })
 })
+
+describe('TransactionsService.listCategoryIdsInUse', () => {
+  it('restituisce gli id delle categorie con movimenti, senza doppioni e senza i trasferimenti', async () => {
+    const { client, calls } = fakeSupabase({
+      transactions: { data: [{ category_id: 4 }, { category_id: null }, { category_id: 7 }, { category_id: 4 }], error: null },
+    })
+    await expect(new TransactionsService(() => client).listCategoryIdsInUse()).resolves.toEqual([4, 7])
+    expect(calls.find((c) => c.method === 'select')?.args).toEqual(['category_id'])
+  })
+})
