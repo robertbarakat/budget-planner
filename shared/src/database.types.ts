@@ -153,14 +153,14 @@ isOneToOne: false
                   ]
                 },"f24_deadlines": {
                   Row: {
-                    "amount": number,"created_at": string,"due_date": string,"id": number,"is_amount_manual": boolean,"installment_id": number | null,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"],"transaction_id": number | null
+                    "amount": number,"created_at": string,"due_date": string,"id": number,"installment_id": number | null,"is_amount_manual": boolean,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"],"transaction_id": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount": number,"created_at"?: string,"due_date": string,"id"?: never,"is_amount_manual"?: boolean,"installment_id"?: number | null,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"],"transaction_id"?: number | null
+                    "amount": number,"created_at"?: string,"due_date": string,"id"?: never,"installment_id"?: number | null,"is_amount_manual"?: boolean,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"],"transaction_id"?: number | null
                   }
                   Update: {
-                    "amount"?: number,"created_at"?: string,"due_date"?: string,"id"?: never,"is_amount_manual"?: boolean,"installment_id"?: number | null,"reference_year"?: number,"tax_type"?: Database["public"]['Enums']["tax_type"],"transaction_id"?: number | null
+                    "amount"?: number,"created_at"?: string,"due_date"?: string,"id"?: never,"installment_id"?: number | null,"is_amount_manual"?: boolean,"reference_year"?: number,"tax_type"?: Database["public"]['Enums']["tax_type"],"transaction_id"?: number | null
                   }
                   Relationships: [
                     {
@@ -269,6 +269,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "recurrences"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "recurrence_occurrences_transaction_id_fkey"
+      columns: ["transaction_id"]
+isOneToOne: false
+      referencedRelation: "transactions"
+      referencedColumns: ["id"]
     }
                   ]
                 },"recurrences": {
@@ -299,14 +305,14 @@ isOneToOne: false
                   ]
                 },"tax_parameters": {
                   Row: {
-                    "activity_start_year": number,"created_at": string,"first_advance_due_date": string | null,"first_advance_method": Database["public"]["Enums"]["advance_method"],"has_other_pension_coverage": boolean,"id": number,"inps_rate": number,"is_startup": boolean,"profitability_coefficient": number,"second_advance_due_date": string | null,"second_advance_method": Database["public"]["Enums"]["advance_method"],"substitute_tax_rate": number,"year": number
+                    "activity_start_year": number,"created_at": string,"first_advance_due_date": string | null,"first_advance_method": Database["public"]['Enums']["advance_method"],"has_other_pension_coverage": boolean,"id": number,"inps_rate": number,"is_startup": boolean,"profitability_coefficient": number,"second_advance_due_date": string | null,"second_advance_method": Database["public"]['Enums']["advance_method"],"substitute_tax_rate": number,"year": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "activity_start_year": number,"created_at"?: string,"first_advance_due_date"?: string | null,"first_advance_method"?: Database["public"]["Enums"]["advance_method"],"has_other_pension_coverage"?: boolean,"id"?: never,"inps_rate": number,"is_startup"?: boolean,"profitability_coefficient": number,"second_advance_due_date"?: string | null,"second_advance_method"?: Database["public"]["Enums"]["advance_method"],"substitute_tax_rate": number,"year": number
+                    "activity_start_year": number,"created_at"?: string,"first_advance_due_date"?: string | null,"first_advance_method"?: Database["public"]['Enums']["advance_method"],"has_other_pension_coverage"?: boolean,"id"?: never,"inps_rate": number,"is_startup"?: boolean,"profitability_coefficient": number,"second_advance_due_date"?: string | null,"second_advance_method"?: Database["public"]['Enums']["advance_method"],"substitute_tax_rate": number,"year": number
                   }
                   Update: {
-                    "activity_start_year"?: number,"created_at"?: string,"first_advance_due_date"?: string | null,"first_advance_method"?: Database["public"]["Enums"]["advance_method"],"has_other_pension_coverage"?: boolean,"id"?: never,"inps_rate"?: number,"is_startup"?: boolean,"profitability_coefficient"?: number,"second_advance_due_date"?: string | null,"second_advance_method"?: Database["public"]["Enums"]["advance_method"],"substitute_tax_rate"?: number,"year"?: number
+                    "activity_start_year"?: number,"created_at"?: string,"first_advance_due_date"?: string | null,"first_advance_method"?: Database["public"]['Enums']["advance_method"],"has_other_pension_coverage"?: boolean,"id"?: never,"inps_rate"?: number,"is_startup"?: boolean,"profitability_coefficient"?: number,"second_advance_due_date"?: string | null,"second_advance_method"?: Database["public"]['Enums']["advance_method"],"substitute_tax_rate"?: number,"year"?: number
                   }
                   Relationships: [
                     
@@ -381,8 +387,10 @@ isOneToOne: false
 "archive_recurrence":
 { Args: { "p_recurrence_id": number,"p_today": string }; Returns: number
                            },
-"register_due_recurrence_transactions":
-{ Args: { "p_today": string }; Returns: number
+"import_transactions":
+{ Args: { "p_transactions": Json }; Returns: {
+              "expense_total": number,"income_total": number,"inserted_count": number,"transfer_total": number
+            }[]
                            },
 "reclassify_category_history":
 { Args: { "p_budget_item_id": number,"p_category_id": number,"p_from_date"?: string,"p_to_date"?: string }; Returns: number
@@ -391,6 +399,9 @@ isOneToOne: false
 { Args: { "p_due_dates": (string)[],"p_recurrence_id": number,"p_today": string }; Returns: {
               "created_count": number,"deleted_count": number,"updated_count": number
             }[]
+                           },
+"register_due_recurrence_transactions":
+{ Args: { "p_today": string }; Returns: number
                            },
 "replace_revenue_driver_entries":
 { Args: { "p_entries": Json,"p_from_month": number,"p_from_year": number,"p_to_month": number,"p_to_year": number }; Returns: {

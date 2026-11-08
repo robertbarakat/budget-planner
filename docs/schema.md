@@ -91,6 +91,14 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 ### `register_due_recurrence_transactions` (BP-92)
 `public.register_due_recurrence_transactions(p_today date) returns integer`: per ogni scadenza con `due_date <= p_today`, `registered_at` nullo, di una ricorrenza attiva, crea il movimento reale (importo della scadenza, conto e voce della ricorrenza, data della scadenza, tipo dalla voce, categoria = prima non archiviata della voce, commento = nome) e valorizza `transaction_id` e `registered_at`. Idempotente; salta le voci senza categorie attive; un movimento cancellato non si ricrea (`transaction_id` torna null, `registered_at` resta). Pianificata ogni giorno alle 00:05 UTC con `pg_cron` (job `register-due-recurrence-transactions`). Restituisce i movimenti creati.
 
+### `import_transactions` (BP-124)
+`public.import_transactions(p_transactions jsonb) returns table (inserted_count, expense_total, income_total, transfer_total)`: scrittura dell'import storico (specifica sez. 8), da eseguire **una sola volta**.
+
+- `p_transactions`: array di `{type, transaction_date, amount, account, destination_account, category, budget_item, comment, tag}`. Conti, categorie e voci si cercano per nome (senza maiuscole né spazi ai lati) tra gli elementi non archiviati; non se ne creano (lo script di BP-122). La categoria deve appartenere alla voce indicata.
+- Rifiuta di partire se `transactions` contiene già dati (errore `55000`, tabella bloccata in `share row exclusive`). Input non valido (non array, tipo/importo/data non validi, importo <= 0): `22023` con la posizione del movimento; conto, categoria o voce inesistenti: `23503`; i vincoli della tabella (es. origine = destinazione) valgono come sempre. Un errore su qualunque riga annulla tutto.
+- Restituisce movimenti inseriti e totali per tipo (somma degli importi, sempre positivi).
+- `security invoker`, `search_path` vuoto; `execute` revocato a `public` e `anon`, concesso ad `authenticated` e `service_role`.
+
 ### `apply_recurrence` (BP-85)
 `public.apply_recurrence(p_recurrence_id bigint, p_due_dates date[]) returns integer` (numero di scadenze create).
 
