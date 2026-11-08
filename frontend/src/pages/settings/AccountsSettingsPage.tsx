@@ -9,6 +9,7 @@ import {
   useUpdateAccount,
 } from '../../api/accounts.queries.ts'
 import EditableList from '../../components/EditableList.tsx'
+import OpeningBalances from './OpeningBalances.tsx'
 import { paths } from '../../paths.ts'
 import './settings.css'
 
@@ -46,6 +47,7 @@ export default function AccountsSettingsPage() {
           Non riesco a leggere i conti. Riprova più tardi.
         </p>
       ) : (
+        <>
         <EditableList
           label="Conti"
           addLabel="Nuovo conto"
@@ -68,6 +70,8 @@ export default function AccountsSettingsPage() {
             await remove.mutateAsync(Number(id))
           }}
         />
+        <OpeningBalances accounts={rows} />
+        </>
       )}
     </main>
   )
