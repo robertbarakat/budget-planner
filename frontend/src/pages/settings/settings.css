@@ -50,3 +50,15 @@
 .settings__status {
   color: var(--color-text-muted);
 }
+
+.settings__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.settings__group-title {
+  font-size: var(--font-size-xl);
+}

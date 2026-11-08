@@ -7,4 +7,5 @@ export const paths = {
   macroAreas: '/macro-areas',
   settings: '/settings',
   settingsMacroAreas: '/settings/macro-areas',
+  settingsBudgetItems: '/settings/budget-items',
 } as const

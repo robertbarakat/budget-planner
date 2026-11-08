@@ -47,6 +47,14 @@ export class BaseService<T extends TableName> {
     return unwrap(await query)
   }
 
+  /** Solo una colonna di tutte le righe (più leggero di `list` quando serve poco). */
+  async listColumn<K extends keyof RowOf<T> & string>(column: K): Promise<Pick<RowOf<T>, K>[]> {
+    const query = this.client.from(this.table).select(column) as unknown as PromiseLike<
+      QueryResult<Pick<RowOf<T>, K>[]>
+    >
+    return unwrap(await query)
+  }
+
   /** Una riga per id; `AppError` di tipo `not_found` se non esiste. */
   async getById(id: number): Promise<RowOf<T>> {
     const query = this.client.from(this.table).select('*').eq('id' as never, id as never) as unknown as SingleQuery<

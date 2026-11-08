@@ -114,6 +114,12 @@
   font-weight: var(--font-weight-medium);
 }
 
+.editable-list__detail {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-muted);
+}
+
 .editable-list__actions {
   display: flex;
   flex-wrap: wrap;
@@ -132,6 +138,7 @@
 
 .editable-list__overlay {
   position: fixed;
+  z-index: 20;
   inset: 0;
   background: var(--color-text);
   opacity: 0.4;
@@ -139,6 +146,7 @@
 
 .editable-list__dialog {
   position: fixed;
+  z-index: 20;
   top: 50%;
   left: 50%;
   display: flex;

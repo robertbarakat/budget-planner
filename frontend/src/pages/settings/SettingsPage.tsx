@@ -5,6 +5,7 @@ import './settings.css'
 // Le sezioni si aggiungono qui man mano che le pagine esistono.
 const sections = [
   { to: paths.settingsMacroAreas, title: 'Macro-aree', description: 'Raggruppamenti per la vista di sintesi.' },
+  { to: paths.settingsBudgetItems, title: 'Voci di budget', description: 'Il livello della previsione, raggruppato per macro-area.' },
 ] as const
 
 export default function SettingsPage() {

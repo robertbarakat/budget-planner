@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
+import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react'
 import { AlertDialog, Switch } from 'radix-ui'
 import Button from './Button.tsx'
 import Field from './Field.tsx'
@@ -13,6 +13,8 @@ export interface EditableListItem {
   archived: boolean
   /** `true` solo se l'elemento non ha dati collegati: solo allora si offre "Elimina". */
   deletable: boolean
+  /** Testo breve accanto al nome (es. "Spesa"), sempre in chiaro e non solo colore. */
+  detail?: string
 }
 
 export interface EditableListProps {
@@ -28,6 +30,12 @@ export interface EditableListProps {
   onReorder: (orderedIds: EditableListId[]) => void | Promise<void>
   onArchive: (id: EditableListId, archived: boolean) => void | Promise<void>
   onDelete?: (id: EditableListId) => void | Promise<void>
+  /** Campi in più nel modulo di aggiunta (es. la scelta del tipo). */
+  addExtra?: ReactNode
+  /** `false` nasconde l'aggiunta (es. in un gruppo archiviato). */
+  canAdd?: boolean
+  /** Azioni in più per ogni riga (es. "Sposta"). */
+  renderActions?: (item: EditableListItem) => ReactNode
 }
 
 type MoveDirection = 'up' | 'down'
@@ -43,7 +51,7 @@ async function attempt(action: () => void | Promise<void>): Promise<boolean> {
 }
 
 /** Elenco modificabile: aggiunta, rinomina in linea, riordino con pulsanti, archivia/ripristina, elimina se possibile. */
-export default function EditableList({ label, addLabel, items, onAdd, onRename, onReorder, onArchive, onDelete }: EditableListProps) {
+export default function EditableList({ label, addLabel, items, onAdd, onRename, onReorder, onArchive, onDelete, addExtra, canAdd = true, renderActions }: EditableListProps) {
   const [showArchived, setShowArchived] = useState(false)
   const [newName, setNewName] = useState('')
   const [adding, setAdding] = useState(false)
@@ -167,6 +175,7 @@ export default function EditableList({ label, addLabel, items, onAdd, onRename, 
 
   return (
     <section className="editable-list" aria-label={label}>
+      {canAdd && (
       <form className="editable-list__add" onSubmit={submitAdd} noValidate>
         <div className="editable-list__add-field">
           <Field label={addLabel} error={addError}>
@@ -181,10 +190,12 @@ export default function EditableList({ label, addLabel, items, onAdd, onRename, 
             )}
           </Field>
         </div>
+        {addExtra}
         <Button type="submit" className="editable-list__add-button" loading={adding}>
           Aggiungi
         </Button>
       </form>
+      )}
 
       <div className="editable-list__toggle">
         <Switch.Root
@@ -240,6 +251,7 @@ export default function EditableList({ label, addLabel, items, onAdd, onRename, 
                   <>
                     <div className="editable-list__name">
                       <span>{item.name}</span>
+                      {item.detail && <span className="editable-list__detail">{item.detail}</span>}
                       {item.archived && <span className="editable-list__badge">Archiviato</span>}
                     </div>
                     <div className="editable-list__actions">
@@ -272,6 +284,7 @@ export default function EditableList({ label, addLabel, items, onAdd, onRename, 
                       <Button variant="secondary" aria-label={`${item.archived ? 'Ripristina' : 'Archivia'} ${item.name}`} onClick={() => toggleArchive(item)}>
                         {item.archived ? 'Ripristina' : 'Archivia'}
                       </Button>
+                      {renderActions?.(item)}
                       {item.deletable && onDelete && (
                         <Button variant="destructive" aria-label={`Elimina ${item.name}`} onClick={() => setPendingDelete(item)}>
                           Elimina

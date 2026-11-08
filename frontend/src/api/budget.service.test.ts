@@ -45,3 +45,13 @@ describe('BudgetService mesi chiusi', () => {
     expect(open.calls.some((c) => c.method === 'delete')).toBe(false)
   })
 })
+
+describe('BudgetService.listBudgetItemIdsInUse', () => {
+  it('restituisce gli id delle voci con righe, senza doppioni', async () => {
+    const { client, calls } = fakeSupabase({
+      budget_entries: { data: [{ budget_item_id: 3 }, { budget_item_id: 5 }, { budget_item_id: 3 }], error: null },
+    })
+    await expect(new BudgetService(() => client).listBudgetItemIdsInUse()).resolves.toEqual([3, 5])
+    expect(calls.find((c) => c.method === 'select')?.args).toEqual(['budget_item_id'])
+  })
+})

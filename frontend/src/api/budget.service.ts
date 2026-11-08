@@ -28,6 +28,12 @@ export class BudgetService {
     return this.entries.list({ where, orderBy: [{ column: 'year' }, { column: 'month' }, { column: 'id' }] })
   }
 
+  /** Id delle voci che hanno almeno una riga di budget: servono a sapere quali non si possono eliminare. */
+  async listBudgetItemIdsInUse(): Promise<number[]> {
+    const rows = await this.entries.listColumn('budget_item_id')
+    return [...new Set(rows.map((row) => row.budget_item_id))]
+  }
+
   /** Mesi chiusi, opzionalmente di un solo anno. */
   listClosedMonths(year?: number) {
     return this.closedMonths.list({

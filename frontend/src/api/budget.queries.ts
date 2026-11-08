@@ -41,3 +41,11 @@ export function useReopenMonth() {
     onSuccess: () => invalidateAll(queryClient, invalidate),
   })
 }
+
+/** Id delle voci con righe di budget collegate. */
+export function useBudgetItemIdsInUse() {
+  return useQuery({
+    queryKey: [...queryKeys.budget.entries, 'item-ids-in-use'],
+    queryFn: () => budgetService.listBudgetItemIdsInUse(),
+  })
+}

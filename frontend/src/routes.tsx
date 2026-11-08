@@ -8,6 +8,7 @@ import MacroAreasPage from './pages/MacroAreasPage.tsx'
 import NewTransactionPage from './pages/NewTransactionPage.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
 import SettingsPage from './pages/settings/SettingsPage.tsx'
+import BudgetItemsSettingsPage from './pages/settings/BudgetItemsSettingsPage.tsx'
 import MacroAreasSettingsPage from './pages/settings/MacroAreasSettingsPage.tsx'
 
 // Unico file delle rotte (gli indirizzi stanno in paths.ts).
@@ -26,6 +27,7 @@ export const routes: RouteObject[] = [
           { path: 'macro-areas', element: <MacroAreasPage /> },
           { path: 'settings', element: <SettingsPage /> },
           { path: 'settings/macro-areas', element: <MacroAreasSettingsPage /> },
+          { path: 'settings/budget-items', element: <BudgetItemsSettingsPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },
