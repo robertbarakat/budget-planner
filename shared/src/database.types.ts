@@ -381,6 +381,9 @@ isOneToOne: false
 "archive_recurrence":
 { Args: { "p_recurrence_id": number,"p_today": string }; Returns: number
                            },
+"reclassify_category_history":
+{ Args: { "p_budget_item_id": number,"p_category_id": number,"p_from_date"?: string,"p_to_date"?: string }; Returns: number
+                           },
 "regenerate_recurrence_occurrences":
 { Args: { "p_due_dates": (string)[],"p_recurrence_id": number,"p_today": string }; Returns: {
               "created_count": number,"deleted_count": number,"updated_count": number

@@ -80,6 +80,14 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 - `security invoker`, `search_path` vuoto; `execute` revocato a `public` e `anon`, concesso ad `authenticated`. Il calcolo sta in `shared/`.
 - Migrazione non applicata al progetto remoto (richiede conferma, vedi ticket).
 
+### `reclassify_category_history` (BP-46)
+`public.reclassify_category_history(p_category_id bigint, p_budget_item_id bigint, p_from_date date default null, p_to_date date default null) returns integer` (numero di movimenti aggiornati).
+
+- Imposta `transactions.budget_item_id = p_budget_item_id` per i movimenti della categoria, in un'unica transazione. Intervallo di date opzionale sulla `transaction_date` (estremi inclusi; `null` = nessun limite da quel lato). I movimenti già sulla voce di destinazione non contano.
+- Non sposta la categoria (`categories.budget_item_id` resta com'è: è una scrittura a parte) e non impone che la voce di destinazione sia quella della categoria. Tocca solo spese ed entrate, quindi `transactions_type_consistency` resta valido.
+- Categoria o voce inesistenti (o non visibili per RLS): errore `23503`. Parametri null o intervallo invertito: errore `22023`.
+- `security invoker`, `search_path` vuoto; `execute` revocato a `public` e `anon`, concesso ad `authenticated`.
+
 ### `apply_recurrence` (BP-85)
 `public.apply_recurrence(p_recurrence_id bigint, p_due_dates date[]) returns integer` (numero di scadenze create).
 
