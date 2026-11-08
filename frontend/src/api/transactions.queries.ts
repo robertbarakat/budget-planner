@@ -28,3 +28,11 @@ export function useCategoryIdsInUse() {
     queryFn: () => transactionsService.listCategoryIdsInUse(),
   })
 }
+
+/** Movimenti di un intero anno (le viste annuali). */
+export function useYearTransactions(year: number) {
+  return useQuery({
+    queryKey: [...queryKeys.transactions.all, 'year', year],
+    queryFn: () => transactionsService.listForYear(year),
+  })
+}

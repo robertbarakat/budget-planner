@@ -91,3 +91,17 @@ describe('TransactionsService.update', () => {
     expect(calls.filter((c) => c.method === 'update')).toHaveLength(2)
   })
 })
+
+describe('TransactionsService.listForYear', () => {
+  it('limita i movimenti all\'anno solare', async () => {
+    const { client, calls } = fakeSupabase({ data: [], error: null })
+    await new TransactionsService(() => client).listForYear(2026)
+    expect(calls.find((c) => c.method === 'gte')?.args).toEqual(['transaction_date', '2026-01-01'])
+    expect(calls.find((c) => c.method === 'lte')?.args).toEqual(['transaction_date', '2026-12-31'])
+  })
+
+  it('converte un errore del database in AppError', async () => {
+    const { client } = fakeSupabase({ data: null, error: { message: 'x', code: '42501', details: '', hint: '' } as never })
+    await expect(new TransactionsService(() => client).listForYear(2026)).rejects.toBeInstanceOf(AppError)
+  })
+})

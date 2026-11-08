@@ -34,6 +34,11 @@ export class TransactionsService extends BaseService<'transactions'> {
     return unwrap(await query.order('transaction_date', { ascending: false }).order('id', { ascending: false }))
   }
 
+  /** Tutti i movimenti di un anno solare, dal più recente al più vecchio. */
+  listForYear(year: number): Promise<RowOf<'transactions'>[]> {
+    return this.listFiltered({ from: `${year}-01-01`, to: `${year}-12-31` })
+  }
+
   /** Id delle categorie che hanno almeno un movimento: servono a sapere quali non si possono eliminare. */
   async listCategoryIdsInUse(): Promise<number[]> {
     const rows = await this.listColumn('category_id')

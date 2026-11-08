@@ -57,3 +57,11 @@ export function useCurrentBalances(year: number, today: string) {
     queryFn: () => accountsService.currentBalances(year, today),
   })
 }
+
+/** Saldi iniziali di tutti i conti per un anno. */
+export function useYearOpeningBalances(year: number) {
+  return useQuery({
+    queryKey: [...queryKeys.accounts.openingBalances, 'year', year],
+    queryFn: () => accountsService.listOpeningBalances(year),
+  })
+}

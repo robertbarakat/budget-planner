@@ -20,6 +20,11 @@ export class AccountsService {
     this.transactions = new BaseService('transactions', getClient)
   }
 
+  /** Saldi iniziali di tutti i conti per un anno. */
+  listOpeningBalances(year: number) {
+    return this.openingBalances.list({ where: { year } })
+  }
+
   /**
    * Imposta il saldo iniziale di un conto per un anno: lo crea o, se c'è già, lo aggiorna.
    * `source` è `manual` quando lo scrive l'utente (specifica, sezione 3).
