@@ -17,5 +17,6 @@ export const paths = {
   settingsClients: '/settings/clients',
   settingsWorkedDays: '/settings/worked-days',
   settingsRevenueDriver: '/settings/revenue-driver',
+  settingsRecurrences: '/settings/recurrences',
   settingsClient: (id: number | string) => `/settings/clients/${id}`,
 } as const

@@ -1,0 +1,11 @@
+/* Il form può superare l'altezza dello schermo (mobile): la finestra scorre. */
+.recurrence-dialog {
+  max-height: calc(100dvh - var(--space-11));
+  overflow-y: auto;
+}
+
+.recurrence-dialog__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
