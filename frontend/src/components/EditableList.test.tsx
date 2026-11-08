@@ -174,3 +174,17 @@ describe('EditableList', () => {
     expect(screen.getByLabelText('Nuovo')).toHaveValue('Prova')
   })
 })
+
+describe('EditableList doppio invio', () => {
+  it('un secondo invio durante l\'aggiunta non crea un doppione', async () => {
+    let release: () => void = () => undefined
+    const onAdd = vi.fn(() => new Promise<void>((resolve) => { release = resolve }))
+    render(
+      <EditableList label="x" addLabel="Nuovo" items={[]} onAdd={onAdd} onRename={vi.fn()} onReorder={vi.fn()} onArchive={vi.fn()} />,
+    )
+    await userEvent.type(screen.getByLabelText('Nuovo'), 'Auto{Enter}{Enter}')
+    expect(onAdd).toHaveBeenCalledTimes(1)
+    expect(screen.getByRole('button', { name: /Aggiungi/ })).toBeDisabled()
+    release()
+  })
+})

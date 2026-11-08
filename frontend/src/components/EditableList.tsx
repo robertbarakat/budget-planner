@@ -46,6 +46,7 @@ async function attempt(action: () => void | Promise<void>): Promise<boolean> {
 export default function EditableList({ label, addLabel, items, onAdd, onRename, onReorder, onArchive, onDelete }: EditableListProps) {
   const [showArchived, setShowArchived] = useState(false)
   const [newName, setNewName] = useState('')
+  const [adding, setAdding] = useState(false)
   const [addError, setAddError] = useState<string | undefined>()
   const [editingId, setEditingId] = useState<EditableListId | null>(null)
   const [editName, setEditName] = useState('')
@@ -81,16 +82,20 @@ export default function EditableList({ label, addLabel, items, onAdd, onRename, 
 
   function nameError(name: string, ignoreId?: EditableListId): string | undefined {
     if (!name.trim()) return 'Inserisci un nome.'
-    const clash = items.some((item) => item.id !== ignoreId && item.name.trim().toLowerCase() === name.trim().toLowerCase())
+    const clash = items.some((item) => !item.archived && item.id !== ignoreId && item.name.trim().toLowerCase() === name.trim().toLowerCase())
     return clash ? 'Esiste già un elemento con questo nome.' : undefined
   }
 
   async function submitAdd(event: FormEvent) {
     event.preventDefault()
+    if (adding) return
     const error = nameError(newName)
     setAddError(error)
     if (error) return
-    if (await attempt(() => onAdd(newName.trim()))) {
+    setAdding(true)
+    const added = await attempt(() => onAdd(newName.trim()))
+    setAdding(false)
+    if (added) {
       setNewName('')
       setAnnouncement(`Aggiunto: ${newName.trim()}.`)
     }
@@ -176,7 +181,7 @@ export default function EditableList({ label, addLabel, items, onAdd, onRename, 
             )}
           </Field>
         </div>
-        <Button type="submit" className="editable-list__add-button">
+        <Button type="submit" className="editable-list__add-button" loading={adding}>
           Aggiungi
         </Button>
       </form>

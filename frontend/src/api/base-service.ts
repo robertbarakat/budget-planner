@@ -93,6 +93,15 @@ export class ArchivableService<T extends ArchivableTable> extends BaseService<T>
   reorder(id: number, sortOrder: number): Promise<RowOf<T>> {
     return this.update(id, { sort_order: sortOrder } as UpdateOf<T>)
   }
+
+  /**
+   * Applica un nuovo ordine: `orderedIds[i]` prende `sort_order = i`. Con `currentOrder` (id -> posizione
+   * attuale) salta chi è già al suo posto, così un riordino tocca poche righe.
+   */
+  async reorderAll(orderedIds: number[], currentOrder: Readonly<Record<number, number>> = {}): Promise<void> {
+    const changed = orderedIds.flatMap((id, index) => (currentOrder[id] === index ? [] : [{ id, index }]))
+    await Promise.all(changed.map(({ id, index }) => this.reorder(id, index)))
+  }
 }
 
 /** Tabelle con le colonne `archived` e `sort_order`. */

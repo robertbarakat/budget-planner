@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link, NavLink } from 'react-router'
 import { paths } from '../paths.ts'
-import { CashFlowIcon, HomeIcon, MacroAreasIcon, PlusIcon } from './icons.tsx'
+import { CashFlowIcon, HomeIcon, MacroAreasIcon, PlusIcon, SettingsIcon } from './icons.tsx'
 import { navItems } from './nav-items.ts'
 import './MobileNav.css'
 
@@ -9,6 +9,7 @@ const icons: Record<string, ReactNode> = {
   [paths.home]: <HomeIcon />,
   [paths.cashFlow]: <CashFlowIcon />,
   [paths.macroAreas]: <MacroAreasIcon />,
+  [paths.settings]: <SettingsIcon />,
 }
 
 // Barra inferiore: pollice destro sul pulsante "nuovo movimento", sempre raggiungibile.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { AppError } from './api-error.ts'
-import { BaseService } from './base-service.ts'
+import { ArchivableService, BaseService } from './base-service.ts'
 import type { TypedSupabaseClient } from './supabase.ts'
 import { fakeSupabase } from './test-utils.ts'
 
@@ -44,5 +44,22 @@ describe('BaseService', () => {
     await expect(failure).rejects.toMatchObject({ kind: 'in_use' })
     await expect(service.list()).rejects.toMatchObject({ kind: 'in_use' })
     await expect(service.getById(1)).rejects.toMatchObject({ kind: 'in_use' })
+  })
+})
+
+describe('ArchivableService.reorderAll', () => {
+  it('aggiorna sort_order solo di chi cambia posizione', async () => {
+    const { client, calls } = fakeSupabase({ data: row, error: null })
+    const service = new ArchivableService('accounts', () => client)
+    await service.reorderAll([3, 1, 2], { 1: 0, 2: 1, 3: 2 })
+    const updates = calls.filter((c) => c.method === 'update').map((c) => c.args[0])
+    expect(updates).toEqual([{ sort_order: 0 }, { sort_order: 1 }, { sort_order: 2 }])
+  })
+
+  it('non scrive nulla se l\'ordine è già quello', async () => {
+    const { client, calls } = fakeSupabase({ data: row, error: null })
+    const service = new ArchivableService('accounts', () => client)
+    await service.reorderAll([1, 2], { 1: 0, 2: 1 })
+    expect(calls.filter((c) => c.method === 'update')).toHaveLength(0)
   })
 })

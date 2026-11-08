@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient, type QueryClient, type QueryKey } from '@tanstack/react-query'
-import type { BaseService, InsertOf, ListOptions, RowOf, TableName, UpdateOf } from './base-service.ts'
+import type { ArchivableService, ArchivableTable, BaseService, InsertOf, ListOptions, RowOf, TableName, UpdateOf } from './base-service.ts'
 
 export interface CrudHooksConfig<T extends TableName> {
   service: BaseService<T>
@@ -57,6 +57,35 @@ export function createCrudHooks<T extends TableName>({ service, key, invalidate 
       return useMutation({
         mutationFn: (id: number): Promise<void> => service.remove(id),
         onSuccess: () => invalidateAll(queryClient, invalidate),
+      })
+    },
+  }
+}
+
+/** Come `createCrudHooks`, più archivia/ripristina e riordino per le anagrafiche (`archived` e `sort_order`). */
+export function createArchivableHooks<T extends ArchivableTable>(
+  config: CrudHooksConfig<T> & { service: ArchivableService<T> },
+) {
+  const { service, invalidate } = config
+  return {
+    ...createCrudHooks(config),
+
+    useSetArchived() {
+      const queryClient = useQueryClient()
+      return useMutation({
+        mutationFn: ({ id, archived }: { id: number; archived: boolean }) =>
+          archived ? service.archive(id) : service.unarchive(id),
+        onSuccess: () => invalidateAll(queryClient, invalidate),
+      })
+    },
+
+    useReorder() {
+      const queryClient = useQueryClient()
+      return useMutation({
+        mutationFn: (args: { orderedIds: number[]; currentOrder?: Record<number, number> }) =>
+          service.reorderAll(args.orderedIds, args.currentOrder),
+        // Riordino anche dopo un fallimento parziale: la lista deve riflettere il server.
+        onSettled: () => invalidateAll(queryClient, invalidate),
       })
     },
   }
