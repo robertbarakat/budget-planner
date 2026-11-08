@@ -1,0 +1,11 @@
+.amount {
+  white-space: nowrap;
+}
+
+.amount--negative {
+  color: var(--color-negative);
+}
+
+.amount--positive {
+  color: var(--color-positive);
+}
