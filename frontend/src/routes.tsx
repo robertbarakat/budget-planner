@@ -6,15 +6,7 @@ import MacroAreasPage from './pages/MacroAreasPage.tsx'
 import NewTransactionPage from './pages/NewTransactionPage.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
 
-// Unico file delle rotte. Gli indirizzi sono in inglese (come gli identificatori);
-// i testi mostrati all'utente sono in italiano.
-export const paths = {
-  home: '/',
-  newTransaction: '/transactions/new',
-  cashFlow: '/cash-flow',
-  macroAreas: '/macro-areas',
-} as const
-
+// Unico file delle rotte (gli indirizzi stanno in paths.ts).
 export const routes: RouteObject[] = [
   {
     path: '/',

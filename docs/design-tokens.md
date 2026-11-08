@@ -70,6 +70,9 @@ Nei componenti e nei `.css` accanto ad essi **niente valori hardcoded** di color
 | `--breakpoint-tablet` | `768px` | Layout intermedio (solo `min-width`) |
 | `--breakpoint-desktop` | `1024px` | Barra laterale e matrice (solo `min-width`) |
 | `--target-min` | `2.75rem` | Altezza/larghezza minima di ogni elemento tappabile |
+| `--nav-height` | `4.5rem` | Altezza della barra di navigazione inferiore (mobile) |
+| `--nav-item-size` | `3.5rem` | Altezza/larghezza minima di una voce della barra |
+| `--fab-size` | `3.5rem` | Diametro del pulsante "nuovo movimento" |
 | `--focus-ring-width` | `0.125rem` | Spessore anello di focus |
 | `--focus-ring-offset` | `0.125rem` | Distanza anello di focus |
 | `--focus-ring-color` | `var(--color-primary-strong)` | Colore anello di focus |

@@ -1,0 +1,9 @@
+.app-shell {
+  min-height: 100dvh;
+}
+
+/* Spazio per la barra inferiore fissa e per il pulsante "nuovo movimento" */
+.app-content {
+  padding: var(--space-9) var(--space-9)
+    calc(var(--nav-height) + var(--fab-size) + var(--space-10) + env(safe-area-inset-bottom));
+}

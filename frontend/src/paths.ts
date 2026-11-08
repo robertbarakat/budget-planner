@@ -1,0 +1,7 @@
+// Indirizzi in inglese (come gli identificatori); i testi per l'utente sono in italiano.
+export const paths = {
+  home: '/',
+  newTransaction: '/transactions/new',
+  cashFlow: '/cash-flow',
+  macroAreas: '/macro-areas',
+} as const

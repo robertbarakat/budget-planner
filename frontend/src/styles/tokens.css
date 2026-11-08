@@ -92,6 +92,9 @@
 
   /* Target e focus */
   --target-min: 2.75rem; /* 44 */
+  --nav-height: 4.5rem; /* 72: barra inferiore mobile */
+  --nav-item-size: 3.5rem; /* 56: voce della barra */
+  --fab-size: 3.5rem; /* 56: pulsante "nuovo movimento" */
   --focus-ring-width: 0.125rem;
   --focus-ring-offset: 0.125rem;
   --focus-ring-color: var(--color-primary-strong);
