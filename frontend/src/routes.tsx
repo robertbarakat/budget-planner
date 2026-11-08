@@ -20,6 +20,7 @@ import WorkedDaysPage from './pages/settings/WorkedDaysPage.tsx'
 import ClientDetailPage from './pages/settings/ClientDetailPage.tsx'
 import ClientsSettingsPage from './pages/settings/ClientsSettingsPage.tsx'
 import RecurrencesSettingsPage from './pages/settings/RecurrencesSettingsPage.tsx'
+import TaxParametersPage from './pages/settings/TaxParametersPage.tsx'
 import MacroAreasSettingsPage from './pages/settings/MacroAreasSettingsPage.tsx'
 
 // Unico file delle rotte (gli indirizzi stanno in paths.ts).
@@ -50,6 +51,7 @@ export const routes: RouteObject[] = [
           { path: 'settings/worked-days', element: <WorkedDaysPage /> },
           { path: 'settings/revenue-driver', element: <RevenueDriverPage /> },
           { path: 'settings/recurrences', element: <RecurrencesSettingsPage /> },
+          { path: 'settings/tax-parameters', element: <TaxParametersPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

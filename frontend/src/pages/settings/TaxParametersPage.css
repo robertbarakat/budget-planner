@@ -1,0 +1,19 @@
+.tax-parameters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.tax-parameters__check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--target-min);
+  font-weight: var(--font-weight-medium);
+}
+
+.tax-parameters__check input {
+  width: var(--space-8);
+  height: var(--space-8);
+  accent-color: var(--color-primary);
+}
