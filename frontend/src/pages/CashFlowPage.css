@@ -4,3 +4,20 @@
   gap: var(--space-8);
   min-width: 0;
 }
+
+.cash-flow-page__note {
+  color: var(--color-text-muted);
+}
+
+.cash-flow-page__opening {
+  font-weight: var(--font-weight-semibold);
+}
+
+.cash-flow-page__months {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}

@@ -1,0 +1,67 @@
+.cash-month {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-7);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.cash-month:last-child {
+  border-bottom: 0;
+}
+
+.cash-month__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.cash-month__name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  text-transform: capitalize;
+}
+
+.cash-month__basis {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.cash-month__figures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4) var(--space-8);
+  margin: 0;
+}
+
+.cash-month__figures div {
+  display: flex;
+  flex-direction: column;
+}
+
+.cash-month__figures dt {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.cash-month__figures dd {
+  margin: 0;
+  text-align: left;
+}
+
+.cash-month__balance dd {
+  font-weight: var(--font-weight-semibold);
+}
+
+@media (min-width: 1024px) {
+  .cash-month {
+    display: grid;
+    grid-template-columns: var(--grid-label-width) 1fr auto;
+    align-items: center;
+  }
+
+  .cash-month__figures {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
