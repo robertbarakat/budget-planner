@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { InsertOf, UpdateOf } from './base-service.ts'
 import { createCrudHooks, invalidateAll } from './crud-hooks.ts'
 import { queryKeys } from './query-keys.ts'
 import { recurrencesService } from './recurrences.service.ts'
@@ -30,6 +31,38 @@ export function useOccurrences(recurrenceId: number | null) {
     queryKey: [...queryKeys.recurrences.occurrences, 'of', recurrenceId],
     queryFn: () => recurrencesService.listOccurrences(recurrenceId as number),
     enabled: recurrenceId !== null,
+  })
+}
+
+export function useActiveRecurrences() {
+  return useQuery({
+    queryKey: [...queryKeys.recurrences.recurrences, 'active'],
+    queryFn: () => recurrencesService.listRecurrences(false),
+  })
+}
+
+export function useUpcomingOccurrences(fromDate: string, limit = 5) {
+  return useQuery({
+    queryKey: [...queryKeys.recurrences.occurrences, 'upcoming', fromDate, limit],
+    queryFn: () => recurrencesService.listUpcomingOccurrences(fromDate, limit),
+  })
+}
+
+export function useCreateRecurrenceWithOccurrences() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (args: { values: InsertOf<'recurrences'>; referenceDate: string }) =>
+      recurrencesService.createRecurrence(args.values, args.referenceDate),
+    onSuccess: () => invalidateAll(queryClient, invalidate),
+  })
+}
+
+export function useUpdateRecurrenceWithOccurrences() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (args: { recurrenceId: number; values: UpdateOf<'recurrences'>; today: string }) =>
+      recurrencesService.updateRecurrence(args.recurrenceId, args.values, args.today),
+    onSuccess: () => invalidateAll(queryClient, invalidate),
   })
 }
 
