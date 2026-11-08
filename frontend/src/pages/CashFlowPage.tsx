@@ -1,45 +1,35 @@
 import { useMemo } from 'react'
-import { useBudgetItems } from '../api/classification.queries.ts'
-import { useYearData } from '../api/year-data.queries.ts'
 import Amount from '../components/Amount.tsx'
 import CashFlowMonthRow from '../components/CashFlowMonthRow.tsx'
 import PeriodSelector, { usePeriod } from '../components/PeriodSelector.tsx'
 import { buildCashFlow } from '../lib/cash-flow.ts'
 import { buildMonthStatuses } from '../lib/month-status.ts'
+import { useYearInputs } from './use-year-inputs.ts'
 import './CashFlowPage.css'
 
 export default function CashFlowPage() {
   const [period, setPeriod] = usePeriod('none')
   const { year } = period
-  const data = useYearData(year)
-  const items = useBudgetItems()
+  const { inputs, isError } = useYearInputs(year)
 
   const view = useMemo(() => {
-    if (!data.isReady || !items.data || !data.entries || !data.transactions || !data.closedMonths || !data.openingBalances) return null
-    const openingBalance = data.openingBalances.reduce((sum, row) => sum + row.amount, 0)
-    const budgetItems = items.data.map((i) => ({ id: i.id, name: i.name, kind: i.kind, archived: i.archived }))
-    const transactions = data.transactions.map((t) => ({
-      type: t.type,
-      budgetItemId: t.budget_item_id,
-      transactionDate: t.transaction_date,
-      amount: t.amount,
-    }))
+    if (!inputs) return null
     const flow = buildCashFlow(
       year,
-      openingBalance,
-      budgetItems,
-      data.entries.map((e) => ({ budgetItemId: e.budget_item_id, year: e.year, month: e.month, amount: e.amount })),
-      transactions,
-      data.closedMonths,
+      inputs.openingBalance,
+      inputs.budgetItems.map((i) => ({ id: i.id, name: i.name, kind: i.kind, archived: i.archived })),
+      inputs.entries,
+      inputs.transactions,
+      inputs.closedMonths,
     )
-    return { flow, statuses: buildMonthStatuses(year, data.closedMonths, transactions) }
-  }, [year, data.isReady, data.entries, data.transactions, data.closedMonths, data.openingBalances, items.data])
+    return { flow, statuses: buildMonthStatuses(year, inputs.closedMonths, inputs.transactions) }
+  }, [year, inputs])
 
   return (
     <main className="cash-flow-page">
       <h1>Flusso di cassa</h1>
       <PeriodSelector period={period} onChange={setPeriod} monthMode="none" />
-      {data.isError || items.isError ? (
+      {isError ? (
         <p role="alert" className="cash-flow-page__note">
           Non riesco a leggere il flusso di cassa. Riprova più tardi.
         </p>

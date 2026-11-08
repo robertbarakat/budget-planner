@@ -21,6 +21,7 @@ let closed: ClosedRow[]
 beforeEach(() => {
   vi.restoreAllMocks()
   closed = [{ id: 1, year: 2026, month: 1, closed_at: '' } as ClosedRow]
+  vi.spyOn(classificationService.macroAreas, 'list').mockResolvedValue([{ id: 1, name: 'Casa', sort_order: 0, archived: false } as never])
   vi.spyOn(classificationService.budgetItems, 'list').mockResolvedValue([
     { id: 1, macro_area_id: 1, name: 'Fatture', kind: 'income', sort_order: 0, archived: false, created_at: '' } as never,
     { id: 2, macro_area_id: 1, name: 'Affitto', kind: 'expense', sort_order: 1, archived: false, created_at: '' } as never,
