@@ -1,0 +1,18 @@
+.collections__empty {
+  color: var(--color-text-muted);
+}
+
+.collections__cell {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.collections__carried {
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-info);
+  border-radius: var(--radius-xs);
+  color: var(--color-info);
+  font-size: var(--font-size-2xs);
+  line-height: var(--line-height-base);
+}

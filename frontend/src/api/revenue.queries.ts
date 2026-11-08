@@ -25,6 +25,7 @@ export function useClientIdsInUse() {
 }
 
 const rates = createCrudHooks({ service: revenueService.rates, key: queryKeys.revenue.rates, invalidate })
+export const useClientRatesList = rates.useList
 export const useCreateClientRate = rates.useCreate
 export const useUpdateClientRate = rates.useUpdate
 export const useDeleteClientRate = rates.useRemove

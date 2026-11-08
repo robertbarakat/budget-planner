@@ -14,6 +14,7 @@ import SettingsPage from './pages/settings/SettingsPage.tsx'
 import BudgetItemsSettingsPage from './pages/settings/BudgetItemsSettingsPage.tsx'
 import AccountsSettingsPage from './pages/settings/AccountsSettingsPage.tsx'
 import CategoriesSettingsPage from './pages/settings/CategoriesSettingsPage.tsx'
+import RevenueDriverPage from './pages/settings/RevenueDriverPage.tsx'
 import WorkedDaysPage from './pages/settings/WorkedDaysPage.tsx'
 import ClientDetailPage from './pages/settings/ClientDetailPage.tsx'
 import ClientsSettingsPage from './pages/settings/ClientsSettingsPage.tsx'
@@ -44,6 +45,7 @@ export const routes: RouteObject[] = [
           { path: 'settings/clients', element: <ClientsSettingsPage /> },
           { path: 'settings/clients/:id', element: <ClientDetailPage /> },
           { path: 'settings/worked-days', element: <WorkedDaysPage /> },
+          { path: 'settings/revenue-driver', element: <RevenueDriverPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

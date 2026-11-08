@@ -10,6 +10,7 @@ const sections = [
   { to: paths.settingsAccounts, title: 'Conti', description: 'Dove stanno i soldi: aggiungi, riordina, archivia.' },
   { to: paths.settingsClients, title: 'Clienti', description: 'Chi ti paga: ogni cliente alimenta una voce di entrata.' },
   { to: paths.settingsWorkedDays, title: 'Giorni lavorati', description: 'Giorni previsti per cliente e mese: l\'input della previsione dei ricavi.' },
+  { to: paths.settingsRevenueDriver, title: 'Previsione ricavi', description: 'Incassi previsti per cliente e mese, con ritardo d\'incasso e riporto sull\'anno dopo.' },
 ] as const
 
 export default function SettingsPage() {
