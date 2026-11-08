@@ -1,0 +1,10 @@
+.period-selector {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-8);
+}
+
+.period-selector .field:last-child {
+  min-width: var(--grid-label-width);
+}
