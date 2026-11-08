@@ -2,6 +2,12 @@ import { computeAccountBalances, eurosToCents } from 'budget-planner-shared'
 import { ArchivableService, BaseService } from './base-service.ts'
 import { getSupabase, type TypedSupabaseClient } from './supabase.ts'
 
+/** Saldi correnti per conto (id -> euro) e totale. */
+export interface CurrentBalances {
+  balances: Record<number, number>
+  total: number
+}
+
 /** Area "conti": conti e saldi iniziali per anno. */
 export class AccountsService {
   readonly accounts: ArchivableService<'accounts'>
@@ -46,6 +52,31 @@ export class AccountsService {
     )
     const balanceCents = balances.accounts.find((entry) => entry.accountId === accountId)?.balanceCents ?? 0
     return this.saveOpeningBalance(accountId, year, balanceCents / 100, 'carried_over')
+  }
+
+  /**
+   * Saldo corrente di ogni conto e totale, in euro: saldo iniziale dell'anno + movimenti dell'anno fino a `today`
+   * (estremo incluso), calcolati con `computeAccountBalances` di `shared/`. Un conto senza saldo iniziale parte da 0.
+   * I trasferimenti spostano denaro tra due conti senza cambiare il totale.
+   */
+  async currentBalances(year: number, today: string): Promise<CurrentBalances> {
+    const [openings, rows] = await Promise.all([
+      this.openingBalances.list({ where: { year } }),
+      this.transactions.list({ range: { column: 'transaction_date', from: `${year}-01-01`, to: today } }),
+    ])
+    const result = computeAccountBalances(
+      openings.map((row) => ({ accountId: row.account_id, amountCents: eurosToCents(row.amount) })),
+      rows.map((row) => ({
+        type: row.type,
+        accountId: row.account_id,
+        destinationAccountId: row.destination_account_id,
+        amountCents: eurosToCents(row.amount),
+      })),
+    )
+    return {
+      balances: Object.fromEntries(result.accounts.map((entry) => [entry.accountId, entry.balanceCents / 100])),
+      total: result.totalCents / 100,
+    }
   }
 
   /**

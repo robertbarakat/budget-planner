@@ -49,3 +49,11 @@ export function useAccountIdsInUse() {
     queryFn: () => accountsService.listAccountIdsInUse(),
   })
 }
+
+/** Saldo corrente per conto e totale (anno indicato, movimenti fino a `today`). Si aggiorna con ogni movimento. */
+export function useCurrentBalances(year: number, today: string) {
+  return useQuery({
+    queryKey: [...queryKeys.accounts.all, 'current-balances', year, today],
+    queryFn: () => accountsService.currentBalances(year, today),
+  })
+}

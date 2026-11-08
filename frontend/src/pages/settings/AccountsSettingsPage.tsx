@@ -9,6 +9,7 @@ import {
   useUpdateAccount,
 } from '../../api/accounts.queries.ts'
 import EditableList from '../../components/EditableList.tsx'
+import CurrentBalances from './CurrentBalances.tsx'
 import OpeningBalances from './OpeningBalances.tsx'
 import { paths } from '../../paths.ts'
 import './settings.css'
@@ -70,6 +71,7 @@ export default function AccountsSettingsPage() {
             await remove.mutateAsync(Number(id))
           }}
         />
+        <CurrentBalances accounts={rows} />
         <OpeningBalances accounts={rows} />
         </>
       )}

@@ -35,6 +35,7 @@ beforeEach(() => {
   vi.spyOn(accountsService.accounts, 'list').mockImplementation(async () => rows)
   vi.spyOn(accountsService, 'listAccountIdsInUse').mockResolvedValue([1])
   vi.spyOn(accountsService.openingBalances, 'list').mockResolvedValue([])
+  vi.spyOn(accountsService, 'currentBalances').mockResolvedValue({ balances: {}, total: 0 })
   vi.spyOn(accountsService.accounts, 'create').mockImplementation(async (values) => {
     const row = account(50, values.name, values.sort_order ?? 0)
     rows.push(row)

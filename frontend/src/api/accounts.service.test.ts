@@ -91,3 +91,35 @@ describe('AccountsService.listAccountIdsInUse', () => {
     expect(ids.toSorted()).toEqual([1, 2, 3])
   })
 })
+
+describe('AccountsService.currentBalances', () => {
+  it('saldo iniziale + movimenti dell\'anno fino a oggi, per conto e totale', async () => {
+    const { client, calls } = fakeSupabase({
+      opening_balances: { data: [{ id: 1, account_id: 1, year: 2026, amount: 1000.1, source: 'manual' }, { id: 2, account_id: 2, year: 2026, amount: 50, source: 'manual' }], error: null },
+      transactions: {
+        data: [tx('expense', 100.05, 1), tx('income', 20.2, 2), tx('transfer', 30, 1, 2)],
+        error: null,
+      },
+    })
+    const result = await new AccountsService(() => client).currentBalances(2026, '2026-11-08')
+    // Conto 1: 1000,10 - 100,05 - 30 = 870,05. Conto 2: 50 + 20,20 + 30 = 100,20. Totale: 970,25.
+    expect(result).toEqual({ balances: { 1: 870.05, 2: 100.2 }, total: 970.25 })
+    const range = calls.filter((c) => c.method === 'gte' || c.method === 'lte').map((c) => c.args)
+    expect(range).toEqual([['transaction_date', '2026-01-01'], ['transaction_date', '2026-11-08']])
+  })
+
+  it('un trasferimento non cambia il totale; un conto senza saldo iniziale parte da 0', async () => {
+    const { client } = fakeSupabase({
+      opening_balances: { data: [{ id: 1, account_id: 1, year: 2026, amount: 200, source: 'manual' }], error: null },
+      transactions: { data: [tx('transfer', 75.5, 1, 2)], error: null },
+    })
+    const result = await new AccountsService(() => client).currentBalances(2026, '2026-11-08')
+    expect(result.balances).toEqual({ 1: 124.5, 2: 75.5 })
+    expect(result.total).toBe(200)
+  })
+
+  it('senza dati: nessun conto e totale 0', async () => {
+    const { client } = fakeSupabase({ data: [], error: null })
+    await expect(new AccountsService(() => client).currentBalances(2026, '2026-11-08')).resolves.toEqual({ balances: {}, total: 0 })
+  })
+})
