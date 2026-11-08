@@ -1,0 +1,74 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.field__label {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.field__required {
+  color: var(--color-negative);
+}
+
+.field__control {
+  width: 100%;
+  min-height: var(--target-min);
+  padding: var(--space-4) var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+}
+
+textarea.field__control {
+  min-height: calc(var(--target-min) * 2);
+  resize: vertical;
+}
+
+.field__control::placeholder {
+  color: var(--color-text-muted);
+}
+
+.field__control:disabled {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+}
+
+/* Errore: bordo più spesso, icona e testo (non solo il colore) */
+.field__control[aria-invalid='true'] {
+  border-color: var(--color-negative);
+  box-shadow: inset 0 0 0 1px var(--color-negative);
+}
+
+.field__help {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-negative);
+}
+
+.field__error-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-8);
+  height: var(--space-8);
+  border-radius: var(--radius-full);
+  background: var(--color-negative);
+  color: var(--color-on-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
