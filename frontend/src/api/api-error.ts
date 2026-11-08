@@ -24,8 +24,9 @@ export class AppError extends Error {
   readonly code: string | null
   override readonly cause: unknown
 
-  constructor(kind: AppErrorKind, code: string | null = null, cause: unknown = undefined) {
-    super(MESSAGES[kind])
+  /** `message` sostituisce il testo standard quando serve spiegare meglio (sempre in italiano). */
+  constructor(kind: AppErrorKind, code: string | null = null, cause: unknown = undefined, message?: string) {
+    super(message ?? MESSAGES[kind])
     this.name = 'AppError'
     this.kind = kind
     this.code = code

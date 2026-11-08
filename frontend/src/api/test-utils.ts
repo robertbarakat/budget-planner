@@ -44,7 +44,7 @@ export function fakeSupabase(results: FakeResults): FakeSupabase {
         queryCalls.push({ method, args })
         return builder
       }
-    for (const method of ['select', 'insert', 'update', 'delete', 'eq', 'match', 'order', 'gte', 'lte', 'in']) {
+    for (const method of ['select', 'insert', 'update', 'delete', 'eq', 'match', 'order', 'gte', 'lte', 'in', 'or']) {
       builder[method] = record(method)
     }
     builder.single = () => {
