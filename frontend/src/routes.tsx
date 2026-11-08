@@ -6,6 +6,7 @@ import CashFlowPage from './pages/CashFlowPage.tsx'
 import HomePage from './pages/HomePage.tsx'
 import LoginPage from './pages/LoginPage.tsx'
 import MacroAreasPage from './pages/MacroAreasPage.tsx'
+import MatrixPage from './pages/MatrixPage.tsx'
 import NewTransactionPage from './pages/NewTransactionPage.tsx'
 import EditTransactionPage from './pages/EditTransactionPage.tsx'
 import TransactionsPage from './pages/TransactionsPage.tsx'
@@ -37,6 +38,7 @@ export const routes: RouteObject[] = [
           { path: 'cash-flow', element: <CashFlowPage /> },
           { path: 'budget', element: <BudgetPage /> },
           { path: 'macro-areas', element: <MacroAreasPage /> },
+          { path: 'matrix', element: <MatrixPage /> },
           { path: 'settings', element: <SettingsPage /> },
           { path: 'settings/macro-areas', element: <MacroAreasSettingsPage /> },
           { path: 'settings/budget-items', element: <BudgetItemsSettingsPage /> },

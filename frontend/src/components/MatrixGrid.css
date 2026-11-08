@@ -1,0 +1,37 @@
+/* Matrice: intestazione di colonna fissa in alto (quella di riga lo è già in DataGrid.css). */
+.matrix-grid {
+  max-height: calc(100dvh - var(--space-12) * 4);
+  overflow: auto;
+}
+
+.matrix-grid .data-grid__table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.matrix-grid .data-grid__table thead .data-grid__label {
+  z-index: 3;
+}
+
+.matrix-grid .data-grid__table tfoot th,
+.matrix-grid .data-grid__table tfoot td {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background: var(--color-surface-muted);
+}
+
+.matrix-grid .data-grid__table tfoot .data-grid__label {
+  z-index: 3;
+  background: var(--color-surface-muted);
+}
+
+.matrix-grid td:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: calc(var(--focus-ring-width) * -1);
+}
+
+.matrix-grid__strong {
+  font-weight: var(--font-weight-semibold);
+}

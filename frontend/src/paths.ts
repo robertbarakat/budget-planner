@@ -8,6 +8,7 @@ export const paths = {
   cashFlow: '/cash-flow',
   budget: '/budget',
   macroAreas: '/macro-areas',
+  matrix: '/matrix',
   settings: '/settings',
   settingsMacroAreas: '/settings/macro-areas',
   settingsBudgetItems: '/settings/budget-items',

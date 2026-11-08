@@ -27,7 +27,9 @@ export default function MobileNav() {
       )}
       <nav aria-label="Navigazione principale" className="mobile-nav__bar">
         <ul className="mobile-nav__list">
-          {navItems.map((item) => (
+          {navItems
+            .filter((item) => !item.desktopOnly)
+            .map((item) => (
             <li key={item.to} className="mobile-nav__cell">
               <NavLink to={item.to} end={item.end} className="mobile-nav__item">
                 {icons[item.to]}
