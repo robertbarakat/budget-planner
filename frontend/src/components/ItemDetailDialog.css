@@ -1,0 +1,111 @@
+.item-detail__overlay {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  background: var(--color-text);
+  opacity: 0.4;
+}
+
+.item-detail {
+  position: fixed;
+  z-index: 20;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: calc(100% - var(--space-8));
+  max-width: calc(var(--sidebar-width) * 3);
+  max-height: calc(100dvh - var(--space-8));
+  overflow-y: auto;
+  padding: var(--space-8);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+  transform: translate(-50%, -50%);
+}
+
+.item-detail__title {
+  font-size: var(--font-size-xl);
+}
+
+.item-detail__subtitle {
+  font-size: var(--font-size-lg);
+}
+
+.item-detail__text,
+.item-detail__state {
+  color: var(--color-text-muted);
+}
+
+.item-detail__state {
+  font-size: var(--font-size-sm);
+}
+
+.item-detail__scroll {
+  overflow-x: auto;
+}
+
+.item-detail__table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: var(--font-size-md);
+}
+
+.item-detail__table th,
+.item-detail__table td {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-subtle);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.item-detail__table thead th {
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.item-detail__table th[scope='row'],
+.item-detail__table thead th:first-child {
+  text-align: left;
+  font-weight: var(--font-weight-medium);
+  text-transform: capitalize;
+}
+
+.item-detail__table tfoot th,
+.item-detail__table tfoot td {
+  border-top: 1px solid var(--color-border-strong);
+  font-weight: var(--font-weight-semibold);
+}
+
+.item-detail__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--target-min);
+  min-height: var(--target-min);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.item-detail__categories {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item-detail__categories li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.item-detail__actions {
+  display: flex;
+  justify-content: flex-end;
+}

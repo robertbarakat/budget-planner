@@ -1,9 +1,11 @@
-import { useMemo } from 'react'
-import { useBudgetItems, useMacroAreas } from '../api/classification.queries.ts'
+import { useMemo, useState } from 'react'
+import { useBudgetItems, useCategories, useMacroAreas } from '../api/classification.queries.ts'
 import { useYearData } from '../api/year-data.queries.ts'
 import Amount from '../components/Amount.tsx'
+import ItemDetailDialog from '../components/ItemDetailDialog.tsx'
 import PeriodSelector, { usePeriod } from '../components/PeriodSelector.tsx'
-import { buildMacroAreaReport } from '../lib/macro-areas.ts'
+import { buildItemDetail } from '../lib/item-detail.ts'
+import { buildMacroAreaReport, type BudgetItemInput, type EntryInput, type TransactionInput } from '../lib/macro-areas.ts'
 import { monthName } from '../lib/months.ts'
 import '../components/DataGrid.css'
 import './MacroAreasPage.css'
@@ -14,32 +16,56 @@ export default function MacroAreasPage() {
   const data = useYearData(year)
   const areas = useMacroAreas()
   const items = useBudgetItems()
+  const categories = useCategories()
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null)
+
+  const inputs = useMemo(() => {
+    if (!data.isReady || !areas.data || !items.data || !categories.data || !data.entries || !data.transactions || !data.closedMonths) return null
+    const budgetItems: BudgetItemInput[] = items.data.map((i) => ({
+      id: i.id,
+      macroAreaId: i.macro_area_id,
+      name: i.name,
+      kind: i.kind,
+      archived: i.archived,
+      sortOrder: i.sort_order,
+    }))
+    const entries: EntryInput[] = data.entries.map((e) => ({ budgetItemId: e.budget_item_id, year: e.year, month: e.month, amount: e.amount }))
+    const transactions: TransactionInput[] = data.transactions.map((t) => ({
+      type: t.type,
+      budgetItemId: t.budget_item_id,
+      categoryId: t.category_id,
+      transactionDate: t.transaction_date,
+      amount: t.amount,
+    }))
+    return { budgetItems, entries, transactions, closedMonths: data.closedMonths }
+  }, [data.isReady, data.entries, data.transactions, data.closedMonths, areas.data, items.data, categories.data])
 
   const report = useMemo(() => {
-    if (!data.isReady || !areas.data || !items.data || !data.entries || !data.transactions || !data.closedMonths) return null
+    if (!inputs || !areas.data) return null
     return buildMacroAreaReport(
       year,
       month,
       areas.data.map((a) => ({ id: a.id, name: a.name, archived: a.archived, sortOrder: a.sort_order })),
-      items.data.map((i) => ({
-        id: i.id,
-        macroAreaId: i.macro_area_id,
-        name: i.name,
-        kind: i.kind,
-        archived: i.archived,
-        sortOrder: i.sort_order,
-      })),
-      data.entries.map((e) => ({ budgetItemId: e.budget_item_id, year: e.year, month: e.month, amount: e.amount })),
-      data.transactions.map((t) => ({
-        type: t.type,
-        budgetItemId: t.budget_item_id,
-        categoryId: t.category_id,
-        transactionDate: t.transaction_date,
-        amount: t.amount,
-      })),
-      data.closedMonths,
+      inputs.budgetItems,
+      inputs.entries,
+      inputs.transactions,
+      inputs.closedMonths,
     )
-  }, [year, month, data.isReady, data.entries, data.transactions, data.closedMonths, areas.data, items.data])
+  }, [year, month, inputs, areas.data])
+
+  const selected = useMemo(() => {
+    const item = inputs?.budgetItems.find((i) => i.id === selectedItemId)
+    if (!inputs || !item || !categories.data) return null
+    const detail = buildItemDetail(
+      year,
+      item,
+      inputs.entries,
+      inputs.transactions,
+      inputs.closedMonths,
+      categories.data.map((c) => ({ id: c.id, budgetItemId: c.budget_item_id, name: c.name, archived: c.archived })),
+    )
+    return { name: item.name, detail }
+  }, [year, inputs, selectedItemId, categories.data])
 
   const periodLabel = month === null ? String(year) : `${monthName(month)} ${year}`
 
@@ -47,7 +73,7 @@ export default function MacroAreasPage() {
     <main className="macro-areas-page">
       <h1>Macro-aree</h1>
       <PeriodSelector period={period} onChange={setPeriod} monthMode="optional" />
-      {data.isError || areas.isError || items.isError ? (
+      {data.isError || areas.isError || items.isError || categories.isError ? (
         <p role="alert" className="macro-areas-page__note">
           Non riesco a leggere le macro-aree. Riprova più tardi.
         </p>
@@ -89,7 +115,9 @@ export default function MacroAreasPage() {
                 {group.items.map((item) => (
                   <tr key={item.budgetItemId}>
                     <th scope="row" className="data-grid__label">
-                      {item.archived ? `${item.name} (archiviata)` : item.name}
+                      <button type="button" className="macro-areas-page__item" onClick={() => setSelectedItemId(item.budgetItemId)}>
+                        {item.archived ? `${item.name} (archiviata)` : item.name}
+                      </button>
                     </th>
                     <td>
                       <Amount value={item.budgeted} colored={false} />
@@ -123,6 +151,7 @@ export default function MacroAreasPage() {
           </table>
         </div>
       )}
+      {selected && <ItemDetailDialog name={selected.name} detail={selected.detail} onClose={() => setSelectedItemId(null)} />}
       <p className="macro-areas-page__note">
         Entrate positive, spese negative. Scostamento = reale − previsto: un segno meno è sempre sfavorevole.
       </p>

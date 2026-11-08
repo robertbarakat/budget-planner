@@ -8,3 +8,18 @@
 .macro-areas-page__note {
   color: var(--color-text-muted);
 }
+
+.macro-areas-page__item {
+  display: block;
+  width: 100%;
+  min-height: var(--target-min);
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-overflow: ellipsis;
+}

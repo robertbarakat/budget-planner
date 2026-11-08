@@ -22,6 +22,10 @@ beforeEach(() => {
     { id: 20, macro_area_id: 2, name: 'Affitto', kind: 'expense', sort_order: 0, archived: false } as never,
     { id: 30, macro_area_id: 3, name: 'Voce vecchia', kind: 'expense', sort_order: 0, archived: true } as never,
   ])
+  vi.spyOn(classificationService.categories, 'list').mockResolvedValue([
+    { id: 1, budget_item_id: 20, name: 'Canone', archived: false } as never,
+    { id: 2, budget_item_id: 20, name: 'Spese condominio', archived: false } as never,
+  ])
   vi.spyOn(budgetService.entries, 'list').mockResolvedValue([
     { id: 1, budget_item_id: 10, year: 2026, month: 1, amount: 1000 } as never,
     { id: 2, budget_item_id: 20, year: 2026, month: 1, amount: 400 } as never,
@@ -30,7 +34,8 @@ beforeEach(() => {
   vi.spyOn(budgetService.closedMonths, 'list').mockResolvedValue([{ id: 1, year: 2026, month: 1 } as never])
   vi.spyOn(transactionsService, 'listForYear').mockResolvedValue([
     { id: 1, type: 'income', budget_item_id: 10, category_id: 1, transaction_date: '2026-01-10', amount: 900 } as never,
-    { id: 2, type: 'expense', budget_item_id: 20, category_id: 2, transaction_date: '2026-01-02', amount: 430 } as never,
+    { id: 2, type: 'expense', budget_item_id: 20, category_id: 1, transaction_date: '2026-01-02', amount: 300 } as never,
+    { id: 3, type: 'expense', budget_item_id: 20, category_id: 2, transaction_date: '2026-01-15', amount: 130 } as never,
   ])
   vi.spyOn(accountsService.openingBalances, 'list').mockResolvedValue([])
 })
@@ -86,5 +91,29 @@ describe('MacroAreasPage', () => {
     await screen.findByRole('region', { name: /macro-area, 2026/ })
     await user.selectOptions(screen.getByLabelText('Mese'), 'Gennaio')
     expect(await screen.findByRole('region', { name: /gennaio 2026/ })).toBeInTheDocument()
+  })
+
+  it('selezionando una voce si apre il dettaglio mensile, con categorie e totale uguale alla riga; Esc lo chiude', async () => {
+    const user = userEvent.setup()
+    setup()
+    const grid = await screen.findByRole('region', { name: /macro-area, 2026/ })
+    const row = rowOf(grid, 'Affitto')
+    await user.click(within(row).getByRole('button', { name: 'Affitto' }))
+    const dialog = await screen.findByRole('dialog', { name: /Affitto · 2026/ })
+    // gennaio chiuso: previsto −400, reale −430, scostamento −30; totale annuo = riga della vista
+    const january = within(dialog).getAllByRole('row').find((r) => r.textContent?.toLowerCase().startsWith('gennaio'))!
+    expect(january).toHaveTextContent('(chiuso)')
+    expect(january).toHaveTextContent('400,00')
+    expect(january).toHaveTextContent('430,00')
+    const total = within(dialog).getByRole('row', { name: /Totale 2026/ })
+    expect(total).toHaveTextContent('400,00')
+    expect(total).toHaveTextContent('430,00')
+    expect(total).toHaveTextContent('30,00')
+    // categorie: 300 + 130 = reale della voce
+    expect(within(dialog).getByText('Canone').parentElement).toHaveTextContent('300,00')
+    expect(within(dialog).getByText('Spese condominio').parentElement).toHaveTextContent('130,00')
+    expect(within(dialog).getByRole('link', { name: 'Movimenti di gennaio 2026' })).toHaveAttribute('href', '/transactions?year=2026&month=1')
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 })
