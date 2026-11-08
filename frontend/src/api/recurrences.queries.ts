@@ -75,6 +75,15 @@ export function useChangeOccurrenceAmount() {
   })
 }
 
+export function useRestoreOccurrenceAmount() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (args: { occurrenceId: number; baseAmount: number }) =>
+      recurrencesService.restoreOccurrenceAmount(args.occurrenceId, args.baseAmount),
+    onSuccess: () => invalidateAll(queryClient, invalidate),
+  })
+}
+
 export function useApplyRecurrence() {
   const queryClient = useQueryClient()
   return useMutation({

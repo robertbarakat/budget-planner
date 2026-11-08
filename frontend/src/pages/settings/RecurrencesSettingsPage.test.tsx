@@ -86,3 +86,49 @@ describe('RecurrencesSettingsPage', () => {
     await waitFor(() => expect(archiveSpy).toHaveBeenCalledWith(1, expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)))
   })
 })
+
+describe('RecurrencesSettingsPage: scadenze', () => {
+  const occ = (id: number, due_date: string, amount: number) =>
+    ({ id, recurrence_id: 1, due_date, amount, budget_entry_id: id, is_manually_modified: amount !== 650, created_at: '' }) as never
+
+  beforeEach(() => {
+    vi.restoreAllMocks()
+    vi.spyOn(recurrencesService.recurrences, 'list').mockResolvedValue([recurrence(1, 'TEST-Mutuo')])
+    vi.spyOn(classificationService.budgetItems, 'list').mockResolvedValue([{ id: 1, name: 'Casa', kind: 'expense', archived: false, sort_order: 0 }] as never)
+    vi.spyOn(accountsService.accounts, 'list').mockResolvedValue([{ id: 1, name: 'Bancoposta', archived: false, sort_order: 0 }] as never)
+    vi.spyOn(recurrencesService, 'listOccurrences').mockResolvedValue([occ(10, '2026-12-05', 650), occ(11, '2027-01-05', 700)])
+  })
+
+  it('segnala con il testo "Modificata" solo le scadenze con importo diverso dalla base', async () => {
+    setup()
+    await userEvent.click(await screen.findByRole('button', { name: 'Scadenze di TEST-Mutuo' }))
+    expect(await screen.findAllByText('Modificata')).toHaveLength(1)
+    expect(screen.getByRole('button', { name: /Ripristina l'importo base della scadenza del 2027-01-05/ })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Ripristina l'importo base della scadenza del 2026-12-05/ })).not.toBeInTheDocument()
+  })
+
+  it('non salva un importo <= 0 e salva uno valido solo per quella scadenza', async () => {
+    const changeSpy = vi.spyOn(recurrencesService, 'changeOccurrenceAmount').mockResolvedValue({} as never)
+    setup()
+    await userEvent.click(await screen.findByRole('button', { name: 'Scadenze di TEST-Mutuo' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Modifica la scadenza del 2026-12-05' }))
+    const input = screen.getByLabelText(/Importo del 2026-12-05/)
+    await userEvent.clear(input)
+    await userEvent.type(input, '0')
+    await userEvent.click(screen.getByRole('button', { name: 'Salva' }))
+    expect(await screen.findByText('Inserisci un importo maggiore di zero.')).toBeInTheDocument()
+    expect(changeSpy).not.toHaveBeenCalled()
+    await userEvent.clear(input)
+    await userEvent.type(input, '680,5')
+    await userEvent.click(screen.getByRole('button', { name: 'Salva' }))
+    await waitFor(() => expect(changeSpy).toHaveBeenCalledWith(10, 680.5))
+  })
+
+  it('ripristina l\'importo base', async () => {
+    const restoreSpy = vi.spyOn(recurrencesService, 'restoreOccurrenceAmount').mockResolvedValue()
+    setup()
+    await userEvent.click(await screen.findByRole('button', { name: 'Scadenze di TEST-Mutuo' }))
+    await userEvent.click(await screen.findByRole('button', { name: /Ripristina l'importo base/ }))
+    await waitFor(() => expect(restoreSpy).toHaveBeenCalledWith(11, 650))
+  })
+})

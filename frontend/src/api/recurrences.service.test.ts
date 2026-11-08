@@ -104,4 +104,13 @@ describe('RecurrencesService', () => {
       ),
     ).rejects.toMatchObject({ kind: expect.any(String), message: expect.stringMatching(/[a-z]/) })
   })
+
+  it('restoreOccurrenceAmount rimette l\'importo base e poi toglie il segno "modificata"', async () => {
+    const { client, calls } = fakeSupabase({ data: { id: 11 }, error: null })
+    await new RecurrencesService(() => client).restoreOccurrenceAmount(11, 100.5)
+    expect(calls.filter((c) => c.method === 'update').map((c) => c.args[0])).toEqual([
+      { amount: 100.5 },
+      { is_manually_modified: false },
+    ])
+  })
 })

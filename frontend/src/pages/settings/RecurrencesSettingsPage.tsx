@@ -13,6 +13,7 @@ import {
 import Amount from '../../components/Amount.tsx'
 import Button from '../../components/Button.tsx'
 import '../../components/MonthCloseDialog.css'
+import RecurrenceOccurrencesDialog from '../../components/RecurrenceOccurrencesDialog.tsx'
 import RecurrenceFormDialog from '../../components/RecurrenceFormDialog.tsx'
 import { useSnackbar } from '../../components/Snackbar.tsx'
 import { todayIso } from '../../lib/dates.ts'
@@ -128,26 +129,29 @@ export default function RecurrencesSettingsPage() {
                       {frequencyLabel(row.frequency)} · dal {row.start_date}
                       {row.end_date ? ` al ${row.end_date}` : ', senza fine'}
                     </p>
-                    {!row.archived && (
-                      <div className="recurrence__actions">
-                        <RecurrenceFormDialog
-                          title={`Modifica ${row.name}`}
-                          submitLabel="Salva"
-                          description="Cambiano solo le scadenze future non modificate a mano; le passate restano."
-                          trigger={<Button variant="secondary" aria-label={`Modifica ${row.name}`}>Modifica</Button>}
-                          initial={formFor(row)}
-                          budgetItems={choices.budgetItems}
-                          accounts={choices.accounts}
-                          onSubmit={async (values) => {
-                            await update.mutateAsync({ recurrenceId: row.id, values, today: todayIso() })
-                            showSuccess(`${values.name} aggiornata.`)
-                          }}
-                        />
-                        <Button variant="secondary" aria-label={`Archivia ${row.name}`} onClick={() => setToArchive(row)}>
-                          Archivia
-                        </Button>
-                      </div>
-                    )}
+                    <div className="recurrence__actions">
+                      <RecurrenceOccurrencesDialog recurrence={row} kind={itemKind.get(row.budget_item_id) === 'income' ? 'income' : 'expense'} />
+                      {!row.archived && (
+                        <>
+                          <RecurrenceFormDialog
+                            title={`Modifica ${row.name}`}
+                            submitLabel="Salva"
+                            description="Cambiano solo le scadenze future non modificate a mano; le passate restano."
+                            trigger={<Button variant="secondary" aria-label={`Modifica ${row.name}`}>Modifica</Button>}
+                            initial={formFor(row)}
+                            budgetItems={choices.budgetItems}
+                            accounts={choices.accounts}
+                            onSubmit={async (values) => {
+                              await update.mutateAsync({ recurrenceId: row.id, values, today: todayIso() })
+                              showSuccess(`${values.name} aggiornata.`)
+                            }}
+                          />
+                          <Button variant="secondary" aria-label={`Archivia ${row.name}`} onClick={() => setToArchive(row)}>
+                            Archivia
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </li>
                 )
               })}

@@ -50,6 +50,16 @@ export class RecurrencesService {
   }
 
   /**
+   * Riporta una scadenza all'importo base. Il database segna "modificata a mano" ogni cambio di importo:
+   * con un secondo aggiornamento (che non tocca l'importo, quindi non riattiva il segno) si toglie il segno,
+   * così la scadenza torna a seguire l'importo base.
+   */
+  async restoreOccurrenceAmount(occurrenceId: number, baseAmount: number): Promise<void> {
+    await this.occurrences.update(occurrenceId, { amount: baseAmount })
+    await this.occurrences.update(occurrenceId, { is_manually_modified: false })
+  }
+
+  /**
    * Crea la ricorrenza e le sue scadenze: date calcolate con `shared/` (fino alla data di fine, o
    * all'orizzonte da `referenceDate`), poi scritte con `apply_recurrence`.
    */
