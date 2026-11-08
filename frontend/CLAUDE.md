@@ -1,6 +1,11 @@
 # Frontend
 
-React + Vite + TypeScript, lint con Oxlint. L'autore scrive il front-end: qui Claude revisiona, suggerisce, o fa solo ciò che il ticket chiede.
+React + Vite + TypeScript, lint con Oxlint. L'autore scrive il front-end: qui Claude revisiona, suggerisce, o fa solo ciò che il ticket chiede. Il livello dati (`src/api/`) lo scrive Claude (decisione del 2026-11-08, ticket BP-38 e BP-158..164).
+
+## Librerie
+- Dati dal server: React Query (cache, stati di caricamento ed errore). Stato locale (grafica, preferenze salvate in locale): Jotai.
+- Componenti interattivi accessibili (modali, menu, select, toast): Radix UI (pacchetto `radix-ui`), senza stile proprio; lo stile è in CSS con i token.
+- Niente Axios: i dati passano da `@supabase/supabase-js`.
 
 ## Stile
 - CSS puro con custom properties. Vietati SCSS, Tailwind, CSS-in-JS.
@@ -12,7 +17,9 @@ React + Vite + TypeScript, lint con Oxlint. L'autore scrive il front-end: qui Cl
 ## Codice
 - TypeScript stretto, niente any. Tipi dal pacchetto shared/ (non ridefinirli).
 - Nessun calcolo fiscale o di budget nei componenti: importa le funzioni da shared/.
-- Accesso ai dati solo tramite un livello dedicato (src/api/), non sparso nei componenti.
+- Accesso ai dati solo tramite un livello dedicato (src/api/), non sparso nei componenti. Nessuna chiamata `supabase.from(` fuori da `src/api/`.
+- Livello dati: una classe per area logica (`ClassificationService`, `AccountsService`, `TransactionsService`, `BudgetService`, `RecurrencesService`, `RevenueService`, `TaxService`), tutte figlie di `BaseService` (CRUD generico). Gli errori diventano `AppError` con messaggio in italiano. Ogni area ha un file `*.queries.ts` con gli hook React Query; i componenti usano solo gli hook. Nuove tabelle o funzioni SQL: aggiungi il metodo al servizio dell'area, mai chiamate sparse.
+- Le chiavi di cache stanno in `queryKeys`; una mutazione invalida le query delle aree che toccano gli stessi dati.
 - Mesi e testi in italiano. Importi formattati con Intl it-IT, in EUR, font mono.
 
 ## Accessibilità e UX

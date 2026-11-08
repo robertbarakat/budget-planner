@@ -13,7 +13,7 @@ Un solo utente. Web app PWA usata da telefono (inserimento rapido) e desktop (an
 ## 2. Stack e decisioni prese
 - **Nomi nel codice**: tutti gli identificatori (tabelle, colonne, enum e valori, variabili, funzioni, tipi, file) sono in inglese; l'italiano resta nei dati, nei testi per l'utente e nella documentazione. Glossario sotto.
 - Monorepo GitHub `budget-planner`: frontend/, backend/, database/, shared/, docs/.
-- Frontend: React + Vite + TypeScript, Oxlint, CSS puro con custom properties (niente SCSS). Lo scrive l'autore.
+- Frontend: React + Vite + TypeScript, Oxlint, CSS puro con custom properties (niente SCSS). Lo scrive l'autore, tranne il livello dati `src/api/`. Librerie: React Query (dati dal server e cache), Jotai (stato locale), Radix UI (componenti accessibili senza stile). Niente Axios.
 - Database e autenticazione: Supabase (Postgres, row level security, utente unico). Migrazioni in database/supabase/migrations.
 - Backend: funzioni Node su Vercel; cron di Vercel per l'export settimanale.
 - Calcoli (fiscale, previsioni) in funzioni pure in shared/, testate con Vitest.
