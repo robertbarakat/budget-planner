@@ -73,17 +73,22 @@
   border-left: 1px solid var(--color-border);
 }
 
-/* Barra di scorrimento sottile, visibile solo con il mouse sopra la griglia. */
+/* Barra di scorrimento sottile: senza mouse sopra non esiste (nessuna striscia vuota a destra), con il mouse sopra compare. */
 .data-grid {
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-}
-
-.data-grid:hover {
-  scrollbar-color: var(--color-border-strong) transparent;
+  scrollbar-width: none;
 }
 
 .data-grid::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.data-grid:hover {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+
+.data-grid:hover::-webkit-scrollbar {
   width: var(--space-3);
   height: var(--space-3);
 }
@@ -94,9 +99,5 @@
 
 .data-grid::-webkit-scrollbar-thumb {
   border-radius: var(--radius-full);
-  background: transparent;
-}
-
-.data-grid:hover::-webkit-scrollbar-thumb {
   background: var(--color-border-strong);
 }
