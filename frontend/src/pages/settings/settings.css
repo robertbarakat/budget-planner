@@ -27,7 +27,12 @@
   list-style: none;
 }
 
+.settings__links > li {
+  display: flex;
+}
+
 .settings__link {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -70,8 +75,15 @@
 }
 
 @media (min-width: 1024px) {
+  /* Da desktop "Tasse e contributi" è già nel menu laterale: qui resta solo su mobile. */
+  .settings__links > .settings__mobile-only {
+    display: none;
+  }
+
+  /* Schede tutte alla stessa altezza, su un'unica riga. */
   .settings__links {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
   }
 }

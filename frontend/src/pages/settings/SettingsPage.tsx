@@ -7,8 +7,8 @@ const sections = [
   { to: paths.settingsStructure, title: 'Voci e categorie', description: 'Le tue uscite e le tue entrate, divise per gruppo.' },
   { to: paths.settingsAccounts, title: 'Conti', description: 'Dove stanno i soldi: aggiungi, riordina, archivia.' },
   { to: paths.settingsRecurrences, title: 'Ricorrenze', description: 'Pagamenti periodici (mutuo, abbonamenti): generano le righe di budget.' },
-  { to: paths.tax, title: 'Tasse e contributi', description: 'Riepilogo, calendario F24, rateizzazioni e parametri fiscali, tutto in un posto.' },
-] as const
+  { to: paths.tax, title: 'Tasse e contributi', description: 'Riepilogo, calendario F24, rateizzazioni e parametri fiscali, tutto in un posto.', mobileOnly: true },
+] as { to: string; title: string; description: string; mobileOnly?: boolean }[]
 
 export default function SettingsPage() {
   return (
@@ -16,7 +16,7 @@ export default function SettingsPage() {
       <h1>Impostazioni</h1>
       <ul className="settings__links">
         {sections.map((section) => (
-          <li key={section.to}>
+          <li key={section.to} className={section.mobileOnly ? 'settings__mobile-only' : undefined}>
             <Link to={section.to} className="settings__link">
               <span className="settings__link-title">{section.title}</span>
               <span className="settings__link-text">{section.description}</span>
