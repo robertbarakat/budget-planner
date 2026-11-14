@@ -58,12 +58,13 @@
 
 .cash-month__figures dt {
   color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-base);
 }
 
 .cash-month__figures dd {
   margin: 0;
   text-align: left;
+  font-size: var(--font-size-lg);
 }
 
 .cash-month__balance dd {
@@ -75,6 +76,14 @@
     display: grid;
     grid-template-columns: var(--grid-label-width) 1fr auto;
     align-items: center;
+  }
+
+  .cash-month__figures dt {
+    font-size: var(--font-size-sm);
+  }
+
+  .cash-month__figures dd {
+    font-size: inherit;
   }
 
   .cash-month__figures {
