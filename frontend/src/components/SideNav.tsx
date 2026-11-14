@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router'
 import { paths } from '../paths.ts'
-import { ChevronIcon } from './icons.tsx'
+import { MenuIcon } from './icons.tsx'
 import { navIcons } from './nav-icons.tsx'
 import SignOutButton from './SignOutButton.tsx'
 import { navItems } from './nav-items.ts'
@@ -35,6 +35,16 @@ export default function SideNav() {
 
   return (
     <aside className={collapsed ? 'side-nav side-nav--collapsed' : 'side-nav'}>
+      <button
+        type="button"
+        className="side-nav__toggle"
+        onClick={toggle}
+        aria-expanded={!collapsed}
+        title={collapsed ? 'Espandi la barra laterale' : 'Comprimi la barra laterale'}
+        aria-label={collapsed ? 'Espandi la barra laterale' : 'Comprimi la barra laterale'}
+      >
+        <MenuIcon />
+      </button>
       <nav aria-label="Navigazione principale">
         <ul className="side-nav__list">
           {navItems.map((item) => (
@@ -51,17 +61,6 @@ export default function SideNav() {
         {collapsed ? '+' : 'Nuovo movimento'}
       </Link>
       <SignOutButton className="side-nav__sign-out" iconOnly={collapsed} />
-      <button
-        type="button"
-        className="side-nav__toggle"
-        onClick={toggle}
-        aria-expanded={!collapsed}
-        title={collapsed ? 'Espandi la barra laterale' : 'Comprimi la barra laterale'}
-        aria-label={collapsed ? 'Espandi la barra laterale' : 'Comprimi la barra laterale'}
-      >
-        <ChevronIcon direction={collapsed ? 'right' : 'left'} />
-        {!collapsed && <span>Comprimi</span>}
-      </button>
     </aside>
   )
 }
