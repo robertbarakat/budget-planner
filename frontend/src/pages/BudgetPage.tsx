@@ -15,6 +15,16 @@ import './BudgetPage.css'
 
 const MONTHS = monthOptions()
 const COLLAPSED_KEY = 'budget.collapsedAreas'
+const EXPANDED_ITEMS_KEY = 'budget.expandedItems'
+
+function readExpandedItems(): Set<number> {
+  try {
+    const raw = JSON.parse(localStorage.getItem(EXPANDED_ITEMS_KEY) ?? '[]') as unknown
+    return new Set(Array.isArray(raw) ? raw.filter((v): v is number => typeof v === 'number') : [])
+  } catch {
+    return new Set()
+  }
+}
 
 function readCollapsed(): Set<number> {
   try {
@@ -36,6 +46,21 @@ export default function BudgetPage() {
   const reorder = useReorderMacroAreas()
   const [collapsed, setCollapsed] = useState<Set<number>>(readCollapsed)
   const [dragId, setDragId] = useState<number | null>(null)
+  // Voci con le categorie aperte: di base si vede solo il totale della voce.
+  const [expandedItems, setExpandedItems] = useState<Set<number>>(readExpandedItems)
+  function updateExpandedItems(next: Set<number>) {
+    setExpandedItems(next)
+    try {
+      localStorage.setItem(EXPANDED_ITEMS_KEY, JSON.stringify([...next]))
+    } catch {
+      // senza storage la scelta vale solo per la sessione
+    }
+  }
+  function toggleItem(id: number) {
+    const next = new Set(expandedItems)
+    if (!next.delete(id)) next.add(id)
+    updateExpandedItems(next)
+  }
   const isMobile = useMediaQuery('(max-width: 1023px)')
   const [month, setMonth] = useState<number | null>(() => new Date().getMonth() + 1)
 
@@ -130,10 +155,22 @@ export default function BudgetPage() {
         <YearSelector year={year} onChange={setYear} />
         {grid && grid.groups.length > 0 && (
           <span className="budget-page__bulk">
-            <button type="button" onClick={() => updateCollapsed(new Set())}>
+            <button
+              type="button"
+              onClick={() => {
+                updateCollapsed(new Set())
+                updateExpandedItems(new Set(grid.groups.flatMap((g) => g.items.filter((i) => i.categories.length > 0).map((i) => i.budgetItemId))))
+              }}
+            >
               Espandi tutto
             </button>
-            <button type="button" onClick={() => updateCollapsed(new Set(grid.groups.map((g) => g.macroAreaId)))}>
+            <button
+              type="button"
+              onClick={() => {
+                updateCollapsed(new Set(grid.groups.map((g) => g.macroAreaId)))
+                updateExpandedItems(new Set())
+              }}
+            >
               Comprimi tutto
             </button>
           </span>
@@ -199,7 +236,14 @@ export default function BudgetPage() {
                       const cell = item.months[index]!
                       return (
                         <li key={item.budgetItemId} className="budget-mobile__item">
-                          <span className="budget-mobile__item-name">{item.archived ? `${item.name} (archiviata)` : item.name}</span>
+                          {item.categories.length > 0 ? (
+                            <button type="button" className="budget-mobile__item-toggle" aria-expanded={expandedItems.has(item.budgetItemId)} onClick={() => toggleItem(item.budgetItemId)}>
+                              <span aria-hidden="true">{expandedItems.has(item.budgetItemId) ? '▾' : '▸'}</span> {item.archived ? `${item.name} (archiviata)` : item.name}
+                              <span className="budget-mobile__item-count">{item.categories.length} categorie</span>
+                            </button>
+                          ) : (
+                            <span className="budget-mobile__item-name">{item.archived ? `${item.name} (archiviata)` : item.name}</span>
+                          )}
                           {month === null ? (
                             <Amount value={item.yearCents / 100} />
                           ) : item.categories.length > 0 ? (
@@ -222,7 +266,7 @@ export default function BudgetPage() {
                               }
                             />
                           )}
-                          {item.categories.length > 0 && (
+                          {item.categories.length > 0 && expandedItems.has(item.budgetItemId) && (
                             <ul className="budget-mobile__categories">
                               {item.categories.map((cat) => {
                                 const catCell = cat.months[index]!
@@ -360,7 +404,12 @@ export default function BudgetPage() {
                   <Fragment key={item.budgetItemId}>
                   <tr className={item.categories.length > 0 ? 'budget-page__voice budget-page__voice--parent' : 'budget-page__voice'}>
                     <th scope="row" className="data-grid__label budget-page__item">
-                      {item.archived ? `${item.name} (archiviata)` : item.name}
+                      {item.categories.length > 0 ? (
+                        <button type="button" className="budget-page__item-toggle" aria-expanded={expandedItems.has(item.budgetItemId)} onClick={() => toggleItem(item.budgetItemId)}>
+                          <span aria-hidden="true">{expandedItems.has(item.budgetItemId) ? '▾' : '▸'}</span> {item.archived ? `${item.name} (archiviata)` : item.name}
+                          <span className="budget-page__item-count">{item.categories.length} categorie</span>
+                        </button>
+                      ) : item.archived ? `${item.name} (archiviata)` : item.name}
                     </th>
                     {item.months.map((cell, index) => (
                       <td key={index}>
@@ -391,7 +440,7 @@ export default function BudgetPage() {
                     </td>
                     <VarianceCell cells={itemCells.get(item.budgetItemId)} closed={closed} />
                   </tr>
-                  {item.categories.map((cat) => (
+                  {expandedItems.has(item.budgetItemId) && item.categories.map((cat) => (
                     <tr key={cat.categoryId ?? 'none'} className="budget-page__category">
                       <th scope="row" className="data-grid__label budget-page__category-name">
                         {cat.name}

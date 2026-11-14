@@ -44,14 +44,13 @@
   }
 }
 
-/* Avvisi (offline, nuova versione): fissi e sempre visibili, sopra la barra in basso; non scorrono con la pagina. */
+/* Avvisi (offline, nuova versione): sempre visibili in alto, non scorrono con la pagina.
+   Mobile: barra a tutta larghezza sopra il contenuto. Desktop: scheda centrata sopra il contenuto. */
 .app-notices {
   flex: none;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-4) var(--space-6);
-  background: var(--color-background);
+  z-index: 30;
 }
 
 .app-notices:empty {
@@ -61,11 +60,30 @@
 @media (min-width: 1024px) {
   .app-notices {
     position: fixed;
-    right: var(--space-9);
-    bottom: var(--space-9);
-    z-index: 30;
-    width: calc(var(--sidebar-width) * 1.5);
-    padding: 0;
-    background: transparent;
+    top: var(--space-8);
+    left: calc(var(--sidebar-width) + (100vw - var(--sidebar-width)) / 2);
+    width: min(36rem, calc(100vw - var(--sidebar-width) - var(--space-12)));
+    gap: var(--space-4);
+    transform: translateX(-50%);
+  }
+
+  .app-notices > * {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+.app-pull {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+@media (min-width: 1024px) {
+  .app-pull {
+    display: none;
   }
 }

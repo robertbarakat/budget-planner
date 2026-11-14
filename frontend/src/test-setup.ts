@@ -18,3 +18,13 @@ globalThis.ResizeObserver ??= class {
   unobserve() {}
   disconnect() {}
 }
+
+// Nessuna chiamata di rete verso l'esterno nei test: ciò che serve si simula.
+const realFetch = globalThis.fetch?.bind(globalThis)
+globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
+  const url = new URL(typeof input === 'string' || input instanceof URL ? input : input.url, 'http://localhost')
+  if (url.hostname !== 'localhost' && url.hostname !== '127.0.0.1') {
+    return Promise.reject(new TypeError(`Rete bloccata nei test: ${url.hostname}`))
+  }
+  return realFetch(input, init)
+}) as typeof fetch
