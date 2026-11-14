@@ -93,7 +93,7 @@
 .f24-page__group-toggle {
   display: grid;
   flex: 1;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: var(--space-2) var(--space-5);
   min-height: var(--target-min);
@@ -150,11 +150,8 @@
 }
 
 .f24-page__group-toggle > .amount {
+  min-width: 6.5rem;
   text-align: right;
-}
-
-.f24-page__group-toggle > .f24-page__status {
-  grid-column: 1 / -1;
 }
 
 .f24-page__pay .button--compact {

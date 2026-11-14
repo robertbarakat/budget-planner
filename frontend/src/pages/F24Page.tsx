@@ -144,8 +144,8 @@ export default function F24Page() {
                         <span className="f24-page__group-title">
                           <span aria-hidden="true">{isOpen ? '▾' : '▸'}</span> F24 del {italianDate(dueDate)}
                         </span>
-                        <Amount value={groupTotal} colored={false} />
                         <span className={`f24-page__status f24-page__status--${groupStatus}`}>{statusLabels[groupStatus]}</span>
+                        <Amount value={groupTotal} colored={false} />
                       </button>
                     </div>
                     {isOpen && (
