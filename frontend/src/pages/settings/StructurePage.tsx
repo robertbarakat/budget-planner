@@ -14,7 +14,6 @@ import {
   useUpdateCategory,
   useUpdateMacroArea,
 } from '../../api/classification.queries.ts'
-import Button from '../../components/Button.tsx'
 import { paths } from '../../paths.ts'
 import './settings.css'
 import './StructurePage.css'
@@ -51,10 +50,12 @@ function Editable({
     return (
       <form className="structure__edit" onSubmit={save}>
         <input aria-label={`Nome di ${name}`} value={draft} onChange={(e) => setDraft(e.target.value)} autoFocus />
-        <Button type="submit">Salva</Button>
-        <Button variant="secondary" onClick={() => setEditing(false)}>
+        <button type="submit" className="structure__link">
+          Salva
+        </button>
+        <button type="button" className="structure__link structure__link--quiet" onClick={() => setEditing(false)}>
           Annulla
-        </Button>
+        </button>
       </form>
     )
   }
@@ -67,8 +68,9 @@ function Editable({
         </span>
       )}
       <span className="structure__actions">
-        <Button
-          variant="secondary"
+        <button
+          type="button"
+          className="structure__link"
           aria-label={`Rinomina ${name}`}
           onClick={() => {
             setDraft(name)
@@ -76,10 +78,10 @@ function Editable({
           }}
         >
           Rinomina
-        </Button>
-        <Button variant="secondary" aria-label={`${archived ? 'Ripristina' : 'Archivia'} ${name}`} onClick={() => void onArchive(!archived)}>
+        </button>
+        <button type="button" className="structure__link structure__link--quiet" aria-label={`${archived ? 'Ripristina' : 'Archivia'} ${name}`} onClick={() => void onArchive(!archived)}>
           {archived ? 'Ripristina' : 'Archivia'}
-        </Button>
+        </button>
       </span>
     </div>
   )
@@ -91,9 +93,9 @@ function AddName({ label, onAdd }: { label: string; onAdd: (name: string) => Pro
   const [name, setName] = useState('')
   if (!open) {
     return (
-      <Button variant="secondary" className="structure__add" onClick={() => setOpen(true)}>
+      <button type="button" className="structure__link structure__add" onClick={() => setOpen(true)}>
         + {label}
-      </Button>
+      </button>
     )
   }
   async function submit(event: FormEvent) {
@@ -109,10 +111,12 @@ function AddName({ label, onAdd }: { label: string; onAdd: (name: string) => Pro
   return (
     <form className="structure__edit" onSubmit={submit}>
       <input aria-label={label} placeholder="Nome" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
-      <Button type="submit">Aggiungi</Button>
-      <Button variant="secondary" onClick={() => setOpen(false)}>
+      <button type="submit" className="structure__link">
+        Aggiungi
+      </button>
+      <button type="button" className="structure__link structure__link--quiet" onClick={() => setOpen(false)}>
         Annulla
-      </Button>
+      </button>
     </form>
   )
 }
@@ -172,6 +176,7 @@ export default function StructurePage() {
       ) : (
         <>
           <AddName label="Nuovo gruppo" onAdd={(name) => createArea.mutateAsync({ name, sort_order: nextOrder(macroAreas.data ?? []) })} />
+          <div className="structure__groups">
           {areas.map((area) => {
             const areaItems = items.filter((i) => i.macro_area_id === area.id)
             const shown = visible(areaItems.filter((i) => i.kind === kind))
@@ -238,6 +243,7 @@ export default function StructurePage() {
               </section>
             )
           })}
+          </div>
           <label className="structure__toggle">
             <input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} /> Mostra anche gli archiviati
           </label>

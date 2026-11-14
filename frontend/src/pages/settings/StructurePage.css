@@ -123,15 +123,37 @@
   min-width: 8rem;
 }
 
-.structure__line .button,
-.structure__edit .button,
-.structure__add {
-  padding-inline: var(--space-6);
+.structure__link {
+  min-height: var(--target-min);
+  padding: 0 var(--space-3);
+  border: 0;
+  background: none;
+  color: var(--color-primary);
   font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.structure__link--quiet {
+  color: var(--color-text-muted);
 }
 
 .structure__add {
-  align-self: flex-end;
+  align-self: flex-start;
+}
+
+/* Desktop: la pagina usa tutta la larghezza, i gruppi stanno affiancati. */
+.structure {
+  max-width: none;
+}
+
+.structure__groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  gap: var(--space-8);
+  align-items: start;
 }
 
 .structure__group-actions {
