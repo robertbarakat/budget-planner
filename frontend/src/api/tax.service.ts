@@ -16,6 +16,27 @@ export interface PlannedDeadline {
   amount: number
 }
 
+/** Riga di capitale di una rateizzazione (importi in euro). */
+export interface PlanLineValues {
+  taxType: RowOf<'installment_lines'>['tax_type']
+  referenceYear: number
+  quota: number
+  lastNumber: number | null
+}
+
+/** Una rata per riga di capitale (importi in euro). */
+export interface PlanRowValues {
+  number: number
+  dueDate: string
+  taxType: RowOf<'installments'>['tax_type']
+  referenceYear: number
+  principal: number
+  interest: number
+}
+
+const rowKey = (r: { number: number; taxType: string; referenceYear: number }) => `${r.number}|${r.taxType}|${r.referenceYear}`
+const sumCents = (rows: readonly { principal: number }[]) => Math.round(rows.reduce((s, r) => s + r.principal * 100, 0)) / 100
+
 export interface SyncResult {
   created: number
   updated: number
@@ -30,6 +51,7 @@ export class TaxService {
   readonly parameters: BaseService<'tax_parameters'>
   readonly installmentPlans: BaseService<'installment_plans'>
   readonly installments: BaseService<'installments'>
+  readonly installmentLines: BaseService<'installment_lines'>
   readonly f24Deadlines: BaseService<'f24_deadlines'>
   private readonly getClient: () => TypedSupabaseClient
 
@@ -38,6 +60,7 @@ export class TaxService {
     this.parameters = new BaseService('tax_parameters', getClient)
     this.installmentPlans = new BaseService('installment_plans', getClient)
     this.installments = new BaseService('installments', getClient)
+    this.installmentLines = new BaseService('installment_lines', getClient)
     this.f24Deadlines = new BaseService('f24_deadlines', getClient)
   }
 
@@ -56,26 +79,108 @@ export class TaxService {
   }
 
   /**
-   * Crea una rateizzazione con le sue rate. Se una rata non si salva, la rateizzazione appena creata viene
-   * tolta (con le rate già scritte), così non resta un'entità a metà.
+   * Crea una rateizzazione con le sue righe di capitale e le rate calcolate. Se qualcosa non si salva,
+   * si toglie tutto ciò che era già stato scritto, così non resta un'entità a metà.
    */
-  async createPlanWithInstallments(
-    plan: InsertOf<'installment_plans'>,
-    installments: readonly { number: number; dueDate: string; amount: number }[],
+  async createPlanFromSchedule(
+    description: string,
+    lines: readonly PlanLineValues[],
+    rows: readonly PlanRowValues[],
   ): Promise<RowOf<'installment_plans'>> {
-    const created = await this.installmentPlans.create(plan)
-    const written: number[] = []
+    const first = lines[0]
+    if (!first) throw new AppError('invalid', null, undefined, 'Inserisci almeno una riga da rateizzare.')
+    const created = await this.installmentPlans.create({
+      description,
+      total_amount: sumCents(rows),
+      tax_type: first.taxType,
+      reference_year: first.referenceYear,
+    })
+    const writtenRows: number[] = []
+    const writtenLines: number[] = []
     try {
-      for (const item of installments) {
-        const row = await this.installments.create({ plan_id: created.id, number: item.number, due_date: item.dueDate, amount: item.amount })
-        written.push(row.id)
+      for (const line of lines) {
+        const l = await this.installmentLines.create({
+          plan_id: created.id,
+          tax_type: line.taxType,
+          reference_year: line.referenceYear,
+          quota: line.quota,
+          last_number: line.lastNumber,
+        })
+        writtenLines.push(l.id)
+      }
+      for (const row of rows) {
+        const r = await this.installments.create(this.rowInsert(created.id, row))
+        writtenRows.push(r.id)
       }
     } catch (error) {
-      for (const id of written) await this.installments.remove(id)
+      for (const id of writtenRows) await this.installments.remove(id)
+      for (const id of writtenLines) await this.installmentLines.remove(id)
       await this.installmentPlans.remove(created.id)
       throw error
     }
     return created
+  }
+
+  private rowInsert(planId: number, row: PlanRowValues): InsertOf<'installments'> {
+    return {
+      plan_id: planId,
+      number: row.number,
+      due_date: row.dueDate,
+      tax_type: row.taxType,
+      reference_year: row.referenceYear,
+      principal: row.principal,
+      interest: row.interest,
+      amount: Math.round((row.principal + row.interest) * 100) / 100,
+    }
+  }
+
+  /**
+   * Ricalcola una rateizzazione esistente: le rate già versate (`frozenIds`) non si toccano; le altre si aggiornano,
+   * si creano o si tolgono (con le loro scadenze F24 non versate). Così chiudere una riga da una rata in poi
+   * toglie capitale, interessi e scadenze di quella riga dalle rate successive.
+   */
+  async rebuildPlan(
+    planId: number,
+    lines: readonly PlanLineValues[],
+    rows: readonly PlanRowValues[],
+    frozenIds: ReadonlySet<number>,
+  ): Promise<void> {
+    const existing = await this.listInstallments(planId)
+    const frozen = existing.filter((r) => frozenIds.has(r.id))
+    const frozenKeys = new Set(frozen.map((r) => rowKey({ number: r.number, taxType: r.tax_type, referenceYear: r.reference_year })))
+    const target = rows.filter((r) => !frozenKeys.has(rowKey(r)))
+    const total = Math.round((sumCents(target) + frozen.reduce((s, r) => s + Number(r.principal), 0)) * 100) / 100
+    await this.installmentPlans.update(planId, { total_amount: total })
+
+    for (const old of await this.installmentLines.list({ where: { plan_id: planId } })) await this.installmentLines.remove(old.id)
+    for (const line of lines) {
+      await this.installmentLines.create({
+        plan_id: planId,
+        tax_type: line.taxType,
+        reference_year: line.referenceYear,
+        quota: line.quota,
+        last_number: line.lastNumber,
+      })
+    }
+
+    const loose = existing.filter((r) => !frozenIds.has(r.id))
+    const byKey = new Map(loose.map((r) => [rowKey({ number: r.number, taxType: r.tax_type, referenceYear: r.reference_year }), r]))
+    for (const row of target) {
+      const found = byKey.get(rowKey(row))
+      if (found) {
+        byKey.delete(rowKey(row))
+        const next = this.rowInsert(planId, row)
+        await this.installments.update(found.id, { due_date: next.due_date, principal: next.principal, interest: next.interest, amount: next.amount })
+      } else {
+        await this.installments.create(this.rowInsert(planId, row))
+      }
+    }
+    for (const gone of byKey.values()) {
+      for (const deadline of await this.f24Deadlines.list({ where: { installment_id: gone.id } })) {
+        if (deadline.transaction_id === null) await this.f24Deadlines.remove(deadline.id)
+      }
+      await this.installments.remove(gone.id)
+    }
   }
 
   /** Rate di una rateizzazione, in ordine di numero. */

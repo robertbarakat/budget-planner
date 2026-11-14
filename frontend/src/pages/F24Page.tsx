@@ -60,7 +60,7 @@ export default function F24Page() {
     const active = new Map((plans.data ?? []).filter((p) => !p.archived).map((p) => [p.id, p]))
     const rates = (allInstallments.data ?? []).flatMap((i) => {
       const plan = active.get(i.plan_id)
-      return plan ? [{ id: i.id, referenceYear: plan.reference_year, taxType: plan.tax_type, number: i.number, dueDate: i.due_date, amount: Number(i.amount) }] : []
+      return plan ? [{ id: i.id, referenceYear: i.reference_year, taxType: i.tax_type, number: i.number, dueDate: i.due_date, amount: Number(i.amount) }] : []
     })
     return planDeadlines(year, { summary: current.summary, firstAdvanceDueDate: current.parameters.firstAdvanceDueDate }, previous.summary ? { summary: previous.summary } : null, rates)
   }, [year, current.summary, current.parameters, previous.summary, plans.data, allInstallments.data])

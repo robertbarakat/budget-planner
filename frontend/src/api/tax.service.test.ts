@@ -134,19 +134,25 @@ describe('TaxService.linkDeadlineToTransaction', () => {
   })
 })
 
-describe('TaxService.createPlanWithInstallments', () => {
-  const plan = { description: 'Saldo 2024', total_amount: 1000, tax_type: 'substitute_tax' as const, reference_year: 2024 }
-  const rows = [{ number: 1, dueDate: '2026-03-31', amount: 550 }, { number: 2, dueDate: '2026-06-30', amount: 550 }]
-  it('crea la rateizzazione e poi le rate con il suo id', async () => {
+describe('TaxService.createPlanFromSchedule', () => {
+  const lines = [{ taxType: 'substitute_tax' as const, referenceYear: 2025, quota: 500, lastNumber: null }]
+  const rows = [
+    { number: 1, dueDate: '2026-12-16', taxType: 'substitute_tax' as const, referenceYear: 2025, principal: 500, interest: 0 },
+    { number: 2, dueDate: '2027-01-16', taxType: 'substitute_tax' as const, referenceYear: 2025, principal: 500, interest: 0.9 },
+  ]
+  it('crea piano, righe di capitale e rate con capitale e interessi', async () => {
     const { client, calls } = fakeSupabase({ data: { id: 4 }, error: null })
-    await new TaxService(() => client).createPlanWithInstallments(plan, rows)
+    await new TaxService(() => client).createPlanFromSchedule('Piano', lines, rows)
     const inserts = calls.filter((c) => c.method === 'insert').map((c) => c.args[0])
-    expect(inserts).toEqual([plan, { plan_id: 4, number: 1, due_date: '2026-03-31', amount: 550 }, { plan_id: 4, number: 2, due_date: '2026-06-30', amount: 550 }])
+    expect(inserts[0]).toMatchObject({ description: 'Piano', total_amount: 1000, tax_type: 'substitute_tax', reference_year: 2025 })
+    expect(inserts[1]).toMatchObject({ plan_id: 4, quota: 500, last_number: null })
+    expect(inserts[3]).toMatchObject({ plan_id: 4, number: 2, principal: 500, interest: 0.9, amount: 500.9 })
   })
-  it('se una rata fallisce toglie la rateizzazione e le rate già scritte', async () => {
+  it('se una rata fallisce toglie piano, righe e rate già scritte', async () => {
     let inserts = 0
     const { client, calls } = fakeSupabase({
       installment_plans: { data: { id: 4 }, error: null },
+      installment_lines: { data: { id: 7 }, error: null },
       installments: (q) => {
         if (q.some((c) => c.method === 'insert')) {
           inserts += 1
@@ -155,7 +161,7 @@ describe('TaxService.createPlanWithInstallments', () => {
         return { data: { id: 100 + inserts }, error: null }
       },
     })
-    await expect(new TaxService(() => client).createPlanWithInstallments(plan, rows)).rejects.toBeInstanceOf(AppError)
-    expect(calls.filter((c) => c.method === 'delete')).toHaveLength(2)
+    await expect(new TaxService(() => client).createPlanFromSchedule('Piano', lines, rows)).rejects.toBeInstanceOf(AppError)
+    expect(calls.filter((c) => c.method === 'delete')).toHaveLength(3)
   })
 })

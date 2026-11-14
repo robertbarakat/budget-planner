@@ -191,16 +191,36 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
-                },"installments": {
+                },"installment_lines": {
                   Row: {
-                    "amount": number,"created_at": string,"due_date": string,"id": number,"number": number,"plan_id": number
+                    "created_at": string,"id": number,"last_number": number | null,"plan_id": number,"quota": number,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"]
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount": number,"created_at"?: string,"due_date": string,"id"?: never,"number": number,"plan_id": number
+                    "created_at"?: string,"id"?: never,"last_number"?: number | null,"plan_id": number,"quota": number,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"]
                   }
                   Update: {
-                    "amount"?: number,"created_at"?: string,"due_date"?: string,"id"?: never,"number"?: number,"plan_id"?: number
+                    "created_at"?: string,"id"?: never,"last_number"?: number | null,"plan_id"?: number,"quota"?: number,"reference_year"?: number,"tax_type"?: Database["public"]['Enums']["tax_type"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "installment_lines_plan_id_fkey"
+      columns: ["plan_id"]
+isOneToOne: false
+      referencedRelation: "installment_plans"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"installments": {
+                  Row: {
+                    "amount": number,"created_at": string,"due_date": string,"id": number,"interest": number,"number": number,"plan_id": number,"principal": number,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"created_at"?: string,"due_date": string,"id"?: never,"interest"?: number,"number": number,"plan_id": number,"principal": number,"reference_year": number,"tax_type": Database["public"]['Enums']["tax_type"]
+                  }
+                  Update: {
+                    "amount"?: number,"created_at"?: string,"due_date"?: string,"id"?: never,"interest"?: number,"number"?: number,"plan_id"?: number,"principal"?: number,"reference_year"?: number,"tax_type"?: Database["public"]['Enums']["tax_type"]
                   }
                   Relationships: [
                     {

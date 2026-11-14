@@ -32,6 +32,8 @@ export type {
 } from './advances-balance.ts'
 export { summarizeInstallmentPlan } from './installment-plan.ts'
 export type { InstallmentInput, InstallmentPlanInput, InstallmentPlanSummary } from './installment-plan.ts'
+export { addMonthsIso, buildInstallmentSchedule, installmentInterestBasisPoints } from './installment-schedule.ts'
+export type { InstallmentLineInput, InstallmentScheduleRow } from './installment-schedule.ts'
 export { computeMonthlyValues } from './monthly-values.ts'
 export type {
   ActualTransactionInput,

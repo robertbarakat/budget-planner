@@ -25,8 +25,11 @@ beforeEach(() => {
     { id: 1, description: 'Saldo 2024', total_amount: 1000, tax_type: 'substitute_tax', reference_year: 2024, archived: false, created_at: '' },
   ] as never)
   vi.spyOn(taxService.installments, 'list').mockResolvedValue([
-    { id: 1, plan_id: 1, number: 1, due_date: '2026-03-31', amount: 550, created_at: '' },
-    { id: 2, plan_id: 1, number: 2, due_date: '2026-06-30', amount: 550.5, created_at: '' },
+    { id: 1, plan_id: 1, number: 1, due_date: '2026-03-31', amount: 550, principal: 500, interest: 50, tax_type: 'substitute_tax', reference_year: 2024, created_at: '' },
+    { id: 2, plan_id: 1, number: 2, due_date: '2026-06-30', amount: 550.5, principal: 500, interest: 50.5, tax_type: 'substitute_tax', reference_year: 2024, created_at: '' },
+  ] as never)
+  vi.spyOn(taxService.installmentLines, 'list').mockResolvedValue([
+    { id: 1, plan_id: 1, tax_type: 'substitute_tax', reference_year: 2024, quota: 500, last_number: null, created_at: '' },
   ] as never)
   vi.spyOn(taxService.f24Deadlines, 'list').mockResolvedValue([
     { id: 5, reference_year: 2024, tax_type: 'substitute_tax', due_date: '2026-03-31', amount: 550, transaction_id: 9, installment_id: 1, is_amount_manual: false },
@@ -34,7 +37,7 @@ beforeEach(() => {
 })
 
 describe('InstallmentsPage', () => {
-  it('mostra interessi (somma rate − importo), residuo e rata successiva; nessun pulsante elimina', async () => {
+  it('mostra righe rateizzate, interessi, residuo e rata successiva; nessun pulsante elimina', async () => {
     setup()
     expect(await screen.findByText('Saldo 2024')).toBeInTheDocument()
     expect(screen.getByText(/100,50/)).toBeInTheDocument() // 1.100,50 − 1.000

@@ -23,6 +23,9 @@ export const useCreateInstallment = installments.useCreate
 export const useUpdateInstallment = installments.useUpdate
 export const useDeleteInstallment = installments.useRemove
 
+const planLines = createCrudHooks({ service: taxService.installmentLines, key: queryKeys.tax.installmentLines, invalidate })
+export const useInstallmentLines = planLines.useList
+
 const deadlines = createCrudHooks({ service: taxService.f24Deadlines, key: queryKeys.tax.f24Deadlines, invalidate })
 export const useF24Deadlines = deadlines.useList
 export const useCreateF24Deadline = deadlines.useCreate
@@ -94,10 +97,18 @@ export function useApplyTaxEntries() {
   })
 }
 
-export function useCreateInstallmentPlanWithInstallments() {
+export function useCreateInstallmentPlanFromSchedule() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (args: Parameters<typeof taxService.createPlanWithInstallments>) => taxService.createPlanWithInstallments(...args),
+    mutationFn: (args: Parameters<typeof taxService.createPlanFromSchedule>) => taxService.createPlanFromSchedule(...args),
+    onSuccess: () => invalidateAll(queryClient, invalidate),
+  })
+}
+
+export function useRebuildInstallmentPlan() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (args: Parameters<typeof taxService.rebuildPlan>) => taxService.rebuildPlan(...args),
     onSuccess: () => invalidateAll(queryClient, invalidate),
   })
 }

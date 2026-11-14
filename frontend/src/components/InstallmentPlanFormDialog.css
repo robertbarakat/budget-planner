@@ -31,3 +31,71 @@
 .installment-form__error {
   color: var(--color-negative);
 }
+
+.installment-form__line {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.installment-form__line > :first-child,
+.installment-form__line > button {
+  grid-column: 1 / -1;
+}
+
+.installment-form__pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.installment-form__link {
+  align-self: flex-start;
+  min-height: var(--target-min);
+  padding: 0 var(--space-3);
+  border: 0;
+  background: none;
+  color: var(--color-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.installment-form__link--quiet {
+  color: var(--color-text-muted);
+  justify-self: end;
+}
+
+.installment-form__preview {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.installment-form__preview caption {
+  padding-bottom: var(--space-3);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+  text-align: left;
+}
+
+.installment-form__preview th,
+.installment-form__preview td {
+  padding: var(--space-3) var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.installment-form__preview th:first-child {
+  text-align: left;
+  font-weight: var(--font-weight-medium);
+}
+
+.installment-form__paid {
+  color: var(--color-text-muted);
+}

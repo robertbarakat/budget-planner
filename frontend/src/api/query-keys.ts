@@ -36,6 +36,7 @@ export const queryKeys = {
     parameters: ['tax', 'parameters'] as const,
     installmentPlans: ['tax', 'installment_plans'] as const,
     installments: ['tax', 'installments'] as const,
+    installmentLines: ['tax', 'installment_lines'] as const,
     f24Deadlines: ['tax', 'f24_deadlines'] as const,
   },
 } as const
