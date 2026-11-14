@@ -15,11 +15,11 @@ export default function App() {
         <div className="app-topbar">
           <SignOutButton />
         </div>
-        <div className="app-notices">
-          <OfflineBanner />
-          <UpdateBanner />
-        </div>
         <Outlet />
+      </div>
+      <div className="app-notices">
+        <OfflineBanner />
+        <UpdateBanner />
       </div>
       <MobileNav />
     </div>
