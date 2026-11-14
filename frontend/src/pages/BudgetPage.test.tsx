@@ -56,13 +56,11 @@ describe('BudgetPage', () => {
     expect(within(row).getAllByText('−').length).toBeGreaterThan(0)
   })
 
-  it('nei mesi chiusi mostra il reale e lo scostamento', async () => {
+  it('nei mesi chiusi mostra il reale', async () => {
     setup()
     const grid = await screen.findByRole('region', { name: `Budget previsto ${year}` })
     const row = within(grid).getAllByRole('row').find((r) => r.textContent?.includes('Affitto'))!
     await vi.waitFor(() => expect(within(row).getAllByText(/380,00/).length).toBeGreaterThan(0))
-    // reale − previsto = −380 − (−400) = +20
-    expect(within(row).getAllByText(/20,00/).length).toBeGreaterThan(0)
   })
 
   it('chiude e riapre una macro-area nascondendo le sue voci', async () => {

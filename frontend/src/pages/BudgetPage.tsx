@@ -6,7 +6,7 @@ import Amount from '../components/Amount.tsx'
 import { useSnackbar } from '../components/Snackbar.tsx'
 import YearSelector from '../components/YearSelector.tsx'
 import { buildBudgetGrid, sourceLabel, sourceShortLabel, type GridCell } from '../lib/budget-grid.ts'
-import { buildMatrix, closedVariance, type MatrixCell } from '../lib/matrix.ts'
+import { buildMatrix } from '../lib/matrix.ts'
 import { monthOptions } from '../lib/months.ts'
 import { useMediaQuery } from '../lib/use-media-query.ts'
 import '../components/DataGrid.css'
@@ -227,7 +227,7 @@ export default function BudgetPage() {
                     <span aria-hidden="true">{open ? '▾' : '▸'}</span> {group.archived ? `${group.name} (archiviata)` : group.name}
                   </span>
                   {month === null ? (
-                    <Amount value={group.yearCents / 100} />
+                    <Amount compact value={group.yearCents / 100} />
                   ) : (
                     <ClosedAmount
                       budgeted={(group.monthCents[index] ?? 0) / 100}
@@ -250,7 +250,7 @@ export default function BudgetPage() {
                             <span className="budget-mobile__item-name">{item.archived ? `${item.name} (archiviata)` : item.name}</span>
                           )}
                           {month === null ? (
-                            <Amount value={item.yearCents / 100} />
+                            <Amount compact value={item.yearCents / 100} />
                           ) : item.categories.length > 0 ? (
                             <span className="budget-cell__readonly">
                               <BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
@@ -268,7 +268,7 @@ export default function BudgetPage() {
                                   <li key={cat.categoryId ?? 'none'} className="budget-mobile__category">
                                     <span className="budget-mobile__category-name">{cat.name}</span>
                                     {month === null ? (
-                                      <Amount value={cat.yearCents / 100} />
+                                      <Amount compact value={cat.yearCents / 100} />
                                     ) : (
                                       <EditableBudgetCell title={`${item.name} · ${cat.name}, ${MONTHS[index]!.label} ${year}`} ariaLabel={`Modifica ${item.name} ${cat.name}, ${MONTHS[index]!.label} ${year}`} kind={item.kind} entries={catCell.entries} onSave={saveCell(item.budgetItemId, month, cat.categoryId)}>
 <BudgetCell cell={catCell} actual={categoryActual(item.budgetItemId, cat.categoryId, index)} />
@@ -295,7 +295,7 @@ export default function BudgetPage() {
           )}
           <div className="budget-mobile__total">
             <span>Totale anno {year}</span>
-            <Amount value={grid.yearCents / 100} />
+            <Amount compact value={grid.yearCents / 100} />
           </div>
         </div>
       ) : (
@@ -314,10 +314,6 @@ export default function BudgetPage() {
                 ))}
                 <th scope="col" className="data-grid__sum">
                   Totale
-                </th>
-                <th scope="col" className="data-grid__sum budget-page__variance-head">
-                  Reale − previsto
-                  <span className="budget-page__variance-sub">mesi chiusi</span>
                 </th>
               </tr>
             </thead>
@@ -379,9 +375,8 @@ export default function BudgetPage() {
                     </td>
                   ))}
                   <td className="data-grid__sum">
-                    <Amount value={group.yearCents / 100} />
+                    <Amount compact value={group.yearCents / 100} />
                   </td>
-                  <VarianceCell cells={groupCells.get(group.macroAreaId)} closed={closed} />
                 </tr>
                 {!collapsed.has(group.macroAreaId) && group.items.map((item) => (
                   <Fragment key={item.budgetItemId}>
@@ -408,9 +403,8 @@ export default function BudgetPage() {
                       </td>
                     ))}
                     <td className="data-grid__sum">
-                      <Amount value={item.yearCents / 100} />
+                      <Amount compact value={item.yearCents / 100} />
                     </td>
-                    <VarianceCell cells={itemCells.get(item.budgetItemId)} closed={closed} />
                   </tr>
                   {expandedItems.has(item.budgetItemId) && item.categories.map((cat) => (
                     <tr key={cat.categoryId ?? 'none'} className="budget-page__category">
@@ -425,7 +419,7 @@ export default function BudgetPage() {
                         </td>
                       ))}
                       <td className="data-grid__sum">
-                        <Amount value={cat.yearCents / 100} />
+                        <Amount compact value={cat.yearCents / 100} />
                       </td>
                       <td className="data-grid__sum" />
                     </tr>
@@ -445,17 +439,15 @@ export default function BudgetPage() {
                   </td>
                 ))}
                 <td className="data-grid__sum">
-                  <Amount value={grid.yearCents / 100} />
+                  <Amount compact value={grid.yearCents / 100} />
                 </td>
-                <VarianceCell cells={matrix?.months} closed={closed} />
               </tr>
             </tfoot>
           </table>
         </div>
       )}
       <p className="budget-page__status">
-        Le righe colorate sono le macro-area (con i totali): ▾/▸ apre e chiude le voci, ⋮⋮ le trascina, ↑↓ le spostano. Nei mesi chiusi (✓) la cella mostra il reale, e sotto il previsto solo se è diverso; nei mesi aperti (○) il previsto, in corsivo. «Reale − previsto» somma i soli mesi chiusi:
-        verde con + è meglio del previsto (più entrate o meno spese), rosso con − è peggio.
+        Importi in euro. Le righe colorate sono le macro-area (con i totali): ▾/▸ apre e chiude le voci, ⋮⋮ le trascina, ↑↓ le spostano. Nei mesi chiusi (✓) la cella mostra il reale, e sotto il previsto solo se è diverso; nei mesi aperti (○) il previsto, in corsivo.
       </p>
     </main>
   )
@@ -463,23 +455,18 @@ export default function BudgetPage() {
 
 /** Previsto, e per i mesi chiusi il reale in evidenza con il previsto più piccolo sotto. */
 function ClosedAmount({ budgeted, actual }: { budgeted: number; actual: number | undefined }) {
-  if (actual === undefined) return <Amount value={budgeted} className="budget-cell__forecast" />
+  if (actual === undefined) return <Amount compact value={budgeted} className="budget-cell__forecast" />
   const differs = Math.abs(actual - budgeted) >= 0.005
   return (
     <span className="budget-cell">
-      <Amount value={actual} />
+      <Amount compact value={actual} />
       {differs && (
         <span className="budget-cell__planned">
-          previsto <Amount value={budgeted} />
+          previsto <Amount compact value={budgeted} />
         </span>
       )}
     </span>
   )
-}
-
-function VarianceCell({ cells, closed }: { cells: MatrixCell[] | undefined; closed: boolean[] }) {
-  const variance = cells ? closedVariance(cells, closed) : null
-  return <td className="data-grid__sum">{variance === null ? '' : <Amount value={variance} explicitPlus />}</td>
 }
 
 function BudgetCell({ cell, actual }: { cell: GridCell; actual: number | undefined }) {
@@ -487,7 +474,7 @@ function BudgetCell({ cell, actual }: { cell: GridCell; actual: number | undefin
   if (cell.entries.length === 0) return <span className="budget-page__empty" aria-label="vuoto">–</span>
   return (
     <span className="budget-cell">
-      <Amount value={cell.cents / 100} />
+      <Amount compact value={cell.cents / 100} />
       {cell.otherSources.map((source) => (
         <span key={source} className="budget-cell__source" title={sourceLabel(source)}>
           {sourceShortLabel(source)}

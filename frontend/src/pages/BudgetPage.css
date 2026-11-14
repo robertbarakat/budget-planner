@@ -52,17 +52,6 @@
   font-size: var(--font-size-2xs);
 }
 
-.budget-page__variance-head {
-  white-space: nowrap;
-}
-
-.budget-page__variance-sub {
-  display: block;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-regular, 400);
-}
-
 /* Macro-area: riga colorata e ben distinta; voci rientrate sotto di essa. */
 .budget-page__area th,
 .budget-page__area td,
@@ -213,7 +202,7 @@
    quindi non sposta lo scorrimento orizzontale (novembre e dicembre restano dove sono). */
 .budget-page .data-grid__table {
   table-layout: fixed;
-  min-width: calc(var(--budget-label-width) + 14 * var(--budget-column-width));
+  min-width: calc(var(--budget-label-width) + 13 * var(--budget-column-width));
 }
 
 /* La colonna delle voci ha larghezza fissa; i mesi si dividono in parti uguali lo spazio che resta (minimo --budget-column-width). */
@@ -223,8 +212,8 @@
 
 .budget-page {
   /* Pensata per stare in un 15 pollici (circa 1300px utili con la barra laterale chiusa): colonne strette, frecce grandi e vicine. */
-  --budget-column-width: 5.6rem;
-  --budget-label-width: 10rem;
+  --budget-column-width: 4.9rem;
+  --budget-label-width: 11rem;
   font-size: var(--font-size-sm);
 }
 
