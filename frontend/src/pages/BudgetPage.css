@@ -51,3 +51,14 @@
   color: var(--color-text-muted);
   font-size: var(--font-size-2xs);
 }
+
+.budget-page__variance-head {
+  white-space: nowrap;
+}
+
+.budget-page__variance-sub {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-regular, 400);
+}

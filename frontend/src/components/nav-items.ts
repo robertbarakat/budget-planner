@@ -7,6 +7,6 @@ export const navItems: readonly { to: string; label: string; end: boolean; deskt
   { to: paths.transactions, label: 'Movimenti', end: false },
   { to: paths.cashFlow, label: 'Flusso di cassa', end: false },
   { to: paths.budget, label: 'Budget', end: false },
-  { to: paths.tax, label: 'Fiscale', end: false, desktopOnly: true },
+  { to: paths.tax, label: 'Tasse e contributi', end: false, desktopOnly: true },
   { to: paths.settings, label: 'Impostazioni', end: false },
 ]

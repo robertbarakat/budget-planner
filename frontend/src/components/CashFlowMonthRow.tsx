@@ -23,8 +23,10 @@ export default function CashFlowMonthRow({ year, data, transactionCount }: CashF
     <li className="cash-month">
       <div className="cash-month__head">
         <span className="cash-month__name">{monthName(data.month)}</span>
-        <MonthStatusBadge closed={data.isClosed} />
-        <span className="cash-month__basis">{data.isClosed ? 'Reale' : 'Previsto'}</span>
+        <span className="cash-month__state">
+          <MonthStatusBadge closed={data.isClosed} />
+          <span className="cash-month__basis">{data.isClosed ? 'Reale' : 'Previsto'}</span>
+        </span>
       </div>
       <dl className="cash-month__figures">
         <div>
@@ -40,7 +42,7 @@ export default function CashFlowMonthRow({ year, data, transactionCount }: CashF
           </dd>
         </div>
         <div>
-          <dt>Flusso</dt>
+          <dt>Saldo</dt>
           <dd>
             <Amount value={data.flow} explicitPlus />
           </dd>

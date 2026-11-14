@@ -94,7 +94,7 @@ export default function F24Page() {
   const loading = current.isPending || saved.isPending
   return (
     <main className="f24-page">
-      <Link to={paths.tax} className="f24-page__back">← Fiscale</Link>
+      <Link to={paths.tax} className="f24-page__back">← Tasse e contributi</Link>
       <h1>Calendario F24</h1>
       <YearSelector year={year} onChange={setYear} />
       {current.isError || saved.isError ? (

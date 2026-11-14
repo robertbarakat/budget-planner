@@ -12,9 +12,16 @@
 
 .cash-month__head {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.cash-month__state {
+  display: flex;
   align-items: center;
   gap: var(--space-4);
+  white-space: nowrap;
 }
 
 .cash-month__name {

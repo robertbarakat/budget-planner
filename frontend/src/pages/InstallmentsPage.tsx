@@ -29,7 +29,7 @@ export default function InstallmentsPage() {
 
   return (
     <main className="installments">
-      <Link to={paths.tax} className="installments__back">← Fiscale</Link>
+      <Link to={paths.tax} className="installments__back">← Tasse e contributi</Link>
       <h1>Rateizzazioni</h1>
       <InstallmentPlanFormDialog />
       <label className="installments__check">

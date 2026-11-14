@@ -94,8 +94,9 @@ export default function BudgetPage() {
                 <th scope="col" className="data-grid__sum">
                   Totale
                 </th>
-                <th scope="col" className="data-grid__sum">
-                  Scostamento
+                <th scope="col" className="data-grid__sum budget-page__variance-head">
+                  Reale − previsto
+                  <span className="budget-page__variance-sub">mesi chiusi</span>
                 </th>
               </tr>
             </thead>
@@ -165,6 +166,10 @@ export default function BudgetPage() {
           </table>
         </div>
       )}
+      <p className="budget-page__status">
+        Nei mesi chiusi la cella mostra il reale in grassetto e il previsto sotto. «Reale − previsto» somma i soli mesi chiusi:
+        verde con + è meglio del previsto (più entrate o meno spese), rosso con − è peggio.
+      </p>
     </main>
   )
 }

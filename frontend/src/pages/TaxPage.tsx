@@ -24,7 +24,7 @@ export default function TaxPage() {
 
   return (
     <main className="tax-page">
-      <h1>Fiscale</h1>
+      <h1>Tasse e contributi</h1>
       <Link to={paths.taxF24} className="tax-page__link">Calendario F24 →</Link>
       <Link to={paths.taxInstallments} className="tax-page__link">Rateizzazioni →</Link>
       <YearSelector year={year} onChange={setYear} />
