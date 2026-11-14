@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link, NavLink, useLocation } from 'react-router'
 import { paths } from '../paths.ts'
-import { BudgetIcon, CashFlowIcon, HomeIcon, PlusIcon, SettingsIcon, TransactionsIcon } from './icons.tsx'
+import { BudgetIcon, CashFlowIcon, HomeIcon, SettingsIcon, TransactionsIcon } from './icons.tsx'
 import { navItems } from './nav-items.ts'
 import './MobileNav.css'
 
@@ -20,9 +20,11 @@ export default function MobileNav() {
   return (
     <div className="mobile-nav">
       {showFab && (
-        <Link to={paths.newTransaction} className="mobile-nav__fab" aria-label="Nuovo movimento">
-          <PlusIcon />
-        </Link>
+        <div className="mobile-nav__action">
+          <Link to={paths.newTransaction} className="mobile-nav__new">
+            Nuovo movimento
+          </Link>
+        </div>
       )}
       <nav aria-label="Navigazione principale" className="mobile-nav__bar">
         <ul className="mobile-nav__list">
