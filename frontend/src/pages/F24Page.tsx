@@ -146,7 +146,11 @@ export default function F24Page() {
                         <Amount value={groupTotal} colored={false} />
                         <span className={`f24-page__status f24-page__status--${groupStatus}`}>{statusLabels[groupStatus]}</span>
                       </button>
+                    </div>
+                    {isOpen && (
+                    <>
                       {unpaid.length > 0 && (
+                      <div className="f24-page__pay">
                       <PayF24Dialog
                         deadlines={unpaid.map<PayableDeadline>((d) => ({ id: d.id, tax_type: d.tax_type, due_date: d.due_date, amount: Number(d.amount), installment_id: d.installment_id }))}
                         installmentById={installmentById}
@@ -154,9 +158,8 @@ export default function F24Page() {
                         categoryOfItem={categoryOfItem}
                         dueDate={dueDate}
                       />
+                      </div>
                       )}
-                    </div>
-                    {isOpen && (
                     <ul className="f24-page__list">
                       {group.map((d) => {
                         const status = deadlineStatus(d, today())
@@ -198,6 +201,7 @@ export default function F24Page() {
                         )
                       })}
                     </ul>
+                    </>
                     )}
                   </section>
                 )

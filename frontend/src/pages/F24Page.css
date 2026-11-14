@@ -86,7 +86,6 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-3) var(--space-6);
   padding: var(--space-3) var(--space-6);
   background: var(--color-surface-muted);
@@ -127,4 +126,10 @@
 .f24-page__group .f24-page__actions {
   justify-content: flex-end;
   gap: var(--space-4);
+}
+
+.f24-page__pay {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--space-2) var(--space-6) 0;
 }
