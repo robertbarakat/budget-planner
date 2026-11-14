@@ -41,7 +41,7 @@
 /* Pulsante di salvataggio sempre a portata di pollice: appiccicato sopra la barra inferiore */
 .transaction-form__submit {
   position: sticky;
-  bottom: var(--space-6);
+  bottom: 0;
   padding: var(--space-4) 0;
   background: var(--color-background);
 }
