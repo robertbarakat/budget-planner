@@ -64,7 +64,7 @@
 .cash-month__figures dd {
   margin: 0;
   text-align: left;
-  font-size: calc(var(--font-size-base) + 1px);
+  font-size: var(--font-size-base);
 }
 
 .cash-month__balance dd {

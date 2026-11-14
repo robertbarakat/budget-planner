@@ -29,7 +29,7 @@
 }
 
 .cash-flow-page__opening .num {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
 }
 
 .cash-flow-page__months {
