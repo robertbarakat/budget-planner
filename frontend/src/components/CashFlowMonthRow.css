@@ -38,13 +38,22 @@
 .cash-month__figures {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-4) var(--space-8);
+  gap: var(--space-5) var(--space-8);
   margin: 0;
 }
 
 .cash-month__figures div {
   display: flex;
   flex-direction: column;
+}
+
+/* Mobile: due righe da due cifre, la seconda colonna allineata a destra (justify between). */
+.cash-month__figures div:nth-child(even) {
+  align-items: flex-end;
+}
+
+.cash-month__figures div:nth-child(even) dd {
+  text-align: right;
 }
 
 .cash-month__figures dt {
@@ -70,6 +79,14 @@
 
   .cash-month__figures {
     grid-template-columns: repeat(4, 1fr);
+  }
+
+  .cash-month__figures div:nth-child(even) {
+    align-items: stretch;
+  }
+
+  .cash-month__figures div:nth-child(even) dd {
+    text-align: left;
   }
 }
 

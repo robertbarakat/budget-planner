@@ -105,7 +105,13 @@
 .transactions__actions {
   grid-area: actions;
   display: flex;
+  justify-content: flex-end;
   gap: var(--space-4);
+}
+
+.transactions__actions .button {
+  padding-inline: var(--space-6);
+  font-size: var(--font-size-md);
 }
 
 .transactions__overlay {
@@ -144,6 +150,7 @@
 .transactions__dialog-actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: var(--space-4);
 }
 

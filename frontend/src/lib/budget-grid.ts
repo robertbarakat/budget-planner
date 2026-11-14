@@ -167,10 +167,10 @@ const SOURCE_LABELS: Record<BudgetEntrySource, string> = {
 }
 
 const SOURCE_SHORT_LABELS: Record<BudgetEntrySource, string> = {
-  manual: 'Man.',
+  manual: 'Manuale',
   revenue_driver: 'Ricavi',
-  recurrence: 'Ricorr.',
-  tax: 'Fisc.',
+  recurrence: 'Ricorrente',
+  tax: 'Fiscale',
 }
 
 /** Nome esteso dell'origine di una riga, in italiano. */
