@@ -471,8 +471,16 @@
   }
 }
 
-/* Reale finora, sotto il previsto nei mesi aperti */
+/* Reale finora, sotto il previsto nei mesi aperti, con l'etichetta "reale" davanti */
 .budget-cell__real {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
   font-size: var(--font-size-2xs);
-  opacity: 0.85;
+}
+
+.budget-cell__real::before {
+  content: 'reale';
+  color: var(--color-text-muted);
+  font-style: italic;
 }
