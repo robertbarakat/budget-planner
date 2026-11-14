@@ -9,8 +9,12 @@
 }
 
 .upcoming__title {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-md);
+  align-self: flex-start;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
 }
 
