@@ -1,11 +1,18 @@
+/* Mobile: la schermata è alta quanto il telefono, scorre solo il contenuto; avvisi e barra in basso restano fermi. */
 .app-shell {
-  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
 }
 
-/* Spazio per la barra inferiore fissa e per il pulsante "nuovo movimento" */
 .app-content {
-  padding: var(--space-9) var(--space-9)
-    calc(var(--nav-height) + var(--fab-size) + var(--space-10) + env(safe-area-inset-bottom));
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  padding: var(--space-9);
 }
 
 /* Uscita su mobile; da desktop sta nella barra laterale */
@@ -22,13 +29,17 @@
 
 
   .app-shell {
-    display: flex;
+    flex-direction: row;
     align-items: flex-start;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
   }
 
   .app-content {
     flex: 1;
     min-width: 0;
+    overflow: visible;
     padding: var(--space-10) var(--space-11) var(--space-12);
   }
 }

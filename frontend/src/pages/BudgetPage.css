@@ -201,3 +201,100 @@
 .budget-page {
   --budget-column-width: 7rem;
 }
+
+/* Mobile: un mese alla volta, a elenco (la tabella dei 12 mesi resta su desktop). */
+.budget-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.budget-mobile__months {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.budget-mobile__months button {
+  min-width: var(--target-min);
+  min-height: var(--target-min);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: var(--font-size-xl);
+}
+
+.budget-mobile__months button:disabled {
+  opacity: 0.4;
+}
+
+.budget-mobile__month {
+  flex: 1;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.budget-mobile__area {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.budget-mobile__area-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  width: 100%;
+  min-height: var(--target-min);
+  padding: var(--space-4) var(--space-6);
+  border: 0;
+  border-top: 2px solid var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  font-weight: var(--font-weight-semibold);
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: var(--font-size-sm);
+}
+
+.budget-mobile__items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.budget-mobile__item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-2) var(--space-6);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.budget-mobile__item-name {
+  overflow-wrap: anywhere;
+}
+
+.budget-mobile__item .budget-cell__button {
+  width: auto;
+}
+
+.budget-mobile__total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  font-weight: var(--font-weight-semibold);
+}

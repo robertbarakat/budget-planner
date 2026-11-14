@@ -9,6 +9,7 @@ import YearSelector from '../components/YearSelector.tsx'
 import { buildBudgetGrid, sourceLabel, sourceShortLabel, type GridCell } from '../lib/budget-grid.ts'
 import { buildMatrix, closedVariance, type MatrixCell } from '../lib/matrix.ts'
 import { monthOptions } from '../lib/months.ts'
+import { useMediaQuery } from '../lib/use-media-query.ts'
 import '../components/DataGrid.css'
 import './BudgetPage.css'
 
@@ -34,6 +35,8 @@ export default function BudgetPage() {
   const reorder = useReorderMacroAreas()
   const [collapsed, setCollapsed] = useState<Set<number>>(readCollapsed)
   const [dragId, setDragId] = useState<number | null>(null)
+  const isMobile = useMediaQuery('(max-width: 1023px)')
+  const [month, setMonth] = useState(() => new Date().getMonth() + 1)
 
   function updateCollapsed(next: Set<number>) {
     setCollapsed(next)
@@ -129,6 +132,77 @@ export default function BudgetPage() {
         </p>
       ) : grid.groups.length === 0 ? (
         <p className="budget-page__status">Nessuna voce di budget: creale in Impostazioni.</p>
+      ) : isMobile ? (
+        <div className="budget-mobile">
+          <div className="budget-mobile__months" role="group" aria-label="Mese">
+            <button type="button" aria-label="Mese precedente" disabled={month === 1} onClick={() => setMonth(month - 1)}>
+              ‹
+            </button>
+            <span className="budget-mobile__month">
+              {MONTHS[month - 1]!.label} {year}
+              <span className="budget-page__month-state">{closed[month - 1] ? '✓ reale' : '○ previsto'}</span>
+            </span>
+            <button type="button" aria-label="Mese successivo" disabled={month === 12} onClick={() => setMonth(month + 1)}>
+              ›
+            </button>
+          </div>
+          {grid.groups.map((group) => {
+            const index = month - 1
+            const open = !collapsed.has(group.macroAreaId)
+            return (
+              <section key={group.macroAreaId} className="budget-mobile__area">
+                <button
+                  type="button"
+                  className="budget-mobile__area-head"
+                  aria-expanded={open}
+                  onClick={() => toggleArea(group.macroAreaId)}
+                >
+                  <span>
+                    <span aria-hidden="true">{open ? '▾' : '▸'}</span> {group.archived ? `${group.name} (archiviata)` : group.name}
+                  </span>
+                  <ClosedAmount
+                    budgeted={(group.monthCents[index] ?? 0) / 100}
+                    actual={closed[index] ? groupCells.get(group.macroAreaId)?.[index]?.actual : undefined}
+                  />
+                </button>
+                {open && (
+                  <ul className="budget-mobile__items">
+                    {group.items.map((item) => {
+                      const cell = item.months[index]!
+                      return (
+                        <li key={item.budgetItemId} className="budget-mobile__item">
+                          <span className="budget-mobile__item-name">{item.archived ? `${item.name} (archiviata)` : item.name}</span>
+                          <BudgetCellDialog
+                            title={`${item.name}, ${MONTHS[index]!.label} ${year}`}
+                            kind={item.kind}
+                            entries={cell.entries}
+                            onSave={async (amount) => {
+                              await setManual.mutateAsync({ budgetItemId: item.budgetItemId, year, month, amount })
+                              showSuccess(amount === null ? 'Riga manuale eliminata.' : 'Budget salvato.')
+                            }}
+                            trigger={
+                              <button type="button" className="budget-cell__button" aria-label={`Modifica ${item.name}, ${MONTHS[index]!.label} ${year}`}>
+                                <BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
+                              </button>
+                            }
+                          />
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+              </section>
+            )
+          })}
+          <div className="budget-mobile__total">
+            <span>Totale {MONTHS[month - 1]!.label}</span>
+            <ClosedAmount budgeted={(grid.monthCents[month - 1] ?? 0) / 100} actual={closed[month - 1] ? matrix?.months[month - 1]?.actual : undefined} />
+          </div>
+          <div className="budget-mobile__total">
+            <span>Totale anno {year}</span>
+            <Amount value={grid.yearCents / 100} />
+          </div>
+        </div>
       ) : (
         <div className="data-grid" tabIndex={0} role="region" aria-label={`Budget previsto ${year}`}>
           <table className="data-grid__table">

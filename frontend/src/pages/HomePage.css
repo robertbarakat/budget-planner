@@ -59,7 +59,7 @@
 
 .home-card__figures {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-5);
   margin: 0;
 }
@@ -77,11 +77,17 @@
 
 .home-card__figures dd {
   margin: 0;
-  font-size: var(--font-size-lg);
+  min-width: 0;
+  font-size: var(--font-size-md);
+  overflow-wrap: anywhere;
   font-weight: var(--font-weight-semibold);
 }
 
 @media (min-width: 1024px) {
+  .home-card__figures dd {
+    font-size: var(--font-size-lg);
+  }
+
   .home-page {
     max-width: calc(var(--sidebar-width) * 3);
   }

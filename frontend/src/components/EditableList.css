@@ -123,7 +123,13 @@
 .editable-list__actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: var(--space-4);
+}
+
+.editable-list__actions .button {
+  padding-inline: var(--space-6);
+  font-size: var(--font-size-md);
 }
 
 .editable-list__edit {
