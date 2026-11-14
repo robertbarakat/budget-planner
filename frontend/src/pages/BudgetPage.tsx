@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { useBudgetEntries, useSetManualBudgetAmount } from '../api/budget.queries.ts'
-import { useBudgetItems, useMacroAreas, useReorderMacroAreas } from '../api/classification.queries.ts'
+import { useBudgetItems, useCategories, useMacroAreas, useReorderMacroAreas } from '../api/classification.queries.ts'
 import { useYearData } from '../api/year-data.queries.ts'
 import Amount from '../components/Amount.tsx'
 import BudgetCellDialog from '../components/BudgetCellDialog.tsx'
@@ -29,6 +29,7 @@ export default function BudgetPage() {
   const [year, setYear] = useState(() => new Date().getFullYear())
   const macroAreas = useMacroAreas()
   const budgetItems = useBudgetItems()
+  const categoriesQuery = useCategories()
   const entries = useBudgetEntries({ year })
   const data = useYearData(year)
   const setManual = useSetManualBudgetAmount()
@@ -65,10 +66,10 @@ export default function BudgetPage() {
   }
   const { showSuccess } = useSnackbar()
 
-  const queries = [macroAreas, budgetItems, entries]
+  const queries = [macroAreas, budgetItems, entries, categoriesQuery]
   const yearError = data.isError
   const grid = useMemo(() => {
-    if (!macroAreas.data || !budgetItems.data || !entries.data) return null
+    if (!macroAreas.data || !budgetItems.data || !entries.data || !categoriesQuery.data) return null
     return buildBudgetGrid(
       year,
       macroAreas.data.map((a) => ({ id: a.id, name: a.name, archived: a.archived, sortOrder: a.sort_order })),
@@ -87,9 +88,25 @@ export default function BudgetPage() {
         month: e.month,
         amount: e.amount,
         source: e.source,
+        categoryId: e.category_id,
       })),
+      categoriesQuery.data.map((c) => ({ id: c.id, budgetItemId: c.budget_item_id, name: c.name, archived: c.archived, sortOrder: c.sort_order })),
     )
-  }, [year, macroAreas.data, budgetItems.data, entries.data])
+  }, [year, macroAreas.data, budgetItems.data, entries.data, categoriesQuery.data])
+
+  // Reale per voce, categoria e mese (spese negative, entrate positive), per i mesi chiusi.
+  const categoryActuals = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const t of data.transactions ?? []) {
+      if (t.type === 'transfer' || t.budget_item_id === null) continue
+      const month = Number(t.transaction_date.slice(5, 7))
+      const key = `${t.budget_item_id}|${t.category_id ?? 'none'}|${month}`
+      map.set(key, (map.get(key) ?? 0) + (t.type === 'expense' ? -Number(t.amount) : Number(t.amount)))
+    }
+    return map
+  }, [data.transactions])
+  const categoryActual = (itemId: number, categoryId: number | null, index: number) =>
+    closed[index] ? Math.round((categoryActuals.get(`${itemId}|${categoryId ?? 'none'}|${index + 1}`) ?? 0) * 100) / 100 : undefined
 
   const matrix = useMemo(() => {
     if (!data.isReady || !macroAreas.data || !budgetItems.data || !data.entries || !data.transactions || !data.closedMonths) return null
@@ -185,6 +202,10 @@ export default function BudgetPage() {
                           <span className="budget-mobile__item-name">{item.archived ? `${item.name} (archiviata)` : item.name}</span>
                           {month === null ? (
                             <Amount value={item.yearCents / 100} />
+                          ) : item.categories.length > 0 ? (
+                            <span className="budget-cell__readonly">
+                              <BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
+                            </span>
                           ) : (
                             <BudgetCellDialog
                               title={`${item.name}, ${MONTHS[index]!.label} ${year}`}
@@ -200,6 +221,36 @@ export default function BudgetPage() {
                                 </button>
                               }
                             />
+                          )}
+                          {item.categories.length > 0 && (
+                            <ul className="budget-mobile__categories">
+                              {item.categories.map((cat) => {
+                                const catCell = cat.months[index]!
+                                return (
+                                  <li key={cat.categoryId ?? 'none'} className="budget-mobile__category">
+                                    <span className="budget-mobile__category-name">{cat.name}</span>
+                                    {month === null ? (
+                                      <Amount value={cat.yearCents / 100} />
+                                    ) : (
+                                      <BudgetCellDialog
+                                        title={`${item.name} · ${cat.name}, ${MONTHS[index]!.label} ${year}`}
+                                        kind={item.kind}
+                                        entries={catCell.entries}
+                                        onSave={async (amount) => {
+                                          await setManual.mutateAsync({ budgetItemId: item.budgetItemId, year, month, amount, categoryId: cat.categoryId })
+                                          showSuccess(amount === null ? 'Riga manuale eliminata.' : 'Budget salvato.')
+                                        }}
+                                        trigger={
+                                          <button type="button" className="budget-cell__button" aria-label={`Modifica ${item.name} ${cat.name}, ${MONTHS[index]!.label} ${year}`}>
+                                            <BudgetCell cell={catCell} actual={categoryActual(item.budgetItemId, cat.categoryId, index)} />
+                                          </button>
+                                        }
+                                      />
+                                    )}
+                                  </li>
+                                )
+                              })}
+                            </ul>
                           )}
                         </li>
                       )
@@ -306,12 +357,18 @@ export default function BudgetPage() {
                   <VarianceCell cells={groupCells.get(group.macroAreaId)} closed={closed} />
                 </tr>
                 {!collapsed.has(group.macroAreaId) && group.items.map((item) => (
-                  <tr key={item.budgetItemId}>
+                  <Fragment key={item.budgetItemId}>
+                  <tr className={item.categories.length > 0 ? 'budget-page__voice budget-page__voice--parent' : 'budget-page__voice'}>
                     <th scope="row" className="data-grid__label budget-page__item">
                       {item.archived ? `${item.name} (archiviata)` : item.name}
                     </th>
                     {item.months.map((cell, index) => (
                       <td key={index}>
+                        {item.categories.length > 0 ? (
+                          <span className="budget-cell__readonly">
+                            <BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
+                          </span>
+                        ) : (
                         <BudgetCellDialog
                           title={`${item.name}, ${MONTHS[index]!.label} ${year}`}
                           kind={item.kind}
@@ -326,6 +383,7 @@ export default function BudgetPage() {
                             </button>
                           }
                         />
+                        )}
                       </td>
                     ))}
                     <td className="data-grid__sum">
@@ -333,6 +391,36 @@ export default function BudgetPage() {
                     </td>
                     <VarianceCell cells={itemCells.get(item.budgetItemId)} closed={closed} />
                   </tr>
+                  {item.categories.map((cat) => (
+                    <tr key={cat.categoryId ?? 'none'} className="budget-page__category">
+                      <th scope="row" className="data-grid__label budget-page__category-name">
+                        {cat.name}
+                      </th>
+                      {cat.months.map((cell, index) => (
+                        <td key={index}>
+                          <BudgetCellDialog
+                            title={`${item.name} · ${cat.name}, ${MONTHS[index]!.label} ${year}`}
+                            kind={item.kind}
+                            entries={cell.entries}
+                            onSave={async (amount) => {
+                              await setManual.mutateAsync({ budgetItemId: item.budgetItemId, year, month: index + 1, amount, categoryId: cat.categoryId })
+                              showSuccess(amount === null ? 'Riga manuale eliminata.' : 'Budget salvato.')
+                            }}
+                            trigger={
+                              <button type="button" className="budget-cell__button" aria-label={`Modifica ${item.name} ${cat.name}, ${MONTHS[index]!.label} ${year}`}>
+                                <BudgetCell cell={cell} actual={categoryActual(item.budgetItemId, cat.categoryId, index)} />
+                              </button>
+                            }
+                          />
+                        </td>
+                      ))}
+                      <td className="data-grid__sum">
+                        <Amount value={cat.yearCents / 100} />
+                      </td>
+                      <td className="data-grid__sum" />
+                    </tr>
+                  ))}
+                  </Fragment>
                 ))}
               </tbody>
             ))}

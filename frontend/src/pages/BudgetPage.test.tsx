@@ -25,6 +25,7 @@ beforeEach(() => {
   vi.spyOn(classificationService.budgetItems, 'list').mockResolvedValue([
     { id: 10, macro_area_id: 1, name: 'Affitto', kind: 'expense', sort_order: 0, archived: false, created_at: '' } as ItemRow,
   ])
+  vi.spyOn(classificationService.categories, 'list').mockResolvedValue([])
   vi.spyOn(budgetService.entries, 'list').mockResolvedValue([entry(1, 10, 1, 400), entry(2, 10, 2, 100, 'recurrence')])
   vi.spyOn(budgetService.closedMonths, 'list').mockResolvedValue([{ id: 1, year, month: 1, closed_at: '' }] as never)
   vi.spyOn(transactionsService, 'listForYear').mockResolvedValue([
@@ -91,7 +92,7 @@ describe('BudgetPage: modifica di una cella', () => {
     await userEvent.click(screen.getByRole('button', { name: `Modifica Affitto, Marzo ${year}` }))
     await userEvent.type(screen.getByLabelText(/Importo previsto manuale/), '1.250,50')
     await userEvent.click(screen.getByRole('button', { name: 'Salva' }))
-    await vi.waitFor(() => expect(setManual).toHaveBeenCalledWith(10, year, 3, 1250.5))
+    await vi.waitFor(() => expect(setManual).toHaveBeenCalledWith(10, year, 3, 1250.5, null))
     expect(await screen.findByText('Budget salvato.')).toBeInTheDocument()
   })
 
@@ -104,7 +105,7 @@ describe('BudgetPage: modifica di una cella', () => {
     expect(input).toHaveValue('400,00')
     await userEvent.clear(input)
     await userEvent.click(screen.getByRole('button', { name: 'Salva' }))
-    await vi.waitFor(() => expect(setManual).toHaveBeenCalledWith(10, year, 1, null))
+    await vi.waitFor(() => expect(setManual).toHaveBeenCalledWith(10, year, 1, null, null))
   })
 
   it('un importo non valido o negativo non si salva e mostra l\'errore', async () => {
@@ -130,7 +131,7 @@ describe('BudgetPage: modifica di una cella', () => {
     expect(await within(dialog).findByRole('alert')).toHaveTextContent('non la sostituisce')
     expect(setManual).not.toHaveBeenCalled()
     await userEvent.click(within(dialog).getByRole('button', { name: 'Aggiungi accanto' }))
-    await vi.waitFor(() => expect(setManual).toHaveBeenCalledWith(10, year, 2, 30))
+    await vi.waitFor(() => expect(setManual).toHaveBeenCalledWith(10, year, 2, 30, null))
   })
 
   it('annullando la conferma non scrive nulla', async () => {

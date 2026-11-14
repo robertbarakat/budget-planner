@@ -32,6 +32,16 @@ export interface GridEntryInput {
   /** Importo in euro, sempre positivo: il segno lo dà il tipo della voce. */
   amount: number
   source: BudgetEntrySource
+  /** Categoria della voce, se la riga è per categoria; `null`/assente = riga di voce. */
+  categoryId?: number | null
+}
+
+export interface GridCategoryInput {
+  id: number
+  budgetItemId: number
+  name: string
+  archived: boolean
+  sortOrder: number
 }
 
 export interface GridCell {
@@ -43,6 +53,14 @@ export interface GridCell {
   otherSources: BudgetEntrySource[]
 }
 
+/** Riga di una categoria dentro una voce (`categoryId` null = importi della voce senza categoria). */
+export interface GridCategoryRow {
+  categoryId: number | null
+  name: string
+  months: GridCell[]
+  yearCents: number
+}
+
 export interface GridItemRow {
   budgetItemId: number
   name: string
@@ -50,6 +68,8 @@ export interface GridItemRow {
   archived: boolean
   months: GridCell[]
   yearCents: number
+  /** Categorie da mostrare sotto la voce (vuoto se la voce ha una sola categoria: si inserisce a livello di voce). */
+  categories: GridCategoryRow[]
 }
 
 export interface GridMacroAreaGroup {
@@ -80,6 +100,7 @@ export function buildBudgetGrid(
   macroAreas: readonly GridMacroAreaInput[],
   items: readonly GridItemInput[],
   entries: readonly GridEntryInput[],
+  categories: readonly GridCategoryInput[] = [],
 ): BudgetGrid {
   const yearEntries = entries.filter((entry) => entry.year === year)
   const usedItemIds = new Set(yearEntries.map((entry) => entry.budgetItemId))
@@ -142,6 +163,7 @@ export function buildBudgetGrid(
           }
         }),
         yearCents: itemYearCents.get(item.id) ?? 0,
+        categories: categoryRows(item, categories, yearEntries),
       })),
     monthCents: MONTHS.map((month) => areaMonthCents.get(`${area.id}-${month}`) ?? 0),
     yearCents: areaYearCents.get(area.id) ?? 0,
@@ -153,6 +175,31 @@ export function buildBudgetGrid(
     monthCents: MONTHS.map((month) => totalMonthCents.get(month) ?? 0),
     yearCents: report.byYear.find((t) => t.year === year)?.budgetedCents ?? 0,
   }
+}
+
+/** Righe per categoria di una voce: solo se ha più di una categoria attiva (o righe già assegnate a categorie). */
+function categoryRows(item: GridItemInput, categories: readonly GridCategoryInput[], yearEntries: readonly GridEntryInput[]): GridCategoryRow[] {
+  const own = categories.filter((c) => c.budgetItemId === item.id).sort(bySortOrderThenId)
+  const itemEntries = yearEntries.filter((e) => e.budgetItemId === item.id)
+  const usedCategoryIds = new Set(itemEntries.flatMap((e) => (e.categoryId == null ? [] : [e.categoryId])))
+  const shown = own.filter((c) => !c.archived || usedCategoryIds.has(c.id))
+  if (shown.length < 2 && usedCategoryIds.size === 0) return []
+  const sign = item.kind === 'expense' ? -1 : 1
+  const row = (categoryId: number | null, name: string): GridCategoryRow => {
+    const months = MONTHS.map((month): GridCell => {
+      const cellEntries = itemEntries.filter((e) => e.month === month && (e.categoryId ?? null) === categoryId)
+      return {
+        cents: cellEntries.reduce((sum, e) => sum + sign * eurosToCents(e.amount), 0),
+        entries: cellEntries,
+        otherSources: [...new Set(cellEntries.map((e) => e.source).filter((s) => s !== 'manual'))],
+      }
+    })
+    return { categoryId, name, months, yearCents: months.reduce((sum, m) => sum + m.cents, 0) }
+  }
+  const rows = shown.map((c) => row(c.id, c.name))
+  const loose = row(null, 'Senza categoria')
+  if (loose.months.some((m) => m.entries.length > 0)) rows.push(loose)
+  return rows
 }
 
 function bySortOrderThenId(a: { sortOrder: number; id: number }, b: { sortOrder: number; id: number }): number {

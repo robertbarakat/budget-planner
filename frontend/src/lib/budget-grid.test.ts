@@ -63,3 +63,27 @@ describe('buildBudgetGrid', () => {
     expect(grid.groups).toHaveLength(2)
   })
 })
+
+describe('buildBudgetGrid: righe per categoria', () => {
+  const areas = [{ id: 1, name: 'Casa', archived: false, sortOrder: 0 }]
+  const items = [
+    { id: 10, macroAreaId: 1, name: 'Utenze', kind: 'expense' as const, archived: false, sortOrder: 0 },
+    { id: 11, macroAreaId: 1, name: 'Mutuo', kind: 'expense' as const, archived: false, sortOrder: 1 },
+  ]
+  const cats = [
+    { id: 100, budgetItemId: 10, name: 'Luce', archived: false, sortOrder: 0 },
+    { id: 101, budgetItemId: 10, name: 'Acqua', archived: false, sortOrder: 1 },
+    { id: 102, budgetItemId: 11, name: 'Mutuo', archived: false, sortOrder: 0 },
+  ]
+  const entry = (id: number, budgetItemId: number, categoryId: number | null, amount: number) =>
+    ({ id, budgetItemId, year: 2026, month: 1, amount, source: 'manual' as const, categoryId })
+
+  it('mostra le categorie solo per voci con più categorie e somma le righe nella voce', () => {
+    const grid = buildBudgetGrid(2026, areas, items, [entry(1, 10, 100, 40), entry(2, 10, 101, 20), entry(3, 10, null, 5), entry(4, 11, null, 600)], cats)
+    const [utenze, mutuo] = grid.groups[0]!.items
+    expect(utenze!.categories.map((c) => c.name)).toEqual(['Luce', 'Acqua', 'Senza categoria'])
+    expect(utenze!.categories[0]!.months[0]!.cents).toBe(-4000)
+    expect(utenze!.months[0]!.cents).toBe(-6500)
+    expect(mutuo!.categories).toEqual([])
+  })
+})

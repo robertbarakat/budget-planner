@@ -39,14 +39,14 @@ export type Database = {
                   ]
                 },"budget_entries": {
                   Row: {
-                    "amount": number,"budget_item_id": number,"created_at": string,"id": number,"month": number,"source": Database["public"]['Enums']["budget_entry_source"],"year": number
+                    "amount": number,"budget_item_id": number,"category_id": number | null,"created_at": string,"id": number,"month": number,"source": Database["public"]['Enums']["budget_entry_source"],"year": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount": number,"budget_item_id": number,"created_at"?: string,"id"?: never,"month": number,"source"?: Database["public"]['Enums']["budget_entry_source"],"year": number
+                    "amount": number,"budget_item_id": number,"category_id"?: number | null,"created_at"?: string,"id"?: never,"month": number,"source"?: Database["public"]['Enums']["budget_entry_source"],"year": number
                   }
                   Update: {
-                    "amount"?: number,"budget_item_id"?: number,"created_at"?: string,"id"?: never,"month"?: number,"source"?: Database["public"]['Enums']["budget_entry_source"],"year"?: number
+                    "amount"?: number,"budget_item_id"?: number,"category_id"?: number | null,"created_at"?: string,"id"?: never,"month"?: number,"source"?: Database["public"]['Enums']["budget_entry_source"],"year"?: number
                   }
                   Relationships: [
                     {

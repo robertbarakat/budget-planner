@@ -23,8 +23,8 @@ export function useBudgetEntries(filters: BudgetEntryFilters = {}) {
 export function useSetManualBudgetAmount() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (args: { budgetItemId: number; year: number; month: number; amount: number | null }) =>
-      budgetService.setManualAmount(args.budgetItemId, args.year, args.month, args.amount),
+    mutationFn: (args: { budgetItemId: number; year: number; month: number; amount: number | null; categoryId?: number | null }) =>
+      budgetService.setManualAmount(args.budgetItemId, args.year, args.month, args.amount, args.categoryId ?? null),
     onSuccess: () => invalidateAll(queryClient, invalidate),
   })
 }

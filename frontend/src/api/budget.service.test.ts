@@ -74,7 +74,7 @@ describe('BudgetService.setManualAmount', () => {
     const { service, list, create, update } = setup([])
     await service.setManualAmount(7, 2026, 3, 100)
     expect(list).toHaveBeenCalledWith({ year: 2026, month: 3, budgetItemId: 7, source: 'manual' })
-    expect(create).toHaveBeenCalledWith({ budget_item_id: 7, year: 2026, month: 3, amount: 100, source: 'manual' })
+    expect(create).toHaveBeenCalledWith({ budget_item_id: 7, year: 2026, month: 3, amount: 100, source: 'manual', category_id: null })
     expect(update).not.toHaveBeenCalled()
   })
 
