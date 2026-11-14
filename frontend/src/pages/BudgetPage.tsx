@@ -36,7 +36,7 @@ export default function BudgetPage() {
   const [collapsed, setCollapsed] = useState<Set<number>>(readCollapsed)
   const [dragId, setDragId] = useState<number | null>(null)
   const isMobile = useMediaQuery('(max-width: 1023px)')
-  const [month, setMonth] = useState(() => new Date().getMonth() + 1)
+  const [month, setMonth] = useState<number | null>(() => new Date().getMonth() + 1)
 
   function updateCollapsed(next: Set<number>) {
     setCollapsed(next)
@@ -134,20 +134,27 @@ export default function BudgetPage() {
         <p className="budget-page__status">Nessuna voce di budget: creale in Impostazioni.</p>
       ) : isMobile ? (
         <div className="budget-mobile">
-          <div className="budget-mobile__months" role="group" aria-label="Mese">
-            <button type="button" aria-label="Mese precedente" disabled={month === 1} onClick={() => setMonth(month - 1)}>
+          <div className="budget-mobile__months" role="group" aria-label="Periodo">
+            <button type="button" aria-label="Mese precedente" disabled={month === null || month === 1} onClick={() => setMonth((month ?? 1) - 1)}>
               ‹
             </button>
             <span className="budget-mobile__month">
-              {MONTHS[month - 1]!.label} {year}
-              <span className="budget-page__month-state">{closed[month - 1] ? '✓ reale' : '○ previsto'}</span>
+              {month === null ? `Anno ${year}` : `${MONTHS[month - 1]!.label} ${year}`}
+              {month !== null && <span className="budget-page__month-state">{closed[month - 1] ? '✓ reale' : '○ previsto'}</span>}
             </span>
-            <button type="button" aria-label="Mese successivo" disabled={month === 12} onClick={() => setMonth(month + 1)}>
+            <button type="button" aria-label="Mese successivo" disabled={month === null || month === 12} onClick={() => setMonth((month ?? 12) + 1)}>
               ›
             </button>
           </div>
+          <button
+            type="button"
+            className="budget-mobile__switch"
+            onClick={() => setMonth(month === null ? new Date().getMonth() + 1 : null)}
+          >
+            {month === null ? 'Vedi un mese' : 'Vedi anno intero'}
+          </button>
           {grid.groups.map((group) => {
-            const index = month - 1
+            const index = (month ?? 1) - 1
             const open = !collapsed.has(group.macroAreaId)
             return (
               <section key={group.macroAreaId} className="budget-mobile__area">
@@ -160,10 +167,14 @@ export default function BudgetPage() {
                   <span>
                     <span aria-hidden="true">{open ? '▾' : '▸'}</span> {group.archived ? `${group.name} (archiviata)` : group.name}
                   </span>
-                  <ClosedAmount
-                    budgeted={(group.monthCents[index] ?? 0) / 100}
-                    actual={closed[index] ? groupCells.get(group.macroAreaId)?.[index]?.actual : undefined}
-                  />
+                  {month === null ? (
+                    <Amount value={group.yearCents / 100} />
+                  ) : (
+                    <ClosedAmount
+                      budgeted={(group.monthCents[index] ?? 0) / 100}
+                      actual={closed[index] ? groupCells.get(group.macroAreaId)?.[index]?.actual : undefined}
+                    />
+                  )}
                 </button>
                 {open && (
                   <ul className="budget-mobile__items">
@@ -172,20 +183,24 @@ export default function BudgetPage() {
                       return (
                         <li key={item.budgetItemId} className="budget-mobile__item">
                           <span className="budget-mobile__item-name">{item.archived ? `${item.name} (archiviata)` : item.name}</span>
-                          <BudgetCellDialog
-                            title={`${item.name}, ${MONTHS[index]!.label} ${year}`}
-                            kind={item.kind}
-                            entries={cell.entries}
-                            onSave={async (amount) => {
-                              await setManual.mutateAsync({ budgetItemId: item.budgetItemId, year, month, amount })
-                              showSuccess(amount === null ? 'Riga manuale eliminata.' : 'Budget salvato.')
-                            }}
-                            trigger={
-                              <button type="button" className="budget-cell__button" aria-label={`Modifica ${item.name}, ${MONTHS[index]!.label} ${year}`}>
-                                <BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
-                              </button>
-                            }
-                          />
+                          {month === null ? (
+                            <Amount value={item.yearCents / 100} />
+                          ) : (
+                            <BudgetCellDialog
+                              title={`${item.name}, ${MONTHS[index]!.label} ${year}`}
+                              kind={item.kind}
+                              entries={cell.entries}
+                              onSave={async (amount) => {
+                                await setManual.mutateAsync({ budgetItemId: item.budgetItemId, year, month, amount })
+                                showSuccess(amount === null ? 'Riga manuale eliminata.' : 'Budget salvato.')
+                              }}
+                              trigger={
+                                <button type="button" className="budget-cell__button" aria-label={`Modifica ${item.name}, ${MONTHS[index]!.label} ${year}`}>
+                                  <BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
+                                </button>
+                              }
+                            />
+                          )}
                         </li>
                       )
                     })}
@@ -194,10 +209,12 @@ export default function BudgetPage() {
               </section>
             )
           })}
-          <div className="budget-mobile__total">
-            <span>Totale {MONTHS[month - 1]!.label}</span>
-            <ClosedAmount budgeted={(grid.monthCents[month - 1] ?? 0) / 100} actual={closed[month - 1] ? matrix?.months[month - 1]?.actual : undefined} />
-          </div>
+          {month !== null && (
+            <div className="budget-mobile__total">
+              <span>Totale {MONTHS[month - 1]!.label}</span>
+              <ClosedAmount budgeted={(grid.monthCents[month - 1] ?? 0) / 100} actual={closed[month - 1] ? matrix?.months[month - 1]?.actual : undefined} />
+            </div>
+          )}
           <div className="budget-mobile__total">
             <span>Totale anno {year}</span>
             <Amount value={grid.yearCents / 100} />

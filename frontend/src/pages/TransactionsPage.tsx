@@ -20,11 +20,11 @@ export default function TransactionsPage() {
   // Il periodo di partenza può arrivare dall'indirizzo (es. dal dettaglio del flusso di cassa): ?year=2026&month=3.
   const [searchParams] = useSearchParams()
   const [initial] = useState(() => readPeriod(searchParams, 'required'))
-  const [month, setMonth] = useState(initial.month ?? 1)
+  const [month, setMonth] = useState<number | null>(initial.month ?? new Date().getMonth() + 1)
   const [year, setYear] = useState(initial.year)
   const [yearText, setYearText] = useState(String(initial.year))
 
-  const transactions = useTransactions(monthRange(year, month))
+  const transactions = useTransactions(month === null ? { from: `${year}-01-01`, to: `${year}-12-31` } : monthRange(year, month))
   const remove = useDeleteTransaction()
   const { showSuccess } = useSnackbar()
   const [pendingDelete, setPendingDelete] = useState<{ id: number; summary: string } | null>(null)
@@ -54,7 +54,8 @@ export default function TransactionsPage() {
       <div className="transactions__filter">
         <Field label="Mese">
           {(p) => (
-            <select {...p} value={month} onChange={(e) => setMonth(Number(e.target.value))}>
+            <select {...p} value={month ?? ''} onChange={(e) => setMonth(e.target.value === '' ? null : Number(e.target.value))}>
+              <option value="">Anno intero</option>
               {monthOptions().map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -93,7 +94,7 @@ export default function TransactionsPage() {
         </p>
       ) : days.length === 0 ? (
         <p className="transactions__status">
-          Nessun movimento a {monthName(month)} {year}.
+          {month === null ? `Nessun movimento nel ${year}.` : `Nessun movimento a ${monthName(month)} ${year}.`}
         </p>
       ) : (
         days.map((day) => (
