@@ -143,8 +143,8 @@ export default function F24Page() {
                       >
                         <span className="f24-page__group-title">
                           <span aria-hidden="true">{isOpen ? '▾' : '▸'}</span> F24 {italianDate(dueDate)}
+                          <span className={`f24-page__status f24-page__status--${groupStatus}`}>{statusLabels[groupStatus]}</span>
                         </span>
-                        <span className={`f24-page__status f24-page__status--${groupStatus}`}>{statusLabels[groupStatus]}</span>
                         <Amount value={groupTotal} colored={false} />
                       </button>
                     </div>
@@ -169,7 +169,10 @@ export default function F24Page() {
                         return (
                           <li key={d.id} className="f24-page__row">
                             <div className="f24-page__row-main">
-                              <strong>{taxTypeLabels[d.tax_type]}</strong>
+                              <span className="f24-page__row-title">
+                                <strong>{taxTypeLabels[d.tax_type]}</strong>
+                                <span className={`f24-page__status f24-page__status--${status}`}>{statusLabels[status]}</span>
+                              </span>
                               <span className="f24-page__meta">
                                 Anno {d.reference_year}
                                 {rate ? ` · Rata ${rate.number}` : ''}
@@ -178,7 +181,6 @@ export default function F24Page() {
                             </div>
                             <div className="f24-page__row-side">
                               <Amount value={Number(d.amount)} colored={false} />
-                              <span className={`f24-page__status f24-page__status--${status}`}>{statusLabels[status]}</span>
                             </div>
                             <div className="f24-page__actions">
                               {d.transaction_id === null ? (

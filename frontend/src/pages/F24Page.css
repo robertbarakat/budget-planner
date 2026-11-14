@@ -93,7 +93,7 @@
 .f24-page__group-toggle {
   display: grid;
   flex: 1;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-2) var(--space-5);
   min-height: var(--target-min);
@@ -108,8 +108,18 @@
 }
 
 .f24-page__group-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
   margin: 0;
-  white-space: nowrap;
+}
+
+.f24-page__row-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
 }
 
 .f24-page__group .f24-page__list {
@@ -145,9 +155,8 @@
 
 .f24-page__row-side {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: var(--space-2);
+  align-items: flex-start;
+  font-weight: var(--font-weight-semibold);
 }
 
 .f24-page__group-toggle > .amount {
