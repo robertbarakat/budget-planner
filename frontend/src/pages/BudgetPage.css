@@ -216,15 +216,15 @@
   min-width: calc(var(--budget-label-width) + 14 * var(--budget-column-width));
 }
 
-.budget-page .data-grid__table thead th:not(.data-grid__label) {
-  width: var(--budget-column-width);
-  min-width: var(--budget-column-width);
+/* La colonna delle voci ha larghezza fissa; i mesi si dividono in parti uguali lo spazio che resta (minimo --budget-column-width). */
+.budget-page .data-grid__table thead th.data-grid__label {
+  width: var(--budget-label-width);
 }
 
 .budget-page {
   /* Pensata per stare in un 15 pollici (circa 1300px utili con la barra laterale chiusa): colonne strette, frecce grandi e vicine. */
-  --budget-column-width: 5.3rem;
-  --budget-label-width: 9.5rem;
+  --budget-column-width: 5.6rem;
+  --budget-label-width: 10rem;
   font-size: var(--font-size-sm);
 }
 
