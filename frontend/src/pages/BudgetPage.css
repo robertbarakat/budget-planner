@@ -140,7 +140,7 @@
   align-self: stretch;
   justify-content: space-between;
   width: 100%;
-  gap: calc(var(--space-3) + 2px);
+  gap: var(--space-5);
 }
 
 .budget-area__grip {
@@ -493,4 +493,9 @@
 /* Intestazione "Macro-area e voci" in alto a sinistra: un po' di spazio dal bordo. */
 .budget-grid__head .budget-grid__label {
   padding-left: var(--space-5);
+}
+
+/* Maniglia delle macro-aree: 2px di rientro da sinistra. */
+.budget-page__area .budget-grid__label {
+  padding-left: calc(var(--space-1) + 2px);
 }
