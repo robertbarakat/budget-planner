@@ -405,6 +405,17 @@
   text-align: right;
 }
 
+/* Separatore sottile tra i mesi */
+.budget-grid__cell:not(.budget-grid__label) {
+  border-left: 1px solid var(--color-border-subtle);
+}
+
+/* Intestazioni dei mesi centrate */
+[role='columnheader'].budget-grid__cell:not(.budget-grid__label) {
+  align-items: center;
+  text-align: center;
+}
+
 [role='columnheader'].budget-grid__cell {
   background: var(--color-surface-muted);
   color: var(--color-text-muted);
