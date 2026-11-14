@@ -7,8 +7,6 @@ export const paths = {
   editTransaction: (id: number | string) => `/transactions/${id}/edit`,
   cashFlow: '/cash-flow',
   budget: '/budget',
-  macroAreas: '/macro-areas',
-  matrix: '/matrix',
   tax: '/tax',
   taxF24: '/tax/f24',
   taxInstallments: '/tax/installments',

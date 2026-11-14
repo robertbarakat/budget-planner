@@ -5,8 +5,6 @@ import BudgetPage from './pages/BudgetPage.tsx'
 import CashFlowPage from './pages/CashFlowPage.tsx'
 import HomePage from './pages/HomePage.tsx'
 import LoginPage from './pages/LoginPage.tsx'
-import MacroAreasPage from './pages/MacroAreasPage.tsx'
-import MatrixPage from './pages/MatrixPage.tsx'
 import NewTransactionPage from './pages/NewTransactionPage.tsx'
 import EditTransactionPage from './pages/EditTransactionPage.tsx'
 import InstallmentsPage from './pages/InstallmentsPage.tsx'
@@ -42,8 +40,6 @@ export const routes: RouteObject[] = [
           { path: 'transactions/:id/edit', element: <EditTransactionPage /> },
           { path: 'cash-flow', element: <CashFlowPage /> },
           { path: 'budget', element: <BudgetPage /> },
-          { path: 'macro-areas', element: <MacroAreasPage /> },
-          { path: 'matrix', element: <MatrixPage /> },
           { path: 'tax', element: <TaxPage /> },
           { path: 'tax/f24', element: <F24Page /> },
           { path: 'tax/installments', element: <InstallmentsPage /> },

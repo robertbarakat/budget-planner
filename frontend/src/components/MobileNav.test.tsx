@@ -20,7 +20,8 @@ describe('MobileNav', () => {
     expect(nav).toHaveTextContent('Home')
     expect(nav).toHaveTextContent('Movimenti')
     expect(nav).toHaveTextContent('Flusso di cassa')
-    expect(nav).toHaveTextContent('Previsto/Reale')
+    expect(nav).toHaveTextContent('Budget')
+    expect(nav).not.toHaveTextContent('Previsto/Reale')
     expect(nav).toHaveTextContent('Impostazioni')
     expect(mobileNav().getByRole('link', { name: 'Nuovo movimento' })).toHaveAttribute(
       'href',

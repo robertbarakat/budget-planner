@@ -35,14 +35,6 @@ export function CashFlowIcon() {
   )
 }
 
-export function MacroAreasIcon() {
-  return (
-    <Icon>
-      <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
-    </Icon>
-  )
-}
-
 export function PlusIcon() {
   return (
     <Icon size={26} strokeWidth={2.2}>

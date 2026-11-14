@@ -3,6 +3,8 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { budgetService } from '../api/budget.service.ts'
+import { accountsService } from '../api/accounts.service.ts'
+import { transactionsService } from '../api/transactions.service.ts'
 import { classificationService } from '../api/classification.service.ts'
 import { SnackbarProvider } from '../components/Snackbar.tsx'
 import BudgetPage from './BudgetPage.tsx'
@@ -24,6 +26,11 @@ beforeEach(() => {
     { id: 10, macro_area_id: 1, name: 'Affitto', kind: 'expense', sort_order: 0, archived: false, created_at: '' } as ItemRow,
   ])
   vi.spyOn(budgetService.entries, 'list').mockResolvedValue([entry(1, 10, 1, 400), entry(2, 10, 2, 100, 'recurrence')])
+  vi.spyOn(budgetService.closedMonths, 'list').mockResolvedValue([{ id: 1, year, month: 1, closed_at: '' }] as never)
+  vi.spyOn(transactionsService, 'listForYear').mockResolvedValue([
+    { id: 1, type: 'expense', budget_item_id: 10, category_id: 1, transaction_date: `${year}-01-05`, amount: 380 } as never,
+  ])
+  vi.spyOn(accountsService.openingBalances, 'list').mockResolvedValue([])
 })
 
 function setup() {
@@ -46,6 +53,15 @@ describe('BudgetPage', () => {
     // totale della voce: 500
     expect(within(row).getAllByText(/500,00/).length).toBeGreaterThan(0)
     expect(within(row).getAllByText('−').length).toBeGreaterThan(0)
+  })
+
+  it('nei mesi chiusi mostra il reale e lo scostamento', async () => {
+    setup()
+    const grid = await screen.findByRole('region', { name: `Budget previsto ${year}` })
+    const row = within(grid).getAllByRole('row').find((r) => r.textContent?.includes('Affitto'))!
+    await vi.waitFor(() => expect(within(row).getAllByText(/380,00/).length).toBeGreaterThan(0))
+    // reale − previsto = −380 − (−400) = +20
+    expect(within(row).getAllByText(/20,00/).length).toBeGreaterThan(0)
   })
 
   it('cambia anno e rilegge le righe di quell\'anno', async () => {

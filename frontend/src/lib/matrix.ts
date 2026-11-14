@@ -146,3 +146,9 @@ export function buildMatrix(
   }
   return { year, groups, closedMonths: closed, months: grandMonths.map(toCell), total: toCell(grandYear) }
 }
+
+/** Scostamento (reale − previsto, in euro) sommato ai soli mesi chiusi: nei mesi aperti non c'è ancora un reale da confrontare. */
+export function closedVariance(months: readonly MatrixCell[], closed: readonly boolean[]): number {
+  const cents = months.reduce((sum, cell, index) => (closed[index] ? sum + Math.round((cell.actual - cell.budgeted) * 100) : sum), 0)
+  return cents / 100
+}

@@ -7,7 +7,7 @@ import { fakeAuth, renderApp } from './test-render.tsx'
 import type { TypedSupabaseClient } from './api/supabase.ts'
 
 describe('rotte protette', () => {
-  it.each(['/', '/cash-flow', '/macro-areas', '/transactions/new', '/non-esiste'])(
+  it.each(['/', '/cash-flow', '/budget', '/transactions/new', '/non-esiste'])(
     'senza sessione %s porta al login',
     async (path) => {
       const { router } = renderApp(path, { signedIn: false })
