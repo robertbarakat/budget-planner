@@ -49,7 +49,7 @@ describe('BudgetPage', () => {
     setup()
     const grid = await screen.findByRole('region', { name: `Budget previsto ${year}` })
     const row = within(grid).getAllByRole('row').find((r) => r.textContent?.includes('Affitto'))!
-    expect(within(row).getAllByText(/400,00/).length).toBeGreaterThan(0)
+    expect(within(row).getAllByText(/380,00/).length).toBeGreaterThan(0)
     expect(within(row).getByText('Ricorrente')).toBeInTheDocument()
     // totale della voce: 500
     expect(within(row).getAllByText(/500,00/).length).toBeGreaterThan(0)

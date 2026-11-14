@@ -199,7 +199,7 @@ export default function BudgetPage() {
             </button>
             <span className="budget-mobile__month">
               {month === null ? `Anno ${year}` : `${MONTHS[month - 1]!.label} ${year}`}
-              {month !== null && <span className="budget-page__month-state">{closed[month - 1] ? '✓ reale' : '○ previsto'}</span>}
+              {month !== null && <span className="budget-page__month-state">{closed[month - 1] ? '✓ reale' : 'previsto'}</span>}
             </span>
             <button type="button" aria-label="Mese successivo" disabled={month === null || month === 12} onClick={() => setMonth((month ?? 12) + 1)}>
               ›
@@ -309,7 +309,7 @@ export default function BudgetPage() {
                 {MONTHS.map((month) => (
                   <th key={month.value} scope="col">
                     {month.label}
-                    <span className="budget-page__month-state">{closed[month.value - 1] ? '✓ reale' : '○ previsto'}</span>
+                    <span className="budget-page__month-state">{closed[month.value - 1] ? '✓ reale' : 'previsto'}</span>
                   </th>
                 ))}
                 <th scope="col" className="data-grid__sum">
@@ -447,26 +447,16 @@ export default function BudgetPage() {
         </div>
       )}
       <p className="budget-page__status">
-        Le righe colorate sono le macro-area (con i totali): ▾/▸ apre e chiude le voci, ⋮⋮ le trascina, ↑↓ le spostano. Nei mesi chiusi (✓) la cella mostra il reale, e sotto il previsto solo se è diverso; nei mesi aperti (○) il previsto, in corsivo.
+        Le righe colorate sono le macro-area (con i totali): ▾/▸ apre e chiude le voci, ⋮⋮ le trascina, ↑↓ le spostano. Nei mesi chiusi (✓) la cella mostra il reale; nei mesi aperti (previsto) il previsto, in corsivo.
       </p>
     </main>
   )
 }
 
-/** Previsto, e per i mesi chiusi il reale in evidenza con il previsto più piccolo sotto. */
+/** Mese aperto: il previsto. Mese chiuso: solo il reale, definitivo. */
 function ClosedAmount({ budgeted, actual }: { budgeted: number; actual: number | undefined }) {
   if (actual === undefined) return <Amount value={budgeted} className="budget-cell__forecast" />
-  const differs = Math.abs(actual - budgeted) >= 0.005
-  return (
-    <span className="budget-cell">
-      <Amount value={actual} />
-      {differs && (
-        <span className="budget-cell__planned">
-          previsto <Amount value={budgeted} />
-        </span>
-      )}
-    </span>
-  )
+  return <Amount value={actual} />
 }
 
 function BudgetCell({ cell, actual }: { cell: GridCell; actual: number | undefined }) {
