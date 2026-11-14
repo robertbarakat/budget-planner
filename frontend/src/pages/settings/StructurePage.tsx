@@ -14,7 +14,9 @@ import {
   useUpdateCategory,
   useUpdateMacroArea,
 } from '../../api/classification.queries.ts'
+import { useClients, useCreateClient, useSetArchivedClient, useUpdateClient } from '../../api/revenue.queries.ts'
 import Button from '../../components/Button.tsx'
+import IncomePricing from '../../components/IncomePricing.tsx'
 import { paths } from '../../paths.ts'
 import './settings.css'
 import './StructurePage.css'
@@ -143,9 +145,15 @@ export default function StructurePage() {
   const createCategory = useCreateCategory()
   const updateCategory = useUpdateCategory()
   const archiveCategory = useSetArchivedCategory()
+  const clients = useClients({ orderBy: [{ column: 'sort_order' }, { column: 'id' }] })
+  const createClient = useCreateClient()
+  const updateClient = useUpdateClient()
+  const archiveClient = useSetArchivedClient()
   const [showArchived, setShowArchived] = useState(false)
 
-  const queries = [macroAreas, budgetItems, categories]
+  const queries = [macroAreas, budgetItems, categories, clients]
+  // Dietro ogni voce di entrata con tariffa c'è un «cliente» (tariffe, ritardo, giorni lavorati): qui non si vede, resta allineato alla voce.
+  const clientsOf = (itemId: number) => (clients.data ?? []).filter((c) => c.budget_item_id === itemId)
   const areas = macroAreas.data ?? []
   const items = budgetItems.data ?? []
   const cats = categories.data ?? []
@@ -195,9 +203,42 @@ export default function StructurePage() {
                         name={item.name}
                         tag={KIND_TAG[item.kind]}
                         archived={item.archived}
-                        onRename={(name) => updateItem.mutateAsync({ id: item.id, values: { name } })}
-                        onArchive={(archived) => archiveItem.mutateAsync({ id: item.id, archived })}
+                        onRename={async (name) => {
+                          await updateItem.mutateAsync({ id: item.id, values: { name } })
+                          await Promise.all(clientsOf(item.id).map((c) => updateClient.mutateAsync({ id: c.id, values: { name } })))
+                        }}
+                        onArchive={async (archived) => {
+                          await archiveItem.mutateAsync({ id: item.id, archived })
+                          await Promise.all(clientsOf(item.id).map((c) => archiveClient.mutateAsync({ id: c.id, archived })))
+                        }}
                       />
+                      {item.kind === 'income' && !item.archived && (
+                        <details className="structure__pricing">
+                          <summary>Tariffa e incasso</summary>
+                          {(() => {
+                            const client = clientsOf(item.id).find((c) => !c.archived)
+                            return client ? (
+                              <IncomePricing clientId={client.id} />
+                            ) : (
+                              <div>
+                                <p className="settings__status">
+                                  Per prevedere gli incassi da tariffa e giorni lavorati, attiva il calcolo su questa voce.
+                                </p>
+                                <Button
+                                  variant="secondary"
+                                  onClick={() =>
+                                    void createClient
+                                      .mutateAsync({ name: item.name, budget_item_id: item.id, sort_order: nextOrder(clients.data ?? []) })
+                                      .catch(() => undefined)
+                                  }
+                                >
+                                  Imposta tariffa
+                                </Button>
+                              </div>
+                            )
+                          })()}
+                        </details>
+                      )}
                       {visible(itemCats).map((cat) => (
                         <Row
                           key={cat.id}

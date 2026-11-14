@@ -1,11 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, Route, Routes } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { revenueService } from '../../api/revenue.service.ts'
-import { SnackbarProvider } from '../../components/Snackbar.tsx'
-import ClientDetailPage from './ClientDetailPage.tsx'
+import { revenueService } from '../api/revenue.service.ts'
+import { SnackbarProvider } from './Snackbar.tsx'
+import IncomePricing from './IncomePricing.tsx'
 
 type ClientRow = Awaited<ReturnType<typeof revenueService.clients.list>>[number]
 type RateRow = Awaited<ReturnType<typeof revenueService.listRates>>[number]
@@ -18,11 +17,7 @@ function setup() {
   render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
       <SnackbarProvider>
-        <MemoryRouter initialEntries={['/settings/clients/1']}>
-          <Routes>
-            <Route path="/settings/clients/:id" element={<ClientDetailPage />} />
-          </Routes>
-        </MemoryRouter>
+        <IncomePricing clientId={1} />
       </SnackbarProvider>
     </QueryClientProvider>,
   )
@@ -41,11 +36,10 @@ beforeEach(() => {
   vi.spyOn(revenueService.rates, 'remove').mockResolvedValue()
 })
 
-describe('ClientDetailPage', () => {
-  it('mostra nome, ritardo e storico delle tariffe in formato it-IT', async () => {
+describe('IncomePricing', () => {
+  it('mostra ritardo e storico delle tariffe in formato it-IT', async () => {
     setup()
-    expect(await screen.findByRole('heading', { level: 1, name: 'Cliente A' })).toBeInTheDocument()
-    expect(screen.getByLabelText(/Mesi di ritardo/)).toHaveValue('2')
+    expect(await screen.findByLabelText(/Mesi di ritardo/)).toHaveValue('2')
     const list = screen.getByRole('list', { name: 'Storico delle tariffe' })
     expect(list).toHaveTextContent('Dal luglio 2026')
     expect(list).toHaveTextContent('280,00')

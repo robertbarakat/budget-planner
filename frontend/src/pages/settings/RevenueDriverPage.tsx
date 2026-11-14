@@ -76,7 +76,7 @@ export default function RevenueDriverPage() {
         </p>
       ) : preview.current.rows.length === 0 && (clients.data ?? []).length === 0 ? (
         <p className="settings__status">
-          Nessun cliente: aggiungine uno in <Link to={paths.settingsClients}>Clienti</Link>.
+          Nessuna voce di entrata con tariffa: impostala in <Link to={paths.settingsStructure}>Voci e categorie</Link>.
         </p>
       ) : (
         <>

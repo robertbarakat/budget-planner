@@ -102,3 +102,20 @@
   display: flex;
   justify-content: flex-end;
 }
+
+.structure__pricing {
+  margin-left: var(--space-6);
+  padding: var(--space-4) var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+}
+
+.structure__pricing > summary {
+  min-height: var(--target-min);
+  display: flex;
+  align-items: center;
+  color: var(--color-primary-strong);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}

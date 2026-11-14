@@ -1,5 +1,4 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useParams } from 'react-router'
 import {
   useClient,
   useClientRates,
@@ -7,50 +6,42 @@ import {
   useDeleteClientRate,
   useUpdateClient,
   useUpdateClientRate,
-} from '../../api/revenue.queries.ts'
-import Amount from '../../components/Amount.tsx'
-import Button from '../../components/Button.tsx'
-import Field from '../../components/Field.tsx'
-import { useSnackbar } from '../../components/Snackbar.tsx'
-import { validateDelay, validateRate, type RateFormErrors } from '../../lib/client-rates.ts'
-import { monthName, monthOptions } from '../../lib/months.ts'
-import { paths } from '../../paths.ts'
-import './ClientDetailPage.css'
-import './settings.css'
+} from '../api/revenue.queries.ts'
+import Amount from './Amount.tsx'
+import Button from './Button.tsx'
+import Field from './Field.tsx'
+import { useSnackbar } from './Snackbar.tsx'
+import { validateDelay, validateRate, type RateFormErrors } from '../lib/client-rates.ts'
+import { monthName, monthOptions } from '../lib/months.ts'
+import './IncomePricing.css'
+import '../pages/settings/settings.css'
 
 const MONTH_OPTIONS = monthOptions()
 
-export default function ClientDetailPage() {
-  const clientId = Number(useParams().id)
-  const validId = Number.isInteger(clientId) && clientId > 0
-  const client = useClient(validId ? clientId : null)
-  const rates = useClientRates(validId ? clientId : null)
+/** Tariffe giornaliere e ritardo d'incasso di una voce di entrata (il «cliente» che sta dietro la voce). */
+export default function IncomePricing({ clientId }: { clientId: number }) {
+  const client = useClient(clientId)
+  const rates = useClientRates(clientId)
 
+  if (client.isPending || rates.isPending) {
+    return (
+      <p role="status" className="settings__status">
+        Caricamento…
+      </p>
+    )
+  }
+  if (client.isError || rates.isError) {
+    return (
+      <p role="alert" className="settings__status">
+        Non riesco a leggere tariffe e ritardo. Riprova più tardi.
+      </p>
+    )
+  }
   return (
-    <main className="settings">
-      <Link to={paths.settingsClients} className="settings__back">
-        ← Clienti
-      </Link>
-      {!validId ? (
-        <p role="alert" className="settings__status">
-          Cliente non trovato.
-        </p>
-      ) : client.isPending || rates.isPending ? (
-        <p role="status" className="settings__status">
-          Caricamento…
-        </p>
-      ) : client.isError || rates.isError ? (
-        <p role="alert" className="settings__status">
-          Non riesco a leggere il cliente. Riprova più tardi.
-        </p>
-      ) : (
-        <>
-          <h1>{client.data.name}</h1>
-          <DelaySection clientId={clientId} delay={client.data.collection_delay_months} />
-          <RatesSection clientId={clientId} rates={rates.data} />
-        </>
-      )}
-    </main>
+    <>
+      <DelaySection clientId={clientId} delay={client.data.collection_delay_months} />
+      <RatesSection clientId={clientId} rates={rates.data} />
+    </>
   )
 }
 

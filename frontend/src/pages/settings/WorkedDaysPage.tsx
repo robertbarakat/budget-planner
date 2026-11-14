@@ -50,7 +50,7 @@ export default function WorkedDaysPage() {
         </p>
       ) : grid.rows.length === 0 ? (
         <p className="settings__status">
-          Nessun cliente: aggiungine uno in <Link to={paths.settingsClients}>Clienti</Link>.
+          Nessuna voce di entrata con tariffa: impostala in <Link to={paths.settingsStructure}>Voci e categorie</Link>.
         </p>
       ) : (
         <div className="data-grid" tabIndex={0} role="region" aria-label={`Giorni lavorati previsti ${year}`}>
