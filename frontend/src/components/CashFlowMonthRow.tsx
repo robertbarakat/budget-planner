@@ -1,5 +1,4 @@
 import { useId, useState } from 'react'
-import { Tooltip } from 'radix-ui'
 import { Link } from 'react-router'
 import type { CashFlowMonth } from '../lib/cash-flow.ts'
 import { monthName } from '../lib/months.ts'
@@ -23,36 +22,17 @@ export interface CashFlowMonthRowProps {
   itemInfo?: (budgetItemId: number, month: number) => ItemInfo
 }
 
-function ItemHint({ name, info, budgeted }: { name: string; info: ItemInfo; budgeted: number }) {
-  const [open, setOpen] = useState(false)
+function Categories({ info, className }: { info: ItemInfo; className: string }) {
+  if (info.categories.length === 0) return null
   return (
-    <Tooltip.Root open={open} onOpenChange={setOpen} delayDuration={150}>
-      <Tooltip.Trigger asChild>
-        <button type="button" className="cash-month__hint" aria-label={`Cosa c'è dentro ${name}`} onClick={() => setOpen((v) => !v)}>
-          i
-        </button>
-      </Tooltip.Trigger>
-      <Tooltip.Portal>
-        <Tooltip.Content className="cash-month__tip" side="top" align="start" sideOffset={6}>
-          <strong>{name}</strong>
-          <span className="cash-month__tip-area">Gruppo: {info.areaName}</span>
-          {info.categories.length === 0 ? (
-            <span>Nessun movimento registrato: importo previsto <Amount value={budgeted} />.</span>
-          ) : (
-            <ul>
-              {info.categories.map((c) => (
-                <li key={c.name}>
-                  <span>
-                    {c.name} <span className="cash-month__tip-count">({c.count} {c.count === 1 ? 'movimento' : 'movimenti'})</span>
-                  </span>
-                  <Amount value={c.amount} />
-                </li>
-              ))}
-            </ul>
-          )}
-        </Tooltip.Content>
-      </Tooltip.Portal>
-    </Tooltip.Root>
+    <ul className={`cash-month__cats ${className}`} aria-label="Categorie">
+      {info.categories.map((c) => (
+        <li key={c.name} className="cash-month__chip" title={`${c.count} ${c.count === 1 ? 'movimento' : 'movimenti'}`}>
+          <span>{c.name}</span>
+          <Amount value={c.amount} />
+        </li>
+      ))}
+    </ul>
   )
 }
 
@@ -118,18 +98,27 @@ export default function CashFlowMonthRow({ year, data, transactionCount, itemInf
             <thead>
               <tr>
                 <th scope="col">Voce</th>
+                {itemInfo && <th scope="col" className="cash-month__col-cats">Categorie</th>}
                 <th scope="col">Previsto</th>
                 <th scope="col">{data.isClosed ? 'Reale' : 'Reale parziale'}</th>
                 <th scope="col">Scostamento</th>
               </tr>
             </thead>
             <tbody>
-              {data.details.map((detail) => (
+              {data.details.map((detail) => {
+                const info = itemInfo?.(detail.budgetItemId, data.month)
+                return (
                 <tr key={detail.budgetItemId}>
                   <th scope="row">
                     {detail.name}
-                    {itemInfo && <ItemHint name={detail.name} info={itemInfo(detail.budgetItemId, data.month)} budgeted={detail.budgeted} />}
+                    {info && <span className="cash-month__group">{info.areaName}</span>}
+                    {info && <Categories info={info} className="cash-month__cats--inline" />}
                   </th>
+                  {info && (
+                    <td className="cash-month__col-cats">
+                      <Categories info={info} className="cash-month__cats--col" />
+                    </td>
+                  )}
                   <td>
                     <Amount value={detail.budgeted} />
                   </td>
@@ -140,12 +129,13 @@ export default function CashFlowMonthRow({ year, data, transactionCount, itemInf
                     <Amount value={detail.variance} explicitPlus />
                   </td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
             <tfoot>
               <tr>
                 <th scope="row">Totale del mese ({data.isClosed ? 'reale' : 'previsto'})</th>
-                <td colSpan={3}>
+                <td colSpan={4}>
                   <Amount value={data.flow} explicitPlus />
                 </td>
               </tr>

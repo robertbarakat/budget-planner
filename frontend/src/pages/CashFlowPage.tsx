@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import { Tooltip } from 'radix-ui'
 import { useCategories } from '../api/classification.queries.ts'
 import Amount from '../components/Amount.tsx'
 import CashFlowMonthRow, { type ItemInfo } from '../components/CashFlowMonthRow.tsx'
@@ -50,7 +49,6 @@ export default function CashFlowPage() {
   }, [inputs, categories.data, year])
 
   return (
-    <Tooltip.Provider>
     <main className="cash-flow-page">
       <h1>Flusso di cassa</h1>
       <PeriodSelector period={period} onChange={setPeriod} monthMode="none" />
@@ -86,6 +84,5 @@ export default function CashFlowPage() {
         </>
       )}
     </main>
-    </Tooltip.Provider>
   )
 }

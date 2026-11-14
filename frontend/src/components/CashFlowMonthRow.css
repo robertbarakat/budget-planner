@@ -168,54 +168,59 @@
   }
 }
 
-.cash-month__hint {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--space-9);
-  height: var(--space-9);
-  margin-left: var(--space-4);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-full);
-  background: var(--color-surface);
+/* Categorie di una voce: mobile = righe di etichette sotto il nome; desktop = colonna a sé. */
+.cash-month__group {
+  display: block;
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  font-style: italic;
-  vertical-align: middle;
-  cursor: help;
+  font-weight: var(--font-weight-regular);
 }
 
-.cash-month__tip {
-  z-index: 40;
+.cash-month__cats {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: var(--space-3);
-  max-width: 22rem;
-  padding: var(--space-6) var(--space-7);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-lg);
-  font-size: var(--font-size-md);
-}
-
-.cash-month__tip ul {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin: 0;
+  margin: var(--space-3) 0 0;
   padding: 0;
   list-style: none;
 }
 
-.cash-month__tip li {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-7);
+.cash-month__chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: var(--space-1) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
 }
 
-.cash-month__tip-area,
-.cash-month__tip-count {
-  color: var(--color-text-muted);
+.cash-month__col-cats {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .cash-month__col-cats {
+    display: table-cell;
+    min-width: 18rem;
+    text-align: left;
+    white-space: normal;
+  }
+
+  .cash-month__cats--inline {
+    display: none;
+  }
+
+  .cash-month__col-cats .cash-month__cats {
+    margin: 0;
+  }
+}
+
+.cash-month__table th[scope='row'] {
+  min-width: 9rem;
+  max-width: 16rem;
+  white-space: normal;
 }
