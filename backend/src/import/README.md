@@ -13,6 +13,10 @@ Il percorso arriva sempre dall'argomento. Il file contiene dati personali: non v
 - Intestazioni confrontate senza distinguere maiuscole e spazi extra. Righe completamente vuote saltate.
 - Ogni riga porta `sheet` e `rowNumber` (1 = intestazioni) per il report degli scarti.
 
+## Formato reale dell'export (BP-167)
+- Ogni foglio ha una **riga titolo** ("elenco spese per il periodo …") prima delle intestazioni: il parser cerca la prima riga entro le prime 10 che contiene "Data e ora". `rowNumber` è il numero reale nel foglio.
+- `Bonifici` ha colonne proprie (In uscita, In entrata, Importo nella valuta in uscita, Valuta in uscita, Importo nella valuta in entrata, Valuta in entrata, Commento). Ogni riga diventa **due righe grezze** (uscita negativa, entrata positiva, stessa data e ora): la forma 1 qui sotto. Se manca l'importo in entrata si usa quello in uscita.
+
 ## Come `Bonifici` indica i due conti
 Il formato reale non è documentato e la specifica non lo dice: il parser **non fa ipotesi**, restituisce tutte le colonne così come sono (il foglio ha una sola colonna `Conto`). Il riconoscimento è nella normalizzazione (`shared/`, BP-120), che prova due forme:
 1. **due righe** con stessa data e ora e stesso importo in valore assoluto, segno opposto, conti diversi: la riga negativa è l'origine, la positiva la destinazione;

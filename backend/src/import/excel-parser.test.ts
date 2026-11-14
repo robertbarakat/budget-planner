@@ -29,11 +29,12 @@ afterAll(async () => {
 
 async function writeFile(
   name: string,
-  sheets: Record<string, { headers?: string[]; rows: unknown[][] }>,
+  sheets: Record<string, { headers?: string[]; rows: unknown[][]; title?: string }>,
 ): Promise<string> {
   const workbook = new ExcelJS.Workbook()
-  for (const [sheetName, { headers = HEADERS, rows }] of Object.entries(sheets)) {
+  for (const [sheetName, { headers = HEADERS, rows, title }] of Object.entries(sheets)) {
     const sheet = workbook.addWorksheet(sheetName)
+    if (title) sheet.addRow([title])
     sheet.addRow(headers)
     for (const row of rows) sheet.addRow(row)
   }
@@ -96,6 +97,45 @@ describe('readExportWorkbook', () => {
     const error = await readExportWorkbook(path).catch((e: unknown) => e)
     expect(error).toBeInstanceOf(ImportFileError)
     expect((error as Error).message).toBe('Nel foglio "Bonifici" mancano le colonne: Conto.')
+  })
+
+  it('salta la riga titolo prima delle intestazioni e conserva il numero di riga reale', async () => {
+    const title = 'elenco spese per il periodo 1 gennaio 2026 – 31 dicembre 2026'
+    const path = await writeFile('title.xlsx', {
+      Spese: { title, rows: [row('2026-01-05T00:00:00Z', 'Bar', 'Cash', 3)] },
+      Entrate: { title, rows: [] },
+      Bonifici: { title, headers: HEADERS, rows: [] },
+    })
+    const result = await readExportWorkbook(path)
+    expect(result.Spese).toHaveLength(1)
+    expect(result.Spese[0]).toMatchObject({ rowNumber: 3, category: 'Bar', account: 'Cash', defaultAmount: 3 })
+  })
+
+  it('legge il foglio Bonifici del formato reale come due righe (uscita negativa, entrata positiva)', async () => {
+    const title = 'elenco bonifici per il periodo 1 gennaio 2026 – 31 dicembre 2026'
+    const path = await writeFile('transfers.xlsx', {
+      Spese: { rows: [] },
+      Entrate: { rows: [] },
+      Bonifici: {
+        title,
+        headers: [
+          'Data e ora',
+          'In uscita',
+          'In entrata',
+          'Importo nella valuta in uscita',
+          'Valuta in uscita',
+          'Importo nella valuta in entrata',
+          'Valuta in entrata',
+          'Commento',
+        ],
+        rows: [[new Date('2026-11-05T00:00:00Z'), 'Bancoposta', 'Cash', 130, 'EUR', '', '', 'Prelievo ']],
+      },
+    })
+    const { Bonifici } = await readExportWorkbook(path)
+    expect(Bonifici).toHaveLength(2)
+    expect(Bonifici[0]).toMatchObject({ rowNumber: 3, account: 'Bancoposta', defaultAmount: -130, defaultCurrency: 'EUR' })
+    expect(Bonifici[1]).toMatchObject({ rowNumber: 3, account: 'Cash', defaultAmount: 130, defaultCurrency: 'EUR' })
+    expect(Bonifici[0]!.dateTime).toEqual(Bonifici[1]!.dateTime)
   })
 
   it('segnala un file illeggibile', async () => {

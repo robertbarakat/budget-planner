@@ -11,7 +11,7 @@ export type CellValue = string | number | Date | null
 
 export interface RawRow {
   sheet: SheetName
-  /** Numero di riga nel foglio (1 = intestazioni), per i report degli scarti. */
+  /** Numero di riga reale nel foglio (comprese eventuali righe titolo), per i report degli scarti. */
   rowNumber: number
   dateTime: CellValue
   category: CellValue
@@ -64,13 +64,46 @@ function toCellValue(value: ExcelJS.CellValue): CellValue {
   return null
 }
 
+/** Colonne del foglio Bonifici nell'export reale (conto di uscita e di entrata nella stessa riga). */
+const TRANSFER_HEADERS = {
+  dateTime: 'Data e ora',
+  from: 'In uscita',
+  to: 'In entrata',
+  fromAmount: 'Importo nella valuta in uscita',
+  fromCurrency: 'Valuta in uscita',
+  toAmount: 'Importo nella valuta in entrata',
+  toCurrency: 'Valuta in entrata',
+  comment: 'Commento',
+} as const
+
+// L'export reale ha una riga titolo prima delle intestazioni: si cerca la prima riga che contiene "Data e ora".
+const HEADER_SEARCH_ROWS = 10
+
+function findHeaderRowNumber(sheet: ExcelJS.Worksheet): number {
+  const target = normalizeHeader('Data e ora')
+  const last = Math.min(sheet.rowCount, HEADER_SEARCH_ROWS)
+  for (let rowNumber = 1; rowNumber <= last; rowNumber++) {
+    let found = false
+    sheet.getRow(rowNumber).eachCell((cell) => {
+      const text = toCellValue(cell.value)
+      if (typeof text === 'string' && normalizeHeader(text) === target) found = true
+    })
+    if (found) return rowNumber
+  }
+  return 1
+}
+
 function parseSheet(sheet: ExcelJS.Worksheet, name: SheetName): RawRow[] {
-  const headerRow = sheet.getRow(1)
+  const headerRowNumber = findHeaderRowNumber(sheet)
   const columnByField = new Map<string, number>()
-  headerRow.eachCell((cell, colNumber) => {
+  sheet.getRow(headerRowNumber).eachCell((cell, colNumber) => {
     const text = toCellValue(cell.value)
     if (typeof text === 'string') columnByField.set(normalizeHeader(text), colNumber)
   })
+
+  if (name === 'Bonifici' && columnByField.has(normalizeHeader(TRANSFER_HEADERS.from))) {
+    return parseTransferSheet(sheet, headerRowNumber, columnByField)
+  }
 
   const missing = COLUMNS.filter((c) => !columnByField.has(normalizeHeader(c.header))).map((c) => c.header)
   if (missing.length > 0) {
@@ -78,7 +111,7 @@ function parseSheet(sheet: ExcelJS.Worksheet, name: SheetName): RawRow[] {
   }
 
   const rows: RawRow[] = []
-  for (let rowNumber = 2; rowNumber <= sheet.rowCount; rowNumber++) {
+  for (let rowNumber = headerRowNumber + 1; rowNumber <= sheet.rowCount; rowNumber++) {
     const row = sheet.getRow(rowNumber)
     const values = {} as Record<(typeof COLUMNS)[number]['field'], CellValue>
     for (const column of COLUMNS) {
@@ -87,6 +120,53 @@ function parseSheet(sheet: ExcelJS.Worksheet, name: SheetName): RawRow[] {
     }
     if (Object.values(values).every((v) => v === null)) continue // riga vuota
     rows.push({ sheet: name, rowNumber, ...values })
+  }
+  return rows
+}
+
+/**
+ * Foglio Bonifici del formato reale: ogni riga ha conto di uscita e di entrata. Si restituiscono due righe grezze
+ * (uscita con importo negativo, entrata con importo positivo, stessa data e ora): è la forma che la normalizzazione
+ * già riconosce. Se manca l'importo in entrata si usa quello in uscita (stessa valuta).
+ */
+function parseTransferSheet(sheet: ExcelJS.Worksheet, headerRowNumber: number, columnByField: Map<string, number>): RawRow[] {
+  const missing = Object.values(TRANSFER_HEADERS).filter((h) => !columnByField.has(normalizeHeader(h)))
+  if (missing.length > 0) throw new ImportFileError(`Nel foglio "Bonifici" mancano le colonne: ${missing.join(', ')}.`)
+  const col = (header: string) => columnByField.get(normalizeHeader(header))!
+
+  const rows: RawRow[] = []
+  for (let rowNumber = headerRowNumber + 1; rowNumber <= sheet.rowCount; rowNumber++) {
+    const row = sheet.getRow(rowNumber)
+    const get = (header: string) => toCellValue(row.getCell(col(header)).value)
+    const dateTime = get(TRANSFER_HEADERS.dateTime)
+    const from = get(TRANSFER_HEADERS.from)
+    const to = get(TRANSFER_HEADERS.to)
+    const fromAmount = get(TRANSFER_HEADERS.fromAmount)
+    const toAmount = get(TRANSFER_HEADERS.toAmount) ?? fromAmount
+    const fromCurrency = get(TRANSFER_HEADERS.fromCurrency)
+    const toCurrency = get(TRANSFER_HEADERS.toCurrency) ?? fromCurrency
+    const comment = get(TRANSFER_HEADERS.comment)
+    if ([dateTime, from, to, fromAmount, comment].every((v) => v === null)) continue // riga vuota
+
+    const side = (account: CellValue, amount: CellValue, currency: CellValue, sign: 1 | -1): RawRow => {
+      const signed = typeof amount === 'number' ? sign * Math.abs(amount) : amount
+      return {
+        sheet: 'Bonifici',
+        rowNumber,
+        dateTime,
+        category: null,
+        account,
+        defaultAmount: signed,
+        defaultCurrency: currency,
+        accountAmount: signed,
+        accountCurrency: currency,
+        transactionAmount: null,
+        transactionCurrency: null,
+        tag: null,
+        comment,
+      }
+    }
+    rows.push(side(from, fromAmount, fromCurrency, -1), side(to, toAmount, toCurrency, 1))
   }
   return rows
 }
