@@ -475,7 +475,7 @@
 .budget-cell__real {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--space-1);
+  gap: var(--space-3);
   font-size: var(--font-size-2xs);
 }
 
