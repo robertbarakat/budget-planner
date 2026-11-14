@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import { Link } from 'react-router'
 import { useAccounts } from '../api/accounts.queries.ts'
 import Amount from '../components/Amount.tsx'
 import CurrentBalances from '../components/CurrentBalances.tsx'
@@ -9,7 +8,6 @@ import UpcomingDues from '../components/UpcomingDues.tsx'
 import { buildCashFlow } from '../lib/cash-flow.ts'
 import { summarizeMonthExpenses, summarizeMonthIncome } from '../lib/home.ts'
 import { buildMacroAreaReport } from '../lib/macro-areas.ts'
-import { paths } from '../paths.ts'
 import { monthName } from '../lib/months.ts'
 import { useYearInputs } from './use-year-inputs.ts'
 import './HomePage.css'
@@ -146,9 +144,6 @@ export default function HomePage() {
       )}
       <RecentTransactions />
       <UpcomingDues />
-      <Link to={paths.tax} className="home-page__tax-link">
-        Tasse e contributi →
-      </Link>
     </main>
   )
 }

@@ -90,21 +90,6 @@ export default function BudgetPage() {
     ids.splice(to, 0, id)
     reorder.mutate({ orderedIds: ids, currentOrder: Object.fromEntries(rows.map((r) => [r.id, r.sort_order])) })
   }
-  /** Trascinamento al tocco (mobile): si afferra la maniglia, si rilascia sopra un'altra macro-area. */
-  function endTouchDrag(event: React.PointerEvent<HTMLElement>, id: number) {
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId)
-    } catch {
-      // Già rilasciato.
-    }
-    setDragId(null)
-    const over = document.elementFromPoint(event.clientX, event.clientY)?.closest<HTMLElement>('[data-area-id]')
-    const targetId = over ? Number(over.dataset.areaId) : null
-    const groups = grid?.groups ?? []
-    const from = groups.findIndex((g) => g.macroAreaId === id)
-    const to = groups.findIndex((g) => g.macroAreaId === targetId)
-    if (from >= 0 && to >= 0 && from !== to) moveArea(id, { offset: to - from })
-  }
   const { showSuccess } = useSnackbar()
   const saveCell = (budgetItemId: number, month: number, categoryId: number | null = null) => async (amount: number | null) => {
     await setManual.mutateAsync({ budgetItemId, year, month, amount, categoryId })
@@ -188,7 +173,7 @@ export default function BudgetPage() {
                 updateExpandedItems(new Set(grid.groups.flatMap((g) => g.items.filter((i) => i.categories.length > 0).map((i) => i.budgetItemId))))
               }}
             >
-              Espandi{' '}<span className="budget-page__bulk-extra">tutto</span>
+              Espandi tutto
             </button>
             <button
               type="button"
@@ -197,7 +182,7 @@ export default function BudgetPage() {
                 updateExpandedItems(new Set())
               }}
             >
-              Comprimi{' '}<span className="budget-page__bulk-extra">tutto</span>
+              Comprimi tutto
             </button>
           </span>
         )}
@@ -237,29 +222,7 @@ export default function BudgetPage() {
             const index = (month ?? 1) - 1
             const open = !collapsed.has(group.macroAreaId)
             return (
-              <section
-                key={group.macroAreaId}
-                data-area-id={group.macroAreaId}
-                className={dragId === group.macroAreaId ? 'budget-mobile__area budget-page__dragging' : 'budget-mobile__area'}
-              >
-                <div className="budget-mobile__area-bar">
-                <span
-                  className="budget-mobile__grip"
-                  role="img"
-                  aria-label={`Trascina per spostare ${group.name}`}
-                  onPointerDown={(event) => {
-                    try {
-                      event.currentTarget.setPointerCapture(event.pointerId)
-                    } catch {
-                      // Senza puntatore attivo (prove automatiche) il trascinamento funziona comunque.
-                    }
-                    setDragId(group.macroAreaId)
-                  }}
-                  onPointerUp={(event) => endTouchDrag(event, group.macroAreaId)}
-                  onPointerCancel={(event) => endTouchDrag(event, group.macroAreaId)}
-                >
-                  ⋮⋮
-                </span>
+              <section key={group.macroAreaId} className="budget-mobile__area">
                 <button
                   type="button"
                   className="budget-mobile__area-head"
@@ -278,7 +241,6 @@ export default function BudgetPage() {
                     />
                   )}
                 </button>
-                </div>
                 {open && (
                   <ul className="budget-mobile__items">
                     {group.items.map((item) => {
