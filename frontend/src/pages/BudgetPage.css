@@ -185,3 +185,19 @@
 .budget-area__toggle {
   white-space: normal;
 }
+
+/* Colonne a larghezza fissa: aprire o chiudere le macro-aree non cambia mai la larghezza della tabella,
+   quindi non sposta lo scorrimento orizzontale (novembre e dicembre restano dove sono). */
+.budget-page .data-grid__table {
+  table-layout: fixed;
+  min-width: calc(var(--grid-label-width) * 1.6 + 14 * var(--budget-column-width));
+}
+
+.budget-page .data-grid__table thead th:not(.data-grid__label) {
+  width: var(--budget-column-width);
+  min-width: var(--budget-column-width);
+}
+
+.budget-page {
+  --budget-column-width: 7rem;
+}
