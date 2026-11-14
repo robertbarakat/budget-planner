@@ -30,9 +30,10 @@ export default function OpeningBalances({ accounts }: { accounts: AccountLike[] 
   const total = sumCents(shown.flatMap((account) => byAccount.get(account.id) ?? []).map((row) => eurosToCents(row.amount))) / 100
 
   return (
-    <details className="opening-balances">
-      <summary className="opening-balances__title">Saldi iniziali</summary>
-      <p className="settings__status">Quanto avevi su ogni conto a inizio anno: da qui parte il saldo di Home e Flusso di cassa.</p>
+    <section className="opening-balances" aria-labelledby="opening-balances-title">
+      <h2 id="opening-balances-title" className="opening-balances__title">
+        Saldi iniziali
+      </h2>
       <div className="opening-balances__year">
         <Field label="Anno">
           {(p) => (
@@ -82,7 +83,7 @@ export default function OpeningBalances({ accounts }: { accounts: AccountLike[] 
           </p>
         </>
       )}
-    </details>
+    </section>
   )
 }
 
@@ -91,6 +92,8 @@ function BalanceForm({ account, year, balance }: { account: AccountLike; year: n
   const { showSuccess } = useSnackbar()
   const [text, setText] = useState(balance ? String(balance.amount).replace('.', ',') : '')
   const [error, setError] = useState<string | undefined>()
+  // Di base la scheda è in sola lettura: il campo si vede solo toccando «Modifica».
+  const [editing, setEditing] = useState(false)
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault()
@@ -103,9 +106,25 @@ function BalanceForm({ account, year, balance }: { account: AccountLike; year: n
     try {
       await save.mutateAsync({ accountId: account.id, year, amount })
       showSuccess(`Saldo iniziale di ${account.name} salvato.`)
+      setEditing(false)
     } catch {
       // L'errore di rete o di server arriva dalla snackbar; qui si tiene il valore digitato.
     }
+  }
+
+  if (!editing) {
+    return (
+      <div className="opening-balances__row">
+        <span className="opening-balances__field">
+          <strong>{account.name}</strong>
+        </span>
+        <span className="num">{balance ? <Amount value={balance.amount} /> : 'Non impostato'}</span>
+        <span className="opening-balances__source">{balance ? SOURCE_LABEL[balance.source] : ''}</span>
+        <button type="button" className="text-link" aria-label={`Modifica saldo iniziale ${account.name}`} onClick={() => setEditing(true)}>
+          Modifica
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -120,6 +139,9 @@ function BalanceForm({ account, year, balance }: { account: AccountLike; year: n
       <span className="opening-balances__source">{balance ? SOURCE_LABEL[balance.source] : 'Non impostato'}</span>
       <button type="submit" className="text-link" disabled={save.isPending} aria-label={`Salva saldo iniziale ${account.name}`}>
         Salva
+      </button>
+      <button type="button" className="text-link text-link--quiet" onClick={() => setEditing(false)}>
+        Annulla
       </button>
     </form>
   )

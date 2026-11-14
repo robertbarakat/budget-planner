@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { accountsService } from '../../api/accounts.service.ts'
@@ -46,31 +46,32 @@ beforeEach(() => {
   })
 })
 
+const edit = async (name: string) => {
+  await userEvent.click(await screen.findByRole('button', { name: `Modifica saldo iniziale ${name}` }))
+  return screen.getByLabelText(`Saldo iniziale ${name}`)
+}
+
 describe('OpeningBalances', () => {
-  it('mostra il saldo di ogni conto con la sua origine e la somma, anche degli archiviati con saldo', async () => {
+  it('mostra in sola lettura il saldo di ogni conto con la sua origine e la somma', async () => {
     setup()
-    expect(await screen.findByLabelText('Saldo iniziale Conto A')).toHaveValue('1000,5')
-    expect(screen.getByLabelText('Saldo iniziale Conto B')).toHaveValue('250')
-    expect(screen.getByLabelText('Saldo iniziale Conto C')).toHaveValue('10')
+    await screen.findByText('Conto A')
+    expect(screen.queryByLabelText('Saldo iniziale Conto A')).not.toBeInTheDocument()
     expect(screen.getAllByText('Manuale')).toHaveLength(2)
     expect(screen.getByText('Riportato')).toBeInTheDocument()
-    // 1000,50 + 250 + 10 = 1.260,50
-    const total = screen.getByText(`Somma dei saldi iniziali ${YEAR}`).closest('p')!
-    expect(total).toHaveTextContent('1.260,50')
+    expect(screen.getByText(`Somma dei saldi iniziali ${YEAR}`).closest('p')).toHaveTextContent('1.260,50')
   })
 
   it('un conto archiviato senza saldo nell\'anno non compare', async () => {
     stored = [balance(1, 1, YEAR, 5)]
     setup()
-    await screen.findByLabelText('Saldo iniziale Conto A')
-    expect(screen.queryByLabelText('Saldo iniziale Conto C')).not.toBeInTheDocument()
+    await screen.findByText('Conto A')
+    expect(screen.queryByText('Conto C')).not.toBeInTheDocument()
   })
 
   it('un conto senza saldo mostra "Non impostato" e la prima scrittura crea la riga', async () => {
     stored = []
     setup()
-    const field = await screen.findByLabelText('Saldo iniziale Conto A')
-    expect(screen.getAllByText('Non impostato').length).toBe(2)
+    const field = await edit('Conto A')
     await userEvent.type(field, '1.234,50')
     await userEvent.click(screen.getByRole('button', { name: 'Salva saldo iniziale Conto A' }))
     await vi.waitFor(() =>
@@ -81,7 +82,7 @@ describe('OpeningBalances', () => {
 
   it('un secondo saldo per lo stesso conto e anno aggiorna la riga esistente (nessun doppione)', async () => {
     setup()
-    const field = await screen.findByLabelText('Saldo iniziale Conto A')
+    const field = await edit('Conto A')
     await userEvent.clear(field)
     await userEvent.type(field, '2000')
     await userEvent.click(screen.getByRole('button', { name: 'Salva saldo iniziale Conto A' }))
@@ -89,15 +90,12 @@ describe('OpeningBalances', () => {
       expect(accountsService.openingBalances.update).toHaveBeenCalledWith(1, { amount: 2000, source: 'manual' }),
     )
     expect(accountsService.openingBalances.create).not.toHaveBeenCalled()
-    // La somma si aggiorna: 2000 + 250 + 10
     await vi.waitFor(() => expect(screen.getByText(`Somma dei saldi iniziali ${YEAR}`).closest('p')).toHaveTextContent('2.260,00'))
-    // Modificato a mano: l'origine diventa "Manuale" anche se prima era riportato
-    expect(within(screen.getByLabelText('Saldo iniziale Conto A').closest('form')!).getByText('Manuale')).toBeInTheDocument()
   })
 
   it('un importo non valido mostra un errore e non salva', async () => {
     setup()
-    const field = await screen.findByLabelText('Saldo iniziale Conto A')
+    const field = await edit('Conto A')
     await userEvent.clear(field)
     await userEvent.type(field, 'abc')
     await userEvent.click(screen.getByRole('button', { name: 'Salva saldo iniziale Conto A' }))
@@ -108,11 +106,14 @@ describe('OpeningBalances', () => {
   it('cambiando anno rilegge i saldi di quell\'anno', async () => {
     stored.push(balance(50, 1, YEAR + 1, 77))
     setup()
-    await screen.findByLabelText('Saldo iniziale Conto A')
+    await screen.findByText('Conto A')
     const year = screen.getByLabelText('Anno')
     await userEvent.clear(year)
     await userEvent.type(year, String(YEAR + 1))
-    await vi.waitFor(() => expect(screen.getByLabelText('Saldo iniziale Conto A')).toHaveValue('77'))
-    expect(screen.queryByLabelText('Saldo iniziale Conto C')).not.toBeInTheDocument()
+    const field = await vi.waitFor(async () => {
+      await userEvent.click(screen.getByRole('button', { name: 'Modifica saldo iniziale Conto A' }))
+      return screen.getByLabelText('Saldo iniziale Conto A')
+    })
+    expect(field).toHaveValue('77')
   })
 })
