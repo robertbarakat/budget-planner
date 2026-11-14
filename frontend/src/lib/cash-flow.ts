@@ -115,3 +115,11 @@ export function buildCashFlow(
   })
   return { year, openingBalance, months, closingBalance: months.at(-1)?.endBalance ?? openingBalance }
 }
+
+/** Importi dei dettagli di un mese nella forma per la ripartizione: uscite e entrate in centesimi positivi (previsto o reale secondo il mese). */
+export function shareRows(details: readonly MonthItemDetail[]): { type: 'expense' | 'income'; budgetItemId: number; amountCents: number }[] {
+  return details.flatMap((d) => {
+    const cents = Math.round(Math.abs(d.shown) * 100)
+    return cents === 0 ? [] : [{ type: d.kind, budgetItemId: d.budgetItemId, amountCents: cents }]
+  })
+}

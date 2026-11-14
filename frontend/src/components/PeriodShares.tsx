@@ -1,7 +1,6 @@
 import { useBudgetItems, useMacroAreas } from '../api/classification.queries.ts'
 import { formatAbsoluteAmount } from '../lib/format-amount.ts'
 import { buildShares, type ShareRow } from '../lib/shares.ts'
-import { eurosToCents } from 'budget-planner-shared'
 import './PeriodShares.css'
 
 const percentFormat = new Intl.NumberFormat('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
@@ -20,23 +19,23 @@ function Row({ row, level }: { row: ShareRow; level: 'area' | 'item' }) {
   )
 }
 
-/** Quanto pesa ogni gruppo e ogni voce sulle spese e sulle entrate del periodo mostrato. */
+/** Ripartizione: quanto pesa ogni gruppo e ogni voce sulle uscite e sulle entrate del periodo. */
 export default function PeriodShares({
-  transactions,
+  rows,
   periodLabel,
 }: {
-  transactions: readonly { type: string; budget_item_id: number | null; amount: number }[]
+  rows: readonly { type: 'expense' | 'income'; budgetItemId: number | null; amountCents: number }[]
   periodLabel: string
 }) {
   const areas = useMacroAreas()
   const items = useBudgetItems()
   if (!areas.data || !items.data) return null
-  const input = transactions.map((t) => ({ type: t.type, budgetItemId: t.budget_item_id, amountCents: eurosToCents(Number(t.amount)) }))
+  const input = rows
   const itemInput = items.data.map((i) => ({ id: i.id, name: i.name, macroAreaId: i.macro_area_id }))
   const areaInput = areas.data.map((a) => ({ id: a.id, name: a.name }))
   const kinds = [
-    { kind: 'expense' as const, title: 'Come pesano le uscite' },
-    { kind: 'income' as const, title: 'Come pesano le entrate' },
+    { kind: 'expense' as const, title: 'Ripartizione delle uscite' },
+    { kind: 'income' as const, title: 'Ripartizione delle entrate' },
   ]
   return (
     <div className="shares">

@@ -224,3 +224,122 @@
   max-width: 16rem;
   white-space: normal;
 }
+
+/* Mobile: ogni voce è una scheda (nome, poi tre cifre con la loro etichetta). Da desktop torna la tabella. */
+.cash-month__table,
+.cash-month__table tbody,
+.cash-month__table tfoot,
+.cash-month__table tr,
+.cash-month__table th,
+.cash-month__table td {
+  display: block;
+}
+
+.cash-month__table thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.cash-month__table tbody tr,
+.cash-month__table tfoot tr {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3) var(--space-5);
+  padding: var(--space-5) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.cash-month__table tbody th[scope='row'],
+.cash-month__table tfoot th[scope='row'] {
+  grid-column: 1 / -1;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  font-weight: var(--font-weight-semibold);
+}
+
+.cash-month__table td {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.cash-month__table tbody td::before {
+  content: attr(data-label);
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.cash-month__table .cash-month__total {
+  grid-column: 1 / -1;
+}
+
+.cash-month__table .cash-month__col-cats {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .cash-month__table .cash-month__col-cats {
+    display: table-cell;
+    text-align: left;
+    white-space: normal;
+  }
+
+  .cash-month__table {
+    display: table;
+  }
+
+  .cash-month__table thead {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+  }
+
+  .cash-month__table thead {
+    display: table-header-group;
+  }
+
+  .cash-month__table tbody {
+    display: table-row-group;
+  }
+
+  .cash-month__table tfoot {
+    display: table-footer-group;
+  }
+
+  .cash-month__table tr,
+  .cash-month__table tbody tr,
+  .cash-month__table tfoot tr {
+    display: table-row;
+    padding: 0;
+    border: 0;
+  }
+
+  .cash-month__table th,
+  .cash-month__table td {
+    display: table-cell;
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--color-border-subtle);
+    text-align: right;
+  }
+
+  .cash-month__table tbody th[scope='row'],
+  .cash-month__table tfoot th[scope='row'] {
+    padding: var(--space-4) var(--space-5);
+    text-align: left;
+    font-weight: var(--font-weight-medium);
+  }
+
+  .cash-month__table tbody td::before {
+    content: none;
+  }
+}

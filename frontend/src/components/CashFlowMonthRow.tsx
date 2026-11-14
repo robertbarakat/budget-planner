@@ -1,11 +1,12 @@
 import { useId, useState } from 'react'
 import { Link } from 'react-router'
-import type { CashFlowMonth } from '../lib/cash-flow.ts'
+import { shareRows, type CashFlowMonth } from '../lib/cash-flow.ts'
 import { monthName } from '../lib/months.ts'
 import { paths } from '../paths.ts'
 import Amount from './Amount.tsx'
 import MonthCloseDialog from './MonthCloseDialog.tsx'
 import MonthStatusBadge from './MonthStatusBadge.tsx'
+import PeriodShares from './PeriodShares.tsx'
 import './CashFlowMonthRow.css'
 
 /** Cosa c'è dentro una voce in un mese: gruppo e categorie con i movimenti registrati (importi in euro con segno). */
@@ -90,6 +91,7 @@ export default function CashFlowMonthRow({ year, data, transactionCount, itemInf
         <MonthCloseDialog year={year} month={data.month} closed={data.isClosed} transactionCount={transactionCount} />
       </div>
       <div id={panelId} className="cash-month__detail" hidden={!expanded}>
+        {data.details.length > 0 && <PeriodShares rows={shareRows(data.details)} periodLabel={label} />}
         {data.details.length === 0 ? (
           <p className="cash-month__empty">Nessuna voce con importi in questo mese.</p>
         ) : (
@@ -119,13 +121,13 @@ export default function CashFlowMonthRow({ year, data, transactionCount, itemInf
                       <Categories info={info} className="cash-month__cats--col" />
                     </td>
                   )}
-                  <td>
+                  <td data-label="Previsto">
                     <Amount value={detail.budgeted} />
                   </td>
-                  <td>
+                  <td data-label={data.isClosed ? 'Reale' : 'Reale parziale'}>
                     <Amount value={detail.actual} />
                   </td>
-                  <td>
+                  <td data-label="Scostamento">
                     <Amount value={detail.variance} explicitPlus />
                   </td>
                 </tr>
@@ -135,7 +137,7 @@ export default function CashFlowMonthRow({ year, data, transactionCount, itemInf
             <tfoot>
               <tr>
                 <th scope="row">Totale del mese ({data.isClosed ? 'reale' : 'previsto'})</th>
-                <td colSpan={4}>
+                <td colSpan={4} className="cash-month__total">
                   <Amount value={data.flow} explicitPlus />
                 </td>
               </tr>

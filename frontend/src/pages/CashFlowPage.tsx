@@ -1,9 +1,10 @@
 import { useMemo } from 'react'
 import { useCategories } from '../api/classification.queries.ts'
 import Amount from '../components/Amount.tsx'
+import PeriodShares from '../components/PeriodShares.tsx'
 import CashFlowMonthRow, { type ItemInfo } from '../components/CashFlowMonthRow.tsx'
 import PeriodSelector, { usePeriod } from '../components/PeriodSelector.tsx'
-import { buildCashFlow } from '../lib/cash-flow.ts'
+import { buildCashFlow, shareRows } from '../lib/cash-flow.ts'
 import { buildMonthStatuses } from '../lib/month-status.ts'
 import { useYearInputs } from './use-year-inputs.ts'
 import './CashFlowPage.css'
@@ -78,6 +79,7 @@ export default function CashFlowPage() {
               ))}
             </ul>
           </section>
+          <PeriodShares rows={view.flow.months.flatMap((m) => shareRows(m.details))} periodLabel={String(year)} />
           <p className="cash-flow-page__opening">
             Saldo a fine anno: <Amount value={view.flow.closingBalance} />
           </p>
