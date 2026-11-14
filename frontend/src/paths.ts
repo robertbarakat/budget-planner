@@ -10,6 +10,7 @@ export const paths = {
   tax: '/tax',
   taxF24: '/tax/f24',
   taxInstallments: '/tax/installments',
+  taxParameters: '/tax/parameters',
   settings: '/settings',
   settingsMacroAreas: '/settings/macro-areas',
   settingsBudgetItems: '/settings/budget-items',
@@ -19,6 +20,5 @@ export const paths = {
   settingsWorkedDays: '/settings/worked-days',
   settingsRevenueDriver: '/settings/revenue-driver',
   settingsRecurrences: '/settings/recurrences',
-  settingsTaxParameters: '/settings/tax-parameters',
   settingsClient: (id: number | string) => `/settings/clients/${id}`,
 } as const

@@ -95,8 +95,9 @@ export default function F24Page() {
   const loading = current.isPending || saved.isPending
   return (
     <main className="f24-page">
+      <h1>Tasse e contributi</h1>
       <TaxNav />
-      <h1>Calendario F24</h1>
+      <h2>Calendario F24</h2>
       <YearSelector year={year} onChange={setYear} />
       {current.isError || saved.isError ? (
         <p role="alert" className="f24-page__note">Non riesco a leggere il calendario. Riprova più tardi.</p>
@@ -106,7 +107,7 @@ export default function F24Page() {
         <>
           {!plan ? (
             <p className="f24-page__note">
-              Mancano i parametri fiscali del {year}: inseriscili in <Link to={paths.settingsTaxParameters}>Parametri fiscali</Link>.
+              Mancano i parametri fiscali del {year}: inseriscili in <Link to={paths.taxParameters}>Parametri fiscali</Link>.
             </p>
           ) : (
             <p className="f24-page__note">

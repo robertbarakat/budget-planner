@@ -38,7 +38,7 @@ export default function TaxPage() {
           <p>
             Servono per calcolare imposta sostitutiva, INPS, acconti e saldo: aliquote, coefficiente di redditività e contributi dell'anno.
           </p>
-          <Link to={paths.settingsTaxParameters} className="tax-page__cta">
+          <Link to={paths.taxParameters} className="tax-page__cta">
             Inserisci i parametri del {year}
           </Link>
         </section>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Link } from 'react-router'
 import { useSaveTaxParameters, useTaxParameters, useTaxParametersList } from '../../api/tax.queries.ts'
 import Button from '../../components/Button.tsx'
+import TaxNav from '../../components/TaxNav.tsx'
 import Field from '../../components/Field.tsx'
 import { useSnackbar } from '../../components/Snackbar.tsx'
 import YearSelector from '../../components/YearSelector.tsx'
@@ -14,7 +14,6 @@ import {
   type TaxParametersDraft,
   type TaxParametersErrors,
 } from '../../lib/tax-parameters-form.ts'
-import { paths } from '../../paths.ts'
 import './TaxParametersPage.css'
 import './settings.css'
 
@@ -25,10 +24,9 @@ export default function TaxParametersPage() {
 
   return (
     <main className="settings">
-      <Link to={paths.settings} className="settings__back">
-        ← Impostazioni
-      </Link>
-      <h1>Parametri fiscali</h1>
+      <h1>Tasse e contributi</h1>
+      <TaxNav />
+      <h2>Parametri fiscali</h2>
       <p className="settings__status">Valori per anno: coefficiente, aliquote e dati dell'attività. I calcoli fiscali usano quelli dell'anno scelto.</p>
       <YearSelector year={year} onChange={setYear} />
       {parameters.isError || saved.isError ? (

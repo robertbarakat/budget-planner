@@ -16,7 +16,7 @@ import '../../components/MonthCloseDialog.css'
 import RecurrenceOccurrencesDialog from '../../components/RecurrenceOccurrencesDialog.tsx'
 import RecurrenceFormDialog from '../../components/RecurrenceFormDialog.tsx'
 import { useSnackbar } from '../../components/Snackbar.tsx'
-import { todayIso } from '../../lib/dates.ts'
+import { formatDate, todayIso } from '../../lib/dates.ts'
 import { emptyRecurrenceForm, frequencyLabel, type RecurrenceFormState } from '../../lib/recurrence-form.ts'
 import { paths } from '../../paths.ts'
 import './RecurrencesSettingsPage.css'
@@ -131,8 +131,8 @@ export default function RecurrencesSettingsPage() {
                       {itemName.get(row.budget_item_id) ?? '—'} · {accountName.get(row.account_id) ?? '—'}
                     </p>
                     <p className="recurrence__detail">
-                      {frequencyLabel(row.frequency)} · dal {row.start_date}
-                      {row.end_date ? ` al ${row.end_date}` : ', senza fine'}
+                      {frequencyLabel(row.frequency)} · dal {formatDate(row.start_date)}
+                      {row.end_date ? ` al ${formatDate(row.end_date)}` : ', senza fine'}
                     </p>
                     <div className="recurrence__actions">
                       <RecurrenceOccurrencesDialog recurrence={row} kind={itemKind.get(row.budget_item_id) === 'income' ? 'income' : 'expense'} />

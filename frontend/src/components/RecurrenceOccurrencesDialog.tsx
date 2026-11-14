@@ -10,6 +10,7 @@ import { isOccurrenceModified, validateOccurrenceAmount } from '../lib/occurrenc
 import Amount from './Amount.tsx'
 import Button from './Button.tsx'
 import Field from './Field.tsx'
+import { formatDate } from '../lib/dates.ts'
 import { useSnackbar } from './Snackbar.tsx'
 import './MoveDialog.css'
 import './RecurrenceOccurrencesDialog.css'
@@ -55,7 +56,7 @@ function OccurrenceRow({ occurrence, recurrence, kind }: RowProps) {
     }
     try {
       await change.mutateAsync({ occurrenceId: occurrence.id, amount: result.amount })
-      showSuccess(`Scadenza del ${occurrence.due_date} aggiornata.`)
+      showSuccess(`Scadenza del ${formatDate(occurrence.due_date)} aggiornata.`)
       setEditing(false)
     } catch {
       // L'errore è già alla snackbar; il campo resta aperto per riprovare.
@@ -65,7 +66,7 @@ function OccurrenceRow({ occurrence, recurrence, kind }: RowProps) {
   async function restoreBase() {
     try {
       await restore.mutateAsync({ occurrenceId: occurrence.id, baseAmount: recurrence.base_amount })
-      showSuccess(`Scadenza del ${occurrence.due_date} riportata all'importo base.`)
+      showSuccess(`Scadenza del ${formatDate(occurrence.due_date)} riportata all'importo base.`)
     } catch {
       // L'errore è già alla snackbar.
     }
@@ -74,14 +75,14 @@ function OccurrenceRow({ occurrence, recurrence, kind }: RowProps) {
   return (
     <li className="occurrences__row">
       <div className="occurrences__summary">
-        <span className="occurrences__date">{occurrence.due_date}</span>
+        <span className="occurrences__date">{formatDate(occurrence.due_date)}</span>
         {modified && <span className="occurrences__badge">Modificata</span>}
         {occurrence.registered_at && <span className="occurrences__badge">Registrata</span>}
         <Amount value={sign * occurrence.amount} explicitPlus={kind === 'income'} />
       </div>
       {editing ? (
         <form className="occurrences__form" onSubmit={save} noValidate>
-          <Field label={`Importo del ${occurrence.due_date} (€)`} error={error} required>
+          <Field label={`Importo del ${formatDate(occurrence.due_date)} (€)`} error={error} required>
             {(p) => (
               <input {...p} type="text" inputMode="decimal" autoComplete="off" value={text} onChange={(e) => setText(e.target.value)} />
             )}
@@ -93,13 +94,13 @@ function OccurrenceRow({ occurrence, recurrence, kind }: RowProps) {
         </form>
       ) : (
         <div className="occurrences__actions">
-          <Button variant="secondary" aria-label={`Modifica la scadenza del ${occurrence.due_date}`} onClick={startEditing}>
+          <Button variant="secondary" aria-label={`Modifica la scadenza del ${formatDate(occurrence.due_date)}`} onClick={startEditing}>
             Modifica
           </Button>
           {modified && (
             <Button
               variant="secondary"
-              aria-label={`Ripristina l'importo base della scadenza del ${occurrence.due_date}`}
+              aria-label={`Ripristina l'importo base della scadenza del ${formatDate(occurrence.due_date)}`}
               loading={restore.isPending}
               onClick={restoreBase}
             >

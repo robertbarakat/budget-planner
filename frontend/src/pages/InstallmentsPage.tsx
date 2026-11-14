@@ -28,8 +28,9 @@ export default function InstallmentsPage() {
 
   return (
     <main className="installments">
+      <h1>Tasse e contributi</h1>
       <TaxNav />
-      <h1>Rateizzazioni</h1>
+      <h2>Rateizzazioni</h2>
       <InstallmentPlanFormDialog />
       <label className="installments__check">
         <input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} />

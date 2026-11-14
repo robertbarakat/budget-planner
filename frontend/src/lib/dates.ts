@@ -5,6 +5,11 @@ export function todayIso(now: Date = new Date()): string {
   return `${now.getFullYear()}-${month}-${day}`
 }
 
+/** Data `YYYY-MM-DD` nel formato italiano `gg/mm/aaaa`. */
+export function formatDate(isoDate: string): string {
+  return isoDate.split('-').reverse().join('/')
+}
+
 /** `true` se il testo è una data `YYYY-MM-DD` che esiste davvero (niente 2026-02-30). */
 export function isValidIsoDate(text: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return false

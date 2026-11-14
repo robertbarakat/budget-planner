@@ -12,9 +12,7 @@ const sections = [
   { to: paths.settingsWorkedDays, title: 'Giorni lavorati', description: 'Giorni previsti per cliente e mese: l\'input della previsione dei ricavi.' },
   { to: paths.settingsRevenueDriver, title: 'Previsione ricavi', description: 'Incassi previsti per cliente e mese, con ritardo d\'incasso e riporto sull\'anno dopo.' },
   { to: paths.settingsRecurrences, title: 'Ricorrenze', description: 'Pagamenti periodici (mutuo, abbonamenti): generano le righe di budget.' },
-  { to: paths.tax, title: 'Tasse e contributi', description: 'Riepilogo dell\'anno: incassi, imposte, INPS, acconti e saldo.' },
-  { to: paths.taxInstallments, title: 'Rateizzazioni', description: 'Debiti fiscali a rate: rate, interessi e residuo.' },
-  { to: paths.settingsTaxParameters, title: 'Parametri fiscali', description: 'Coefficiente, aliquote e dati dell\'attività, per anno.' },
+  { to: paths.tax, title: 'Tasse e contributi', description: 'Riepilogo, calendario F24, rateizzazioni e parametri fiscali, tutto in un posto.' },
 ] as const
 
 export default function SettingsPage() {
