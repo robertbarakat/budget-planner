@@ -31,7 +31,6 @@ export default function OpeningBalances({ accounts }: { accounts: AccountLike[] 
 
   return (
     <section className="opening-balances" aria-labelledby="opening-balances-title">
-      <div className="opening-balances__head">
       <h2 id="opening-balances-title" className="opening-balances__title">
         Saldi iniziali
       </h2>
@@ -54,7 +53,6 @@ export default function OpeningBalances({ accounts }: { accounts: AccountLike[] 
             />
           )}
         </Field>
-      </div>
       </div>
 
       {balances.isPending ? (

@@ -2,19 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
-  padding: var(--space-7);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  background: var(--color-surface);
-}
-
-.opening-balances__head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-6);
-  padding-bottom: var(--space-6);
-  border-bottom: 1px solid var(--color-border);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
 }
 
 .opening-balances__title {
@@ -22,40 +11,25 @@
 }
 
 .opening-balances__year {
-  width: calc(var(--sidebar-width) / 2);
+  max-width: calc(var(--sidebar-width) / 2);
 }
 
 .opening-balances__list {
   display: flex;
   flex-direction: column;
-  margin: 0;
+  gap: var(--space-4);
   padding: 0;
   list-style: none;
 }
 
-.opening-balances__list > li + li {
-  border-top: 1px solid var(--color-border);
-}
-
-/* Riga in sola lettura: nome, importo in evidenza, origine e azione sulla seconda riga (mobile). */
-div.opening-balances__row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: var(--space-3) var(--space-5);
-  padding: var(--space-5) 0;
-}
-
-div.opening-balances__row .num {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-}
-
-form.opening-balances__row {
+.opening-balances__row {
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
-  padding: var(--space-5) 0;
+  padding: var(--space-6) var(--space-7);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
 }
 
 .opening-balances__field input {
@@ -88,11 +62,7 @@ form.opening-balances__row {
 }
 
 @media (min-width: 768px) {
-  div.opening-balances__row {
-    grid-template-columns: 1fr auto auto auto;
-  }
-
-  form.opening-balances__row {
+  .opening-balances__row {
     flex-direction: row;
     align-items: flex-end;
   }
