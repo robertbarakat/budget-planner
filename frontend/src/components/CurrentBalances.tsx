@@ -58,7 +58,7 @@ export default function CurrentBalances({ accounts, title = 'Saldo corrente', hi
           </ul>
           <p className="current-balances__total">
             <span>Totale</span>
-            <Amount value={data.total} colored={false} />
+            <Amount value={data.total} />
           </p>
         </>
       )}

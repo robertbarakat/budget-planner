@@ -23,7 +23,7 @@ Nei componenti e nei `.css` accanto ad essi **niente valori hardcoded** di color
 | `--color-text-muted` | `#55646f` | Testo secondario, etichette |
 | `--color-negative` | `#b23a0a` | Spese e scostamenti negativi (sempre con il segno) |
 | `--color-negative-soft` | `#e7b9a6` | Sfondo/tratto decorativo negativo |
-| `--color-positive` | `#0b6e6a` | Entrate e scostamenti positivi (sempre con il segno) |
+| `--color-positive` | `#15803d` | Entrate e scostamenti positivi (sempre con il segno) |
 | `--color-warning` | `#8a5a00` | Avvisi |
 | `--color-info` | `#1b4fd1` | Serie informative (grafici, macro-aree) |
 | `--color-info-soft` | `#a9bdf0` | Tratto decorativo informativo |

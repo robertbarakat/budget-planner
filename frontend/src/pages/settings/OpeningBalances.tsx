@@ -80,7 +80,7 @@ export default function OpeningBalances({ accounts }: { accounts: AccountLike[] 
           </ul>
           <p className="opening-balances__total">
             <span>Somma dei saldi iniziali {year}</span>
-            <Amount value={total} colored={false} className="opening-balances__total-value" />
+            <Amount value={total} className="opening-balances__total-value" />
           </p>
         </>
       )}

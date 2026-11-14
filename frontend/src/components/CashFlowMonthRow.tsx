@@ -1,4 +1,5 @@
 import { useId, useState } from 'react'
+import { Tooltip } from 'radix-ui'
 import { Link } from 'react-router'
 import type { CashFlowMonth } from '../lib/cash-flow.ts'
 import { monthName } from '../lib/months.ts'
@@ -8,14 +9,55 @@ import MonthCloseDialog from './MonthCloseDialog.tsx'
 import MonthStatusBadge from './MonthStatusBadge.tsx'
 import './CashFlowMonthRow.css'
 
+/** Cosa c'è dentro una voce in un mese: gruppo e categorie con i movimenti registrati (importi in euro con segno). */
+export interface ItemInfo {
+  areaName: string
+  categories: { name: string; amount: number; count: number }[]
+}
+
 export interface CashFlowMonthRowProps {
   year: number
   data: CashFlowMonth
   transactionCount: number
+  /** Dettaglio di una voce per il suggerimento accanto al nome. */
+  itemInfo?: (budgetItemId: number, month: number) => ItemInfo
+}
+
+function ItemHint({ name, info, budgeted }: { name: string; info: ItemInfo; budgeted: number }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <Tooltip.Root open={open} onOpenChange={setOpen} delayDuration={150}>
+      <Tooltip.Trigger asChild>
+        <button type="button" className="cash-month__hint" aria-label={`Cosa c'è dentro ${name}`} onClick={() => setOpen((v) => !v)}>
+          i
+        </button>
+      </Tooltip.Trigger>
+      <Tooltip.Portal>
+        <Tooltip.Content className="cash-month__tip" side="top" align="start" sideOffset={6}>
+          <strong>{name}</strong>
+          <span className="cash-month__tip-area">Gruppo: {info.areaName}</span>
+          {info.categories.length === 0 ? (
+            <span>Nessun movimento registrato: importo previsto <Amount value={budgeted} />.</span>
+          ) : (
+            <ul>
+              {info.categories.map((c) => (
+                <li key={c.name}>
+                  <span>
+                    {c.name} <span className="cash-month__tip-count">({c.count} {c.count === 1 ? 'movimento' : 'movimenti'})</span>
+                  </span>
+                  <Amount value={c.amount} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </Tooltip.Content>
+      </Tooltip.Portal>
+    </Tooltip.Root>
+  )
 }
 
 /** Una riga della vista cronologica: stato, entrate, uscite, flusso e saldo a fine mese. */
-export default function CashFlowMonthRow({ year, data, transactionCount }: CashFlowMonthRowProps) {
+export default function CashFlowMonthRow({ year, data, transactionCount, itemInfo }: CashFlowMonthRowProps) {
   const [expanded, setExpanded] = useState(false)
   const panelId = useId()
   const label = `${monthName(data.month)} ${year}`
@@ -50,7 +92,7 @@ export default function CashFlowMonthRow({ year, data, transactionCount }: CashF
         <div className="cash-month__balance">
           <dt>Saldo a fine mese</dt>
           <dd>
-            <Amount value={data.endBalance} colored={false} />
+            <Amount value={data.endBalance} />
           </dd>
         </div>
       </dl>
@@ -84,7 +126,10 @@ export default function CashFlowMonthRow({ year, data, transactionCount }: CashF
             <tbody>
               {data.details.map((detail) => (
                 <tr key={detail.budgetItemId}>
-                  <th scope="row">{detail.name}</th>
+                  <th scope="row">
+                    {detail.name}
+                    {itemInfo && <ItemHint name={detail.name} info={itemInfo(detail.budgetItemId, data.month)} budgeted={detail.budgeted} />}
+                  </th>
                   <td>
                     <Amount value={detail.budgeted} />
                   </td>

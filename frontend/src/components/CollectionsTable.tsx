@@ -48,7 +48,7 @@ export default function CollectionsTable({ table, label, showCarriedIn = false }
                     </span>
                   ) : (
                     <span className="collections__cell">
-                      <Amount value={cell.cents / 100} colored={false} />
+                      <Amount value={cell.cents / 100} />
                       {showCarriedIn && cell.fromPreviousYear && (
                         <span className="collections__carried" title="Da lavoro dell'anno precedente">
                           da anno precedente
@@ -59,7 +59,7 @@ export default function CollectionsTable({ table, label, showCarriedIn = false }
                 </td>
               ))}
               <td className="data-grid__sum">
-                <Amount value={row.totalCents / 100} colored={false} />
+                <Amount value={row.totalCents / 100} />
               </td>
             </tr>
           ))}
@@ -71,11 +71,11 @@ export default function CollectionsTable({ table, label, showCarriedIn = false }
             </th>
             {table.monthCents.map((cents, index) => (
               <td key={index}>
-                <Amount value={cents / 100} colored={false} />
+                <Amount value={cents / 100} />
               </td>
             ))}
             <td className="data-grid__sum">
-              <Amount value={table.totalCents / 100} colored={false} />
+              <Amount value={table.totalCents / 100} />
             </td>
           </tr>
         </tfoot>

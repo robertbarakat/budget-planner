@@ -12,7 +12,8 @@ export interface AmountProps {
 }
 
 export default function Amount({ value, explicitPlus = false, colored = true, className }: AmountProps) {
-  const sign = amountSign(value, explicitPlus)
+  // Colorati = segno sempre esplicito: + e verde per i positivi, − e rosso per i negativi.
+  const sign = amountSign(value, explicitPlus || colored)
   const tone = !colored || sign === '' ? '' : sign === '-' ? 'amount--negative' : 'amount--positive'
   const classes = ['amount', 'num', tone, className].filter(Boolean).join(' ')
 

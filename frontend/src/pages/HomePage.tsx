@@ -60,7 +60,7 @@ export default function HomePage() {
               Cassa prevista a fine mese
             </h2>
             <p className="home-card__big">
-              <Amount value={summary.endBalance} colored={false} />
+              <Amount value={summary.endBalance} />
             </p>
             <p className="home-card__hint">Saldo a fine {monthName(month)}: reale nei mesi chiusi, previsto negli altri.</p>
           </section>
@@ -73,13 +73,13 @@ export default function HomePage() {
               <div>
                 <dt>Reale</dt>
                 <dd>
-                  <Amount value={summary.expenses.actual} colored={false} />
+                  <Amount value={summary.expenses.actual} />
                 </dd>
               </div>
               <div>
                 <dt>Previsto</dt>
                 <dd>
-                  <Amount value={summary.expenses.budgeted} colored={false} />
+                  <Amount value={summary.expenses.budgeted} />
                 </dd>
               </div>
               <div>

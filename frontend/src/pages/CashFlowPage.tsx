@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
+import { Tooltip } from 'radix-ui'
+import { useCategories } from '../api/classification.queries.ts'
 import Amount from '../components/Amount.tsx'
-import CashFlowMonthRow from '../components/CashFlowMonthRow.tsx'
+import CashFlowMonthRow, { type ItemInfo } from '../components/CashFlowMonthRow.tsx'
 import PeriodSelector, { usePeriod } from '../components/PeriodSelector.tsx'
 import { buildCashFlow } from '../lib/cash-flow.ts'
 import { buildMonthStatuses } from '../lib/month-status.ts'
@@ -11,6 +13,7 @@ export default function CashFlowPage() {
   const [period, setPeriod] = usePeriod('none')
   const { year } = period
   const { inputs, isError } = useYearInputs(year)
+  const categories = useCategories()
 
   const view = useMemo(() => {
     if (!inputs) return null
@@ -25,7 +28,29 @@ export default function CashFlowPage() {
     return { flow, statuses: buildMonthStatuses(year, inputs.closedMonths, inputs.transactions) }
   }, [year, inputs])
 
+  const itemInfo = useMemo(() => {
+    if (!inputs) return undefined
+    const categoryName = new Map((categories.data ?? []).map((c) => [c.id, c.name]))
+    const areaOf = new Map(inputs.budgetItems.map((i) => [i.id, inputs.areas.find((a) => a.id === i.macroAreaId)?.name ?? '']))
+    return (budgetItemId: number, month: number): ItemInfo => {
+      const totals = new Map<string, { amount: number; count: number }>()
+      for (const t of inputs.transactions) {
+        if (t.budgetItemId !== budgetItemId || t.type === 'transfer') continue
+        if (Number(t.transactionDate.slice(0, 4)) !== year || Number(t.transactionDate.slice(5, 7)) !== month) continue
+        const name = (t.categoryId !== null ? categoryName.get(t.categoryId) : undefined) ?? 'Senza categoria'
+        const cur = totals.get(name) ?? { amount: 0, count: 0 }
+        cur.amount += t.type === 'expense' ? -t.amount : t.amount
+        cur.count += 1
+        totals.set(name, cur)
+      }
+      const rows = [...totals.entries()].map(([name, v]) => ({ name, amount: Math.round(v.amount * 100) / 100, count: v.count }))
+      rows.sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount))
+      return { areaName: areaOf.get(budgetItemId) ?? '', categories: rows }
+    }
+  }, [inputs, categories.data, year])
+
   return (
+    <Tooltip.Provider>
     <main className="cash-flow-page">
       <h1>Flusso di cassa</h1>
       <PeriodSelector period={period} onChange={setPeriod} monthMode="none" />
@@ -40,7 +65,7 @@ export default function CashFlowPage() {
       ) : (
         <>
           <p className="cash-flow-page__opening">
-            Saldo iniziale {year}: <Amount value={view.flow.openingBalance} colored={false} />
+            Saldo iniziale {year}: <Amount value={view.flow.openingBalance} />
           </p>
           <section aria-label={`Flusso di cassa ${year}`}>
             <ul className="cash-flow-page__months">
@@ -50,15 +75,17 @@ export default function CashFlowPage() {
                   year={year}
                   data={month}
                   transactionCount={view.statuses[month.month - 1]?.transactionCount ?? 0}
+                  itemInfo={itemInfo}
                 />
               ))}
             </ul>
           </section>
           <p className="cash-flow-page__opening">
-            Saldo a fine anno: <Amount value={view.flow.closingBalance} colored={false} />
+            Saldo a fine anno: <Amount value={view.flow.closingBalance} />
           </p>
         </>
       )}
     </main>
+    </Tooltip.Provider>
   )
 }

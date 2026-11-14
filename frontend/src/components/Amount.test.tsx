@@ -24,9 +24,16 @@ describe('Amount', () => {
     expect(screen.getByText(/1\.500,00/)).toHaveTextContent('+')
   })
 
-  it('mostra 1.234,50 € per 1234.5', () => {
-    render(<Amount value={1234.5} />)
+  it('mostra 1.234,50 € per 1234.5, con il + e senza colore se non colorato', () => {
+    render(<Amount value={1234.5} colored={false} />)
     expect(screen.getByText(/1\.234,50/).textContent).toBe(`1.234,50${nbsp}€`)
+  })
+
+  it('i positivi colorati hanno il + davanti', () => {
+    render(<Amount value={1234.5} />)
+    const el = screen.getByText(/1\.234,50/)
+    expect(el.textContent).toBe(`+1.234,50${nbsp}€`)
+    expect(el).toHaveClass('amount--positive')
   })
 
   it('lo zero non ha segno né colore', () => {
