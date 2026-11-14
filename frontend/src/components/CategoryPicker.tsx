@@ -22,7 +22,7 @@ export default function CategoryPicker({ id, groups, value, onChange, invalid, d
   const rows = groups.flatMap((g) => g.categories.map((c) => ({ ...c, item: g.budgetItemName, macro: g.macroAreaName })))
   const selected = rows.find((r) => String(r.id) === value)
   const visible = rows.filter((r) => !needle || `${r.name} ${r.item} ${r.macro}`.toLowerCase().includes(needle))
-  const macros = [...new Set(visible.map((r) => r.macro))]
+  const macros = [...new Set(visible.map((r) => r.macro))].sort((a, b) => a.localeCompare(b, 'it'))
 
   function pick(next: string) {
     onChange(next)
