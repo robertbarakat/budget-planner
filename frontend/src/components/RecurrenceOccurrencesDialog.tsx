@@ -122,7 +122,7 @@ export default function RecurrenceOccurrencesDialog({ recurrence, kind }: Recurr
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button variant="secondary" aria-label={`Scadenze di ${recurrence.name}`}>Scadenze</Button>
+        <button type="button" className="text-link" aria-label={`Scadenze di ${recurrence.name}`}>Scadenze</button>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="move-dialog__overlay" />

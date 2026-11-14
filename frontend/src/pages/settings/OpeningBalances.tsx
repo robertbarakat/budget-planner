@@ -2,7 +2,6 @@ import { useState, type FormEvent } from 'react'
 import { eurosToCents, sumCents } from 'budget-planner-shared'
 import { useOpeningBalances, useSetOpeningBalance } from '../../api/accounts.queries.ts'
 import Amount from '../../components/Amount.tsx'
-import Button from '../../components/Button.tsx'
 import Field from '../../components/Field.tsx'
 import { useSnackbar } from '../../components/Snackbar.tsx'
 import { parseAmount } from '../../lib/parse-amount.ts'
@@ -31,10 +30,9 @@ export default function OpeningBalances({ accounts }: { accounts: AccountLike[] 
   const total = sumCents(shown.flatMap((account) => byAccount.get(account.id) ?? []).map((row) => eurosToCents(row.amount))) / 100
 
   return (
-    <section className="opening-balances" aria-labelledby="opening-balances-title">
-      <h2 id="opening-balances-title" className="opening-balances__title">
-        Saldi iniziali
-      </h2>
+    <details className="opening-balances">
+      <summary className="opening-balances__title">Saldi iniziali</summary>
+      <p className="settings__status">Quanto avevi su ogni conto a inizio anno: da qui parte il saldo di Home e Flusso di cassa.</p>
       <div className="opening-balances__year">
         <Field label="Anno">
           {(p) => (
@@ -84,7 +82,7 @@ export default function OpeningBalances({ accounts }: { accounts: AccountLike[] 
           </p>
         </>
       )}
-    </section>
+    </details>
   )
 }
 
@@ -120,9 +118,9 @@ function BalanceForm({ account, year, balance }: { account: AccountLike; year: n
         </Field>
       </div>
       <span className="opening-balances__source">{balance ? SOURCE_LABEL[balance.source] : 'Non impostato'}</span>
-      <Button type="submit" variant="secondary" loading={save.isPending} aria-label={`Salva saldo iniziale ${account.name}`}>
+      <button type="submit" className="text-link" disabled={save.isPending} aria-label={`Salva saldo iniziale ${account.name}`}>
         Salva
-      </Button>
+      </button>
     </form>
   )
 }

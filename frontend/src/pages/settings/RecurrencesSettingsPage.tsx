@@ -142,7 +142,7 @@ export default function RecurrencesSettingsPage() {
                             title={`Modifica ${row.name}`}
                             submitLabel="Salva"
                             description="Cambiano solo le scadenze future non modificate a mano; le passate restano."
-                            trigger={<Button variant="secondary" aria-label={`Modifica ${row.name}`}>Modifica</Button>}
+                            trigger={<button type="button" className="text-link" aria-label={`Modifica ${row.name}`}>Modifica</button>}
                             initial={formFor(row)}
                             budgetItems={choices.budgetItems}
                             accounts={choices.accounts}
@@ -151,9 +151,9 @@ export default function RecurrencesSettingsPage() {
                               showSuccess(`${values.name} aggiornata.`)
                             }}
                           />
-                          <Button variant="secondary" aria-label={`Archivia ${row.name}`} onClick={() => setToArchive(row)}>
+                          <button type="button" className="text-link text-link--quiet" aria-label={`Archivia ${row.name}`} onClick={() => setToArchive(row)}>
                             Archivia
-                          </Button>
+                          </button>
                         </>
                       )}
                     </div>
