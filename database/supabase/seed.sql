@@ -10,7 +10,7 @@
 -- Conti
 insert into public.accounts (name, sort_order)
 select v.name, v.sort_order
-from (values ('Bancoposta', 1), ('Cash', 2), ('Postepay', 3)) as v(name, sort_order)
+from (values ('Bancoposta', 1), ('Cash', 2), ('Postepay', 3), ('Intesa San Paolo', 4), ('Trade Republic', 5)) as v(name, sort_order)
 where not exists (
   select 1 from public.accounts a where lower(a.name) = lower(v.name) and not a.archived
 );
