@@ -15,6 +15,7 @@ import { queryClient } from './api/query-client.ts'
 import { SessionProvider } from './api/auth.queries.tsx'
 import { getSupabase } from './api/supabase.ts'
 import { SnackbarProvider } from './components/Snackbar.tsx'
+import { registerServiceWorker } from './lib/register-sw.ts'
 import { routes } from './routes.tsx'
 
 function startupError(): string | null {
@@ -45,3 +46,5 @@ createRoot(document.getElementById('root')!).render(
     )}
   </StrictMode>,
 )
+
+registerServiceWorker()
