@@ -429,8 +429,6 @@
 }
 
 .budget-grid__label {
-  padding-left: var(--space-5);
-  padding-right: var(--space-3);
   position: sticky;
   left: 0;
   z-index: 1;
@@ -490,4 +488,9 @@
   flex: none;
   color: var(--color-text-muted);
   font-style: italic;
+}
+
+/* Intestazione "Macro-area e voci" in alto a sinistra: un po' di spazio dal bordo. */
+.budget-grid__head .budget-grid__label {
+  padding-left: var(--space-5);
 }
