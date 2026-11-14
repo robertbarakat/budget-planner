@@ -36,23 +36,26 @@ export class BaseService<T extends TableName> {
 
   /** Elenco, con filtri di uguaglianza e ordinamento. */
   async list(options: ListOptions<T> = {}): Promise<RowOf<T>[]> {
-    // I tipi generici di Supabase non seguono un nome di tabella generico: il cast è confinato qui.
-    let query = this.client.from(this.table).select('*') as unknown as FilterableQuery<RowOf<T>[]>
-    if (options.where) query = query.match(options.where as Record<string, unknown>)
-    if (options.range?.from !== undefined) query = query.gte(options.range.column, options.range.from)
-    if (options.range?.to !== undefined) query = query.lte(options.range.column, options.range.to)
-    for (const order of options.orderBy ?? []) {
-      query = query.order(order.column, { ascending: order.ascending ?? true })
+    const build = (): FilterableQuery<RowOf<T>[]> => {
+      // I tipi generici di Supabase non seguono un nome di tabella generico: il cast è confinato qui.
+      let query = this.client.from(this.table).select('*') as unknown as FilterableQuery<RowOf<T>[]>
+      if (options.where) query = query.match(options.where as Record<string, unknown>)
+      if (options.range?.from !== undefined) query = query.gte(options.range.column, options.range.from)
+      if (options.range?.to !== undefined) query = query.lte(options.range.column, options.range.to)
+      for (const order of options.orderBy ?? []) {
+        query = query.order(order.column, { ascending: order.ascending ?? true })
+      }
+      return query
     }
-    return unwrap(await query)
+    return fetchAllRows(build, (options.orderBy?.length ?? 0) > 0)
   }
 
   /** Solo una colonna di tutte le righe (più leggero di `list` quando serve poco). */
   async listColumn<K extends keyof RowOf<T> & string>(column: K): Promise<Pick<RowOf<T>, K>[]> {
-    const query = this.client.from(this.table).select(column) as unknown as PromiseLike<
-      QueryResult<Pick<RowOf<T>, K>[]>
-    >
-    return unwrap(await query)
+    return fetchAllRows(
+      () => this.client.from(this.table).select(column) as unknown as FilterableQuery<Pick<RowOf<T>, K>[]>,
+      false,
+    )
   }
 
   /** Una colonna delle righe che soddisfano un'uguaglianza (es. `{ category_id: 5 }`). */
@@ -60,10 +63,13 @@ export class BaseService<T extends TableName> {
     where: Partial<RowOf<T>>,
     column: K,
   ): Promise<Pick<RowOf<T>, K>[]> {
-    const query = (this.client.from(this.table).select(column) as unknown as FilterableQuery<Pick<RowOf<T>, K>[]>).match(
-      where as Record<string, unknown>,
+    return fetchAllRows(
+      () =>
+        (this.client.from(this.table).select(column) as unknown as FilterableQuery<Pick<RowOf<T>, K>[]>).match(
+          where as Record<string, unknown>,
+        ),
+      false,
     )
-    return unwrap(await query)
   }
 
   /** Una riga per id; `AppError` di tipo `not_found` se non esiste. */
@@ -136,6 +142,33 @@ interface FilterableQuery<D> extends PromiseLike<QueryResult<D>> {
   gte(column: string, value: string): FilterableQuery<D>
   lte(column: string, value: string): FilterableQuery<D>
   order(column: string, options: { ascending: boolean }): FilterableQuery<D>
+  range(from: number, to: number): FilterableQuery<D>
+}
+
+/** Query che si può leggere a pagine: ordinabile e con `range`. */
+export interface PagedQuery<D> extends PromiseLike<QueryResult<D>> {
+  order(column: string, options: { ascending: boolean }): PagedQuery<D>
+  range(from: number, to: number): PagedQuery<D>
+}
+
+/** Righe massime per risposta: è il limite predefinito di Supabase (PostgREST). */
+export const PAGE_SIZE = 1000
+
+/**
+ * Legge tutte le righe di una query anche oltre `PAGE_SIZE`. Se la prima risposta è piena rilegge a pagine
+ * (`range`); senza un ordine esplicito aggiunge `id` perché le pagine non si sovrappongano né perdano righe.
+ */
+export async function fetchAllRows<R>(build: () => PagedQuery<R[]>, ordered: boolean): Promise<R[]> {
+  const first = unwrap(await build())
+  if (first.length < PAGE_SIZE) return first
+  const rows: R[] = []
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const base = build()
+    const query = ordered ? base : base.order('id', { ascending: true })
+    const page = unwrap(await query.range(from, from + PAGE_SIZE - 1))
+    rows.push(...page)
+    if (page.length < PAGE_SIZE) return rows
+  }
 }
 
 interface SingleQuery<D> {

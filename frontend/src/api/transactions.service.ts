@@ -1,5 +1,5 @@
 import { AppError } from './api-error.ts'
-import { BaseService, unwrap, type InsertOf, type RowOf, type UpdateOf } from './base-service.ts'
+import { BaseService, fetchAllRows, unwrap, type InsertOf, type PagedQuery, type RowOf, type UpdateOf } from './base-service.ts'
 import { getSupabase, type TypedSupabaseClient } from './supabase.ts'
 
 export interface TransactionFilters {
@@ -24,18 +24,22 @@ export class TransactionsService extends BaseService<'transactions'> {
 
   /** Movimenti filtrati, dal più recente al più vecchio. */
   async listFiltered(filters: TransactionFilters = {}): Promise<RowOf<'transactions'>[]> {
-    let query = this.client.from('transactions').select('*')
-    if (filters.from !== undefined) query = query.gte('transaction_date', filters.from)
-    if (filters.to !== undefined) query = query.lte('transaction_date', filters.to)
-    if (filters.accountId !== undefined) {
-      query = query.or(`account_id.eq.${filters.accountId},destination_account_id.eq.${filters.accountId}`)
+    const build = () => {
+      let query = this.client.from('transactions').select('*')
+      if (filters.from !== undefined) query = query.gte('transaction_date', filters.from)
+      if (filters.to !== undefined) query = query.lte('transaction_date', filters.to)
+      if (filters.accountId !== undefined) {
+        query = query.or(`account_id.eq.${filters.accountId},destination_account_id.eq.${filters.accountId}`)
+      }
+      if (filters.categoryId !== undefined) query = query.eq('category_id', filters.categoryId)
+      if (filters.budgetItemId !== undefined) query = query.eq('budget_item_id', filters.budgetItemId)
+      if (filters.type !== undefined) query = query.eq('type', filters.type)
+      query = query.order('transaction_date', { ascending: false }).order('id', { ascending: false })
+      return query
     }
-    if (filters.categoryId !== undefined) query = query.eq('category_id', filters.categoryId)
-    if (filters.budgetItemId !== undefined) query = query.eq('budget_item_id', filters.budgetItemId)
-    if (filters.type !== undefined) query = query.eq('type', filters.type)
-    query = query.order('transaction_date', { ascending: false }).order('id', { ascending: false })
-    if (filters.limit !== undefined) query = query.limit(filters.limit)
-    return unwrap(await query)
+    // Con `limit` una sola risposta; altrimenti tutte le righe, anche oltre il tetto di Supabase.
+    if (filters.limit !== undefined) return unwrap(await build().limit(filters.limit))
+    return fetchAllRows(build as unknown as () => PagedQuery<RowOf<'transactions'>[]>, true)
   }
 
   /** Tutti i movimenti di un anno solare, dal più recente al più vecchio. */
