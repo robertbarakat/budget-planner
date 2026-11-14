@@ -22,6 +22,7 @@ import ClientDetailPage from './pages/settings/ClientDetailPage.tsx'
 import ClientsSettingsPage from './pages/settings/ClientsSettingsPage.tsx'
 import RecurrencesSettingsPage from './pages/settings/RecurrencesSettingsPage.tsx'
 import TaxParametersPage from './pages/settings/TaxParametersPage.tsx'
+import StructurePage from './pages/settings/StructurePage.tsx'
 import MacroAreasSettingsPage from './pages/settings/MacroAreasSettingsPage.tsx'
 
 // Unico file delle rotte (gli indirizzi stanno in paths.ts).
@@ -45,6 +46,7 @@ export const routes: RouteObject[] = [
           { path: 'tax/installments', element: <InstallmentsPage /> },
           { path: 'tax/parameters', element: <TaxParametersPage /> },
           { path: 'settings', element: <SettingsPage /> },
+          { path: 'settings/structure', element: <StructurePage /> },
           { path: 'settings/macro-areas', element: <MacroAreasSettingsPage /> },
           { path: 'settings/budget-items', element: <BudgetItemsSettingsPage /> },
           { path: 'settings/categories', element: <CategoriesSettingsPage /> },

@@ -12,6 +12,7 @@ export const paths = {
   taxInstallments: '/tax/installments',
   taxParameters: '/tax/parameters',
   settings: '/settings',
+  settingsStructure: '/settings/structure',
   settingsMacroAreas: '/settings/macro-areas',
   settingsBudgetItems: '/settings/budget-items',
   settingsCategories: '/settings/categories',

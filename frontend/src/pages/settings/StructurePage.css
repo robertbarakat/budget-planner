@@ -1,0 +1,104 @@
+.structure__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--target-min);
+}
+
+.structure__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+}
+
+.structure__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-left: var(--space-6);
+  padding-left: var(--space-6);
+  border-left: 2px solid var(--color-primary-soft);
+}
+
+.structure-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--target-min);
+}
+
+.structure-row--group {
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.structure-row--item {
+  font-weight: var(--font-weight-semibold);
+}
+
+.structure-row--category {
+  margin-left: var(--space-6);
+  color: var(--color-text-muted);
+}
+
+.structure-row--archived {
+  opacity: 0.7;
+}
+
+.structure-row__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.structure-row__tag {
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.structure-row__actions,
+.structure-row__edit,
+.structure-add--open {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-4);
+}
+
+.structure-row__edit,
+.structure-add--open {
+  width: 100%;
+}
+
+.structure-row__edit input,
+.structure-add--open input {
+  flex: 1;
+  min-width: 8rem;
+}
+
+.structure-row .button,
+.structure-add .button {
+  padding-inline: var(--space-6);
+  font-size: var(--font-size-md);
+}
+
+.structure-add {
+  display: flex;
+  justify-content: flex-end;
+}

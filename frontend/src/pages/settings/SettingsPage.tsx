@@ -4,11 +4,8 @@ import './settings.css'
 
 // Le sezioni si aggiungono qui man mano che le pagine esistono.
 const sections = [
-  { to: paths.settingsMacroAreas, title: 'Macro-aree', description: 'Raggruppamenti per la vista di sintesi.' },
-  { to: paths.settingsBudgetItems, title: 'Voci di budget', description: 'Il livello della previsione, raggruppato per macro-area.' },
-  { to: paths.settingsCategories, title: 'Categorie', description: 'Il livello dell\'inserimento, raggruppato per voce di budget.' },
+  { to: paths.settingsStructure, title: 'Voci e categorie', description: 'Come sono organizzati i tuoi soldi: gruppi, voci di budget e categorie dei movimenti.' },
   { to: paths.settingsAccounts, title: 'Conti', description: 'Dove stanno i soldi: aggiungi, riordina, archivia.' },
-  { to: paths.settingsClients, title: 'Clienti', description: 'Chi ti paga: ogni cliente alimenta una voce di entrata.' },
   { to: paths.settingsWorkedDays, title: 'Giorni lavorati', description: 'Giorni previsti per cliente e mese: l\'input della previsione dei ricavi.' },
   { to: paths.settingsRevenueDriver, title: 'Previsione ricavi', description: 'Incassi previsti per cliente e mese, con ritardo d\'incasso e riporto sull\'anno dopo.' },
   { to: paths.settingsRecurrences, title: 'Ricorrenze', description: 'Pagamenti periodici (mutuo, abbonamenti): generano le righe di budget.' },
