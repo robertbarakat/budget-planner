@@ -40,18 +40,19 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (url.pathname.startsWith('/assets/') || SHELL.includes(url.pathname)) {
+    // Mai in cache una pagina HTML al posto di un file: durante un deploy un file nuovo può rispondere con l'HTML della pagina.
+    const isHtml = (res) => (res.headers.get('content-type') || '').includes('text/html')
     event.respondWith(
-      caches.match(req).then(
-        (hit) =>
-          hit ||
-          fetch(req).then((res) => {
-            if (res.ok) {
-              const copy = res.clone()
-              caches.open(CACHE).then((c) => c.put(req, copy))
-            }
-            return res
-          }),
-      ),
+      caches.match(req).then((hit) => {
+        if (hit && !isHtml(hit)) return hit
+        return fetch(req).then((res) => {
+          if (res.ok && !isHtml(res)) {
+            const copy = res.clone()
+            caches.open(CACHE).then((c) => c.put(req, copy))
+          }
+          return res
+        })
+      }),
     )
   }
 })
