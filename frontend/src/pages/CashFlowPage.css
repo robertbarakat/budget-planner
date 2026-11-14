@@ -9,7 +9,13 @@
   color: var(--color-text-muted);
 }
 
+.cash-flow-page__balances {
+  display: grid;
+  gap: var(--space-4);
+}
+
 .cash-flow-page__opening {
+  margin: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;

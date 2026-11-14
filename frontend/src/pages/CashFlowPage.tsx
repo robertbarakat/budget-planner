@@ -63,9 +63,15 @@ export default function CashFlowPage() {
         </p>
       ) : (
         <>
-          <p className="cash-flow-page__opening">
-            Saldo iniziale {year}: <Amount value={view.flow.openingBalance} />
-          </p>
+          <div className="cash-flow-page__balances">
+            <p className="cash-flow-page__opening">
+              Saldo iniziale {year}: <Amount value={view.flow.openingBalance} />
+            </p>
+            <p className="cash-flow-page__opening">
+              {view.flow.months.every((m) => m.isClosed) ? `Saldo finale ${year}` : `Saldo previsto fine ${year}`}:{' '}
+              <Amount value={view.flow.closingBalance} />
+            </p>
+          </div>
           <section aria-label={`Flusso di cassa ${year}`}>
             <ul className="cash-flow-page__months">
               {view.flow.months.map((month) => (
@@ -80,9 +86,6 @@ export default function CashFlowPage() {
             </ul>
           </section>
           <PeriodShares rows={view.flow.months.flatMap((m) => shareRows(m.details))} periodLabel={String(year)} />
-          <p className="cash-flow-page__opening">
-            Saldo a fine anno: <Amount value={view.flow.closingBalance} />
-          </p>
         </>
       )}
     </main>

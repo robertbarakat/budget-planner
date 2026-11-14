@@ -67,7 +67,7 @@ describe('CashFlowPage: saldo progressivo', () => {
     expect(within(february).getByText('Aperto')).toBeInTheDocument()
     expect(within(february).getByText('Previsto', { selector: '.cash-month__basis' })).toBeInTheDocument()
     expect(within(february).getByText('Saldo a fine mese').nextElementSibling).toHaveTextContent('1.650,00')
-    expect(screen.getByText(/Saldo a fine anno/)).toHaveTextContent('1.650,00')
+    expect(screen.getByText(/Saldo previsto fine 2026/)).toHaveTextContent('1.650,00')
   })
 })
 
