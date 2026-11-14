@@ -137,6 +137,12 @@ export default function BudgetPage() {
   }, [data.transactions])
   const categoryActual = (itemId: number, categoryId: number | null, index: number) =>
     closed[index] ? Math.round((categoryActuals.get(`${itemId}|${categoryId ?? 'none'}|${index + 1}`) ?? 0) * 100) / 100 : undefined
+  // Mese aperto: il reale parziale, solo se c'è almeno un movimento per quella voce o categoria.
+  const categoryPartial = (itemId: number, categoryId: number | null, index: number) => {
+    if (closed[index]) return undefined
+    const value = categoryActuals.get(`${itemId}|${categoryId ?? 'none'}|${index + 1}`)
+    return value === undefined ? undefined : Math.round(value * 100) / 100
+  }
 
   const matrix = useMemo(() => {
     if (!data.isReady || !macroAreas.data || !budgetItems.data || !data.entries || !data.transactions || !data.closedMonths) return null
@@ -231,7 +237,7 @@ export default function BudgetPage() {
                   ) : (
                     <ClosedAmount
                       budgeted={(group.monthCents[index] ?? 0) / 100}
-                      actual={closed[index] ? groupCells.get(group.macroAreaId)?.[index]?.actual : undefined}
+                      actual={closed[index] ? groupCells.get(group.macroAreaId)?.[index]?.actual : undefined} partial={closed[index] ? undefined : groupCells.get(group.macroAreaId)?.[index]?.actual}
                     />
                   )}
                 </button>
@@ -253,11 +259,11 @@ export default function BudgetPage() {
                             <Amount value={item.yearCents / 100} />
                           ) : item.categories.length > 0 ? (
                             <span className="budget-cell__readonly">
-                              <BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
+                              <BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} partial={closed[index] ? undefined : itemCells.get(item.budgetItemId)?.[index]?.actual} />
                             </span>
                           ) : (
                             <EditableBudgetCell title={`${item.name}, ${MONTHS[index]!.label} ${year}`} ariaLabel={`Modifica ${item.name}, ${MONTHS[index]!.label} ${year}`} kind={item.kind} entries={cell.entries} onSave={saveCell(item.budgetItemId, month)}>
-<BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
+<BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} partial={closed[index] ? undefined : itemCells.get(item.budgetItemId)?.[index]?.actual} />
 </EditableBudgetCell>
                           )}
                           {item.categories.length > 0 && expandedItems.has(item.budgetItemId) && (
@@ -271,7 +277,7 @@ export default function BudgetPage() {
                                       <Amount value={cat.yearCents / 100} />
                                     ) : (
                                       <EditableBudgetCell title={`${item.name} · ${cat.name}, ${MONTHS[index]!.label} ${year}`} ariaLabel={`Modifica ${item.name} ${cat.name}, ${MONTHS[index]!.label} ${year}`} kind={item.kind} entries={catCell.entries} onSave={saveCell(item.budgetItemId, month, cat.categoryId)}>
-<BudgetCell cell={catCell} actual={categoryActual(item.budgetItemId, cat.categoryId, index)} />
+<BudgetCell cell={catCell} actual={categoryActual(item.budgetItemId, cat.categoryId, index)} partial={categoryPartial(item.budgetItemId, cat.categoryId, index)} />
 </EditableBudgetCell>
                                     )}
                                   </li>
@@ -290,7 +296,7 @@ export default function BudgetPage() {
           {month !== null && (
             <div className="budget-mobile__total">
               <span>Totale {MONTHS[month - 1]!.label}</span>
-              <ClosedAmount budgeted={(grid.monthCents[month - 1] ?? 0) / 100} actual={closed[month - 1] ? matrix?.months[month - 1]?.actual : undefined} />
+              <ClosedAmount budgeted={(grid.monthCents[month - 1] ?? 0) / 100} actual={closed[month - 1] ? matrix?.months[month - 1]?.actual : undefined} partial={closed[month - 1] ? undefined : matrix?.months[month - 1]?.actual} />
             </div>
           )}
           <div className="budget-mobile__total">
@@ -371,7 +377,7 @@ export default function BudgetPage() {
                   </div>
                   {group.monthCents.map((cents, index) => (
                     <div role="cell" key={index} className="budget-grid__cell">
-                      <ClosedAmount budgeted={cents / 100} actual={closed[index] ? groupCells.get(group.macroAreaId)?.[index]?.actual : undefined} />
+                      <ClosedAmount budgeted={cents / 100} actual={closed[index] ? groupCells.get(group.macroAreaId)?.[index]?.actual : undefined} partial={closed[index] ? undefined : groupCells.get(group.macroAreaId)?.[index]?.actual} />
                     </div>
                   ))}
                   <div role="cell" className="budget-grid__cell budget-grid__sum">
@@ -393,11 +399,11 @@ export default function BudgetPage() {
                       <div role="cell" key={index} className="budget-grid__cell">
                         {item.categories.length > 0 ? (
                           <span className="budget-cell__readonly">
-                            <BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
+                            <BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} partial={closed[index] ? undefined : itemCells.get(item.budgetItemId)?.[index]?.actual} />
                           </span>
                         ) : (
                         <EditableBudgetCell title={`${item.name}, ${MONTHS[index]!.label} ${year}`} ariaLabel={`Modifica ${item.name}, ${MONTHS[index]!.label} ${year}`} kind={item.kind} entries={cell.entries} onSave={saveCell(item.budgetItemId, index + 1)}>
-<BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
+<BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} partial={closed[index] ? undefined : itemCells.get(item.budgetItemId)?.[index]?.actual} />
 </EditableBudgetCell>
                         )}
                       </div>
@@ -414,7 +420,7 @@ export default function BudgetPage() {
                       {cat.months.map((cell, index) => (
                         <div role="cell" key={index} className="budget-grid__cell">
                           <EditableBudgetCell title={`${item.name} · ${cat.name}, ${MONTHS[index]!.label} ${year}`} ariaLabel={`Modifica ${item.name} ${cat.name}, ${MONTHS[index]!.label} ${year}`} kind={item.kind} entries={cell.entries} onSave={saveCell(item.budgetItemId, index + 1, cat.categoryId)}>
-<BudgetCell cell={cell} actual={categoryActual(item.budgetItemId, cat.categoryId, index)} />
+<BudgetCell cell={cell} actual={categoryActual(item.budgetItemId, cat.categoryId, index)} partial={categoryPartial(item.budgetItemId, cat.categoryId, index)} />
 </EditableBudgetCell>
                         </div>
                       ))}
@@ -435,7 +441,7 @@ export default function BudgetPage() {
                 </div>
                 {grid.monthCents.map((cents, index) => (
                   <div role="cell" key={index} className="budget-grid__cell">
-                    <ClosedAmount budgeted={cents / 100} actual={closed[index] ? matrix?.months[index]?.actual : undefined} />
+                    <ClosedAmount budgeted={cents / 100} actual={closed[index] ? matrix?.months[index]?.actual : undefined} partial={closed[index] ? undefined : matrix?.months[index]?.actual} />
                   </div>
                 ))}
                 <div role="cell" className="budget-grid__cell budget-grid__sum">
@@ -447,24 +453,48 @@ export default function BudgetPage() {
         </div>
       )}
       <p className="budget-page__status">
-        Le righe colorate sono le macro-area (con i totali): ▾/▸ apre e chiude le voci, ⋮⋮ le trascina, ↑↓ le spostano. Nei mesi chiusi (✓) la cella mostra il reale; nei mesi aperti (previsto) il previsto, in corsivo.
+        Le righe colorate sono le macro-area (con i totali): ▾/▸ apre e chiude le voci, ⋮⋮ le trascina, ↑↓ le spostano. Nei mesi chiusi (✓) la cella mostra il reale; nei mesi aperti (previsto) il previsto e, sotto, il reale finora se c'è già qualche movimento.
       </p>
     </main>
   )
 }
 
-/** Mese aperto: il previsto. Mese chiuso: solo il reale, definitivo. */
-function ClosedAmount({ budgeted, actual }: { budgeted: number; actual: number | undefined }) {
-  if (actual === undefined) return <Amount value={budgeted} className="budget-cell__forecast" />
-  return <Amount value={actual} />
+/** Mese chiuso: solo il reale, definitivo. Mese aperto: il previsto, e sotto il reale parziale se c'è già qualche movimento. */
+function ClosedAmount({ budgeted, actual, partial }: { budgeted: number; actual?: number | undefined; partial?: number | undefined }) {
+  if (actual !== undefined) return <Amount value={actual} />
+  return <ForecastWithReal budgeted={budgeted} partial={partial} />
 }
 
-function BudgetCell({ cell, actual }: { cell: GridCell; actual: number | undefined }) {
-  if (actual !== undefined) return <ClosedAmount budgeted={cell.cents / 100} actual={actual} />
-  if (cell.entries.length === 0) return <span className="budget-page__empty" aria-label="vuoto">–</span>
+function ForecastWithReal({ budgeted, partial }: { budgeted: number; partial: number | undefined }) {
+  if (partial === undefined || Math.abs(partial) < 0.005) return <Amount value={budgeted} />
   return (
     <span className="budget-cell">
-      <Amount value={cell.cents / 100} />
+      <Amount value={budgeted} />
+      <span className="budget-cell__real" title="Reale finora">
+        <Amount value={partial} />
+      </span>
+    </span>
+  )
+}
+
+function BudgetCell({ cell, actual, partial }: { cell: GridCell; actual: number | undefined; partial?: number | undefined }) {
+  if (actual !== undefined) return <ClosedAmount budgeted={cell.cents / 100} actual={actual} />
+  if (cell.entries.length === 0) {
+    const hasReal = partial !== undefined && Math.abs(partial) >= 0.005
+    return (
+      <span className="budget-cell">
+        <span className="budget-page__empty" aria-label="vuoto">–</span>
+        {hasReal && (
+          <span className="budget-cell__real" title="Reale finora">
+            <Amount value={partial} />
+          </span>
+        )}
+      </span>
+    )
+  }
+  return (
+    <span className="budget-cell">
+      <ForecastWithReal budgeted={cell.cents / 100} partial={partial} />
       {cell.otherSources.map((source) => (
         <span key={source} className="budget-cell__source" title={sourceLabel(source)}>
           {sourceShortLabel(source)}

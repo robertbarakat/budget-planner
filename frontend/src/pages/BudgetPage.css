@@ -79,10 +79,6 @@
   font-weight: var(--font-weight-regular, 400);
 }
 
-.budget-cell__forecast {
-  font-style: italic;
-}
-
 .budget-cell__actual {
   font-weight: inherit;
 }
@@ -473,4 +469,10 @@
   .budget-grid__head .budget-grid__label {
     z-index: 4;
   }
+}
+
+/* Reale finora, sotto il previsto nei mesi aperti */
+.budget-cell__real {
+  font-size: var(--font-size-2xs);
+  opacity: 0.85;
 }
