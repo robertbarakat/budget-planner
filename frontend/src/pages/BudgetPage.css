@@ -53,16 +53,14 @@
 }
 
 /* Macro-area: riga colorata e ben distinta; voci rientrate sotto di essa. */
-.budget-page__area th,
-.budget-page__area td,
-.budget-page__area .data-grid__label {
+.budget-page__area .budget-grid__cell {
   background: var(--color-primary-soft);
   color: var(--color-primary-strong);
   border-top: 2px solid var(--color-primary);
   font-weight: var(--font-weight-semibold);
 }
 
-.budget-page__area .data-grid__label {
+.budget-page__area .budget-grid__label {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   font-size: var(--font-size-sm);
@@ -89,7 +87,7 @@
   font-weight: inherit;
 }
 
-.budget-page__area .data-grid__label {
+.budget-page__area .budget-grid__label {
   white-space: normal;
   text-overflow: clip;
 }
@@ -189,25 +187,8 @@
   opacity: 0.5;
 }
 
-.budget-page .data-grid__table .data-grid__label {
-  min-width: var(--budget-label-width);
-  max-width: var(--budget-label-width);
-}
-
 .budget-area__toggle {
   white-space: normal;
-}
-
-/* Colonne a larghezza fissa: aprire o chiudere le macro-aree non cambia mai la larghezza della tabella,
-   quindi non sposta lo scorrimento orizzontale (novembre e dicembre restano dove sono). */
-.budget-page .data-grid__table {
-  table-layout: fixed;
-  min-width: calc(var(--budget-label-width) + 13 * var(--budget-column-width));
-}
-
-/* La colonna delle voci ha larghezza fissa; i mesi si dividono in parti uguali lo spazio che resta (minimo --budget-column-width). */
-.budget-page .data-grid__table thead th.data-grid__label {
-  width: var(--budget-label-width);
 }
 
 .budget-page {
@@ -217,12 +198,6 @@
   font-size: var(--font-size-sm);
 }
 
-.budget-page .data-grid__table th,
-.budget-page .data-grid__table td {
-  min-width: 0;
-  padding-inline: var(--space-2);
-  font-size: var(--font-size-sm);
-}
 
 /* Mobile: un mese alla volta, a elenco (la tabella dei 12 mesi resta su desktop). */
 .budget-mobile {
@@ -325,22 +300,20 @@
 }
 
 /* Tre livelli ben distinti: gruppo (fascia colorata), voce (grassetto), categoria (rientrata, più leggera, con trattino). */
-.budget-page__voice > th {
+.budget-page__voice > .budget-grid__label {
   font-weight: var(--font-weight-semibold);
 }
 
-.budget-page__voice--parent > th,
-.budget-page__voice--parent > td {
+.budget-page__voice--parent > .budget-grid__cell {
   background: var(--color-surface-muted);
 }
 
-.budget-page__category > th,
-.budget-page__category > td {
+.budget-page__category > .budget-grid__cell {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
 }
 
-.budget-page__category > th.budget-page__category-name {
+.budget-page__category > .budget-page__category-name {
   padding-left: calc(var(--space-10) * 2) !important;
   font-weight: var(--font-weight-regular) !important;
   white-space: normal !important;
@@ -405,4 +378,56 @@
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-regular);
+}
+
+/* Griglia: ogni riga è una griglia CSS con la stessa definizione di colonne (voci a larghezza fissa, 12 mesi + totale in parti uguali). */
+.budget-grid {
+  min-width: calc(var(--budget-label-width) + 13 * var(--budget-column-width));
+  font-size: var(--font-size-sm);
+}
+
+.budget-grid__row {
+  display: grid;
+  grid-template-columns: var(--budget-label-width) repeat(13, minmax(0, 1fr));
+}
+
+.budget-grid__cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  min-width: 0;
+  min-height: var(--target-min);
+  padding: var(--space-4) var(--space-2);
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: var(--color-surface);
+  white-space: nowrap;
+  text-align: right;
+}
+
+[role='columnheader'].budget-grid__cell {
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.budget-grid__label {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  align-items: flex-start;
+  border-right: 1px solid var(--color-border);
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  white-space: normal;
+}
+
+.budget-grid__sum {
+  border-left: 1px solid var(--color-border);
+  font-weight: var(--font-weight-semibold);
+}
+
+.data-grid__total .budget-grid__cell {
+  border-top: 1px solid var(--color-border-strong);
+  font-weight: var(--font-weight-semibold);
 }

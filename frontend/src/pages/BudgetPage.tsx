@@ -300,25 +300,25 @@ export default function BudgetPage() {
         </div>
       ) : (
         <div className="data-grid" tabIndex={0} role="region" aria-label={`Budget previsto ${year}`}>
-          <table className="data-grid__table">
-            <thead>
-              <tr>
-                <th scope="col" className="data-grid__label">
+          <div role="table" className="budget-grid">
+            <div role="rowgroup">
+              <div role="row" className="budget-grid__row">
+                <div role="columnheader" className="budget-grid__cell budget-grid__label">
                   Macro-area e voci
-                </th>
+                </div>
                 {MONTHS.map((month) => (
-                  <th key={month.value} scope="col">
+                  <div role="columnheader" key={month.value} className="budget-grid__cell">
                     {month.label}
                     <span className="budget-page__month-state">{closed[month.value - 1] ? '✓ reale' : 'previsto'}</span>
-                  </th>
+                  </div>
                 ))}
-                <th scope="col" className="data-grid__sum">
+                <div role="columnheader" className="budget-grid__cell budget-grid__sum">
                   Totale
-                </th>
-              </tr>
-            </thead>
+                </div>
+              </div>
+            </div>
             {grid.groups.map((group, groupIndex) => (
-              <tbody
+              <div role="rowgroup"
                 key={group.macroAreaId}
                 onDragOver={(event) => dragId !== null && event.preventDefault()}
                 onDrop={(event) => {
@@ -328,8 +328,8 @@ export default function BudgetPage() {
                 }}
                 className={dragId === group.macroAreaId ? 'budget-page__dragging' : undefined}
               >
-                <tr className="data-grid__group budget-page__area">
-                  <th scope="rowgroup" className="data-grid__label">
+                <div role="row" className="budget-grid__row data-grid__group budget-page__area">
+                  <div role="rowheader" className="budget-grid__cell budget-grid__label">
                     <span className="budget-area">
                       <span
                         className="budget-area__grip"
@@ -368,29 +368,29 @@ export default function BudgetPage() {
                         </button>
                       </span>
                     </span>
-                  </th>
+                  </div>
                   {group.monthCents.map((cents, index) => (
-                    <td key={index}>
+                    <div role="cell" key={index} className="budget-grid__cell">
                       <ClosedAmount budgeted={cents / 100} actual={closed[index] ? groupCells.get(group.macroAreaId)?.[index]?.actual : undefined} />
-                    </td>
+                    </div>
                   ))}
-                  <td className="data-grid__sum">
+                  <div role="cell" className="budget-grid__cell budget-grid__sum">
                     <Amount value={group.yearCents / 100} />
-                  </td>
-                </tr>
+                  </div>
+                </div>
                 {!collapsed.has(group.macroAreaId) && group.items.map((item) => (
                   <Fragment key={item.budgetItemId}>
-                  <tr className={item.categories.length > 0 ? 'budget-page__voice budget-page__voice--parent' : 'budget-page__voice'}>
-                    <th scope="row" className="data-grid__label budget-page__item">
+                  <div role="row" className={item.categories.length > 0 ? 'budget-grid__row budget-page__voice budget-page__voice--parent' : 'budget-grid__row budget-page__voice'}>
+                    <div role="rowheader" className="budget-grid__cell budget-grid__label budget-page__item">
                       {item.categories.length > 0 ? (
                         <DisclosureButton className="budget-page__item-toggle" expanded={expandedItems.has(item.budgetItemId)} onToggle={() => toggleItem(item.budgetItemId)}>
                           {item.archived ? `${item.name} (archiviata)` : item.name}
                           <span className="budget-page__item-count">{item.categories.length} categorie</span>
                         </DisclosureButton>
                       ) : item.archived ? `${item.name} (archiviata)` : item.name}
-                    </th>
+                    </div>
                     {item.months.map((cell, index) => (
-                      <td key={index}>
+                      <div role="cell" key={index} className="budget-grid__cell">
                         {item.categories.length > 0 ? (
                           <span className="budget-cell__readonly">
                             <BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
@@ -400,50 +400,50 @@ export default function BudgetPage() {
 <BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
 </EditableBudgetCell>
                         )}
-                      </td>
+                      </div>
                     ))}
-                    <td className="data-grid__sum">
+                    <div role="cell" className="budget-grid__cell budget-grid__sum">
                       <Amount value={item.yearCents / 100} />
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                   {expandedItems.has(item.budgetItemId) && item.categories.map((cat) => (
-                    <tr key={cat.categoryId ?? 'none'} className="budget-page__category">
-                      <th scope="row" className="data-grid__label budget-page__category-name">
+                    <div role="row" key={cat.categoryId ?? 'none'} className="budget-grid__row budget-page__category">
+                      <div role="rowheader" className="budget-grid__cell budget-grid__label budget-page__category-name">
                         {cat.name}
-                      </th>
+                      </div>
                       {cat.months.map((cell, index) => (
-                        <td key={index}>
+                        <div role="cell" key={index} className="budget-grid__cell">
                           <EditableBudgetCell title={`${item.name} · ${cat.name}, ${MONTHS[index]!.label} ${year}`} ariaLabel={`Modifica ${item.name} ${cat.name}, ${MONTHS[index]!.label} ${year}`} kind={item.kind} entries={cell.entries} onSave={saveCell(item.budgetItemId, index + 1, cat.categoryId)}>
 <BudgetCell cell={cell} actual={categoryActual(item.budgetItemId, cat.categoryId, index)} />
 </EditableBudgetCell>
-                        </td>
+                        </div>
                       ))}
-                      <td className="data-grid__sum">
+                      <div role="cell" className="budget-grid__cell budget-grid__sum">
                         <Amount value={cat.yearCents / 100} />
-                      </td>
-                      <td className="data-grid__sum" />
-                    </tr>
+                      </div>
+                      
+                    </div>
                   ))}
                   </Fragment>
                 ))}
-              </tbody>
+              </div>
             ))}
-            <tfoot>
-              <tr className="data-grid__total">
-                <th scope="row" className="data-grid__label">
+            <div role="rowgroup">
+              <div role="row" className="budget-grid__row data-grid__total">
+                <div role="rowheader" className="budget-grid__cell budget-grid__label">
                   Totale
-                </th>
+                </div>
                 {grid.monthCents.map((cents, index) => (
-                  <td key={index}>
+                  <div role="cell" key={index} className="budget-grid__cell">
                     <ClosedAmount budgeted={cents / 100} actual={closed[index] ? matrix?.months[index]?.actual : undefined} />
-                  </td>
+                  </div>
                 ))}
-                <td className="data-grid__sum">
+                <div role="cell" className="budget-grid__cell budget-grid__sum">
                   <Amount value={grid.yearCents / 100} />
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
       <p className="budget-page__status">
