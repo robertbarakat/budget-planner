@@ -8,12 +8,10 @@ export interface AmountProps {
   explicitPlus?: boolean
   /** Colora i negativi (e i positivi con il "+") con i token. Il segno resta sempre. */
   colored?: boolean
-  /** Senza il simbolo € (tabelle strette: l'unità è detta una volta sola). */
-  compact?: boolean
   className?: string
 }
 
-export default function Amount({ value, explicitPlus = false, colored = true, compact = false, className }: AmountProps) {
+export default function Amount({ value, explicitPlus = false, colored = true, className }: AmountProps) {
   // Colorati = segno sempre esplicito: + e verde per i positivi, − e rosso per i negativi.
   const sign = amountSign(value, explicitPlus || colored)
   const tone = !colored || sign === '' ? '' : sign === '-' ? 'amount--negative' : 'amount--positive'
@@ -23,7 +21,7 @@ export default function Amount({ value, explicitPlus = false, colored = true, co
     <span className={classes} data-sign={sign || undefined}>
       {sign === '-' && <span className="amount__sign">{'−'}</span>}
       {sign === '+' && <span className="amount__sign">+</span>}
-      {compact ? formatAbsoluteAmount(value).replace(/\s?€$/, '') : formatAbsoluteAmount(value)}
+      {formatAbsoluteAmount(value)}
     </span>
   )
 }

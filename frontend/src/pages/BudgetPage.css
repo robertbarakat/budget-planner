@@ -212,7 +212,7 @@
 
 .budget-page {
   /* Pensata per stare in un 15 pollici (circa 1300px utili con la barra laterale chiusa): colonne strette, frecce grandi e vicine. */
-  --budget-column-width: 4.9rem;
+  --budget-column-width: 5.6rem;
   --budget-label-width: 11rem;
   font-size: var(--font-size-sm);
 }
