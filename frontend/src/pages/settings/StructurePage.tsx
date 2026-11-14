@@ -14,30 +14,28 @@ import {
   useUpdateCategory,
   useUpdateMacroArea,
 } from '../../api/classification.queries.ts'
-import { useClients, useCreateClient, useSetArchivedClient, useUpdateClient } from '../../api/revenue.queries.ts'
 import Button from '../../components/Button.tsx'
-import IncomePricing from '../../components/IncomePricing.tsx'
 import { paths } from '../../paths.ts'
 import './settings.css'
 import './StructurePage.css'
 
 type Kind = 'income' | 'expense'
 
-/** Riga con nome, rinomina in linea e archivia/ripristina. */
-function Row({
+/** Nome (opzionale) + azioni Rinomina / Archivia. La rinomina avviene nella stessa riga. */
+function Editable({
   name,
   archived,
-  tag,
-  level,
   onRename,
   onArchive,
+  showName = true,
+  className,
 }: {
   name: string
   archived: boolean
-  tag?: string
-  level: 'group' | 'item' | 'category'
   onRename: (name: string) => Promise<unknown>
   onArchive: (archived: boolean) => Promise<unknown>
+  showName?: boolean
+  className?: string
 }) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(name)
@@ -49,78 +47,68 @@ function Row({
     setEditing(false)
   }
 
+  if (editing) {
+    return (
+      <form className="structure__edit" onSubmit={save}>
+        <input aria-label={`Nome di ${name}`} value={draft} onChange={(e) => setDraft(e.target.value)} autoFocus />
+        <Button type="submit">Salva</Button>
+        <Button variant="secondary" onClick={() => setEditing(false)}>
+          Annulla
+        </Button>
+      </form>
+    )
+  }
   return (
-    <div className={`structure-row structure-row--${level}${archived ? ' structure-row--archived' : ''}`}>
-      {editing ? (
-        <form className="structure-row__edit" onSubmit={save}>
-          <input aria-label={`Nome di ${name}`} value={draft} onChange={(e) => setDraft(e.target.value)} autoFocus />
-          <Button type="submit">Salva</Button>
-          <Button variant="secondary" onClick={() => setEditing(false)}>
-            Annulla
-          </Button>
-        </form>
-      ) : (
-        <>
-          <span className="structure-row__name">
-            {name}
-            {tag && <span className="structure-row__tag">{tag}</span>}
-            {archived && <span className="structure-row__tag">Archiviata</span>}
-          </span>
-          <span className="structure-row__actions">
-            <Button
-              variant="secondary"
-              aria-label={`Rinomina ${name}`}
-              onClick={() => {
-                setDraft(name)
-                setEditing(true)
-              }}
-            >
-              Rinomina
-            </Button>
-            <Button variant="secondary" aria-label={`${archived ? 'Ripristina' : 'Archivia'} ${name}`} onClick={() => void onArchive(!archived)}>
-              {archived ? 'Ripristina' : 'Archivia'}
-            </Button>
-          </span>
-        </>
+    <div className={`structure__line ${className ?? ''}`}>
+      {showName && (
+        <span className="structure__name">
+          {name}
+          {archived && <span className="structure__tag">Archiviata</span>}
+        </span>
       )}
+      <span className="structure__actions">
+        <Button
+          variant="secondary"
+          aria-label={`Rinomina ${name}`}
+          onClick={() => {
+            setDraft(name)
+            setEditing(true)
+          }}
+        >
+          Rinomina
+        </Button>
+        <Button variant="secondary" aria-label={`${archived ? 'Ripristina' : 'Archivia'} ${name}`} onClick={() => void onArchive(!archived)}>
+          {archived ? 'Ripristina' : 'Archivia'}
+        </Button>
+      </span>
     </div>
   )
 }
 
-/** Modulo di aggiunta: un nome (e, per le voci, se è un'entrata o un'uscita). */
-function AddForm({ label, withKind, onAdd }: { label: string; withKind?: boolean; onAdd: (name: string, kind: Kind) => Promise<unknown> }) {
+/** Pulsante «+ …» che si apre in un campo nome. */
+function AddName({ label, onAdd }: { label: string; onAdd: (name: string) => Promise<unknown> }) {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
-  const [kind, setKind] = useState<Kind>('expense')
-
   if (!open) {
     return (
-      <div className="structure-add">
-        <Button variant="secondary" onClick={() => setOpen(true)}>
-          + {label}
-        </Button>
-      </div>
+      <Button variant="secondary" className="structure__add" onClick={() => setOpen(true)}>
+        + {label}
+      </Button>
     )
   }
   async function submit(event: FormEvent) {
     event.preventDefault()
     const next = name.trim()
     if (!next) return
-    const ok = await onAdd(next, kind).then(() => true, () => false)
+    const ok = await onAdd(next).then(() => true, () => false)
     if (ok) {
       setName('')
       setOpen(false)
     }
   }
   return (
-    <form className="structure-add structure-add--open" onSubmit={submit}>
+    <form className="structure__edit" onSubmit={submit}>
       <input aria-label={label} placeholder="Nome" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
-      {withKind && (
-        <select aria-label="Tipo" value={kind} onChange={(e) => setKind(e.target.value as Kind)}>
-          <option value="expense">Uscita (spesa)</option>
-          <option value="income">Entrata</option>
-        </select>
-      )}
       <Button type="submit">Aggiungi</Button>
       <Button variant="secondary" onClick={() => setOpen(false)}>
         Annulla
@@ -129,9 +117,12 @@ function AddForm({ label, withKind, onAdd }: { label: string; withKind?: boolean
   )
 }
 
-const KIND_TAG: Record<Kind, string> = { expense: 'Uscita', income: 'Entrata' }
+const KINDS: { kind: Kind; label: string; hint: string }[] = [
+  { kind: 'expense', label: 'Uscite', hint: 'I soldi che spendi, divisi per gruppo (es. Casa → Affitto).' },
+  { kind: 'income', label: 'Entrate', hint: 'I soldi che incassi, divisi per gruppo.' },
+]
 
-// Un'unica pagina al posto di Macro-aree, Voci di budget e Categorie: gruppo → voce → categoria.
+// Una sola pagina per gruppi, voci e categorie: si sceglie Uscite o Entrate, ogni voce si apre per vedere le sue categorie.
 export default function StructurePage() {
   const macroAreas = useMacroAreas({ orderBy: [{ column: 'sort_order' }, { column: 'id' }] })
   const budgetItems = useBudgetItems({ orderBy: [{ column: 'sort_order' }, { column: 'id' }] })
@@ -145,20 +136,16 @@ export default function StructurePage() {
   const createCategory = useCreateCategory()
   const updateCategory = useUpdateCategory()
   const archiveCategory = useSetArchivedCategory()
-  const clients = useClients({ orderBy: [{ column: 'sort_order' }, { column: 'id' }] })
-  const createClient = useCreateClient()
-  const updateClient = useUpdateClient()
-  const archiveClient = useSetArchivedClient()
+  const [kind, setKind] = useState<Kind>('expense')
   const [showArchived, setShowArchived] = useState(false)
 
-  const queries = [macroAreas, budgetItems, categories, clients]
-  // Dietro ogni voce di entrata con tariffa c'è un «cliente» (tariffe, ritardo, giorni lavorati): qui non si vede, resta allineato alla voce.
-  const clientsOf = (itemId: number) => (clients.data ?? []).filter((c) => c.budget_item_id === itemId)
-  const areas = macroAreas.data ?? []
+  const queries = [macroAreas, budgetItems, categories]
   const items = budgetItems.data ?? []
   const cats = categories.data ?? []
   const nextOrder = (rows: { sort_order: number }[]) => rows.reduce((max, r) => Math.max(max, r.sort_order), -1) + 1
   const visible = <T extends { archived: boolean }>(rows: T[]) => (showArchived ? rows : rows.filter((r) => !r.archived))
+  const areas = visible(macroAreas.data ?? [])
+  const current = KINDS.find((k) => k.kind === kind)!
 
   return (
     <main className="settings structure">
@@ -166,10 +153,14 @@ export default function StructurePage() {
         ← Impostazioni
       </Link>
       <h1>Voci e categorie</h1>
-      <p className="settings__status">
-        Qui decidi come sono organizzati i tuoi soldi. Ci sono tre livelli: il <strong>gruppo</strong> (es. Casa), la <strong>voce</strong> che pianifichi nel budget
-        (es. Affitto, uscita) e la <strong>categoria</strong> che scegli quando registri un movimento (es. Affitto mensile).
-      </p>
+      <div className="structure__tabs" role="group" aria-label="Tipo">
+        {KINDS.map((k) => (
+          <button key={k.kind} type="button" aria-pressed={kind === k.kind} onClick={() => setKind(k.kind)}>
+            {k.label}
+          </button>
+        ))}
+      </div>
+      <p className="settings__status">{current.hint} Tocca una voce per vedere e cambiare le sue categorie.</p>
       {queries.some((q) => q.isPending) ? (
         <p role="status" className="settings__status">
           Caricamento…
@@ -180,95 +171,76 @@ export default function StructurePage() {
         </p>
       ) : (
         <>
-          <label className="structure__toggle">
-            <input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} /> Mostra anche gli archiviati
-          </label>
-          {visible(areas).map((area) => {
+          <AddName label="Nuovo gruppo" onAdd={(name) => createArea.mutateAsync({ name, sort_order: nextOrder(macroAreas.data ?? []) })} />
+          {areas.map((area) => {
             const areaItems = items.filter((i) => i.macro_area_id === area.id)
+            const shown = visible(areaItems.filter((i) => i.kind === kind))
+            // Gruppi senza voci di questo tipo: si mostrano solo se non hanno voci di nessun tipo (appena creati).
+            if (shown.length === 0 && areaItems.length > 0) return null
             return (
               <section key={area.id} className="structure__group" aria-label={`Gruppo ${area.name}`}>
-                <Row
-                  level="group"
-                  name={area.name}
-                  archived={area.archived}
-                  onRename={(name) => updateArea.mutateAsync({ id: area.id, values: { name } })}
-                  onArchive={(archived) => archiveArea.mutateAsync({ id: area.id, archived })}
-                />
-                {visible(areaItems).map((item) => {
+                <h2 className="structure__group-title">{area.name}</h2>
+                {shown.map((item) => {
                   const itemCats = cats.filter((c) => c.budget_item_id === item.id)
+                  const active = itemCats.filter((c) => !c.archived)
                   return (
-                    <div key={item.id} className="structure__item">
-                      <Row
-                        level="item"
-                        name={item.name}
-                        tag={KIND_TAG[item.kind]}
-                        archived={item.archived}
-                        onRename={async (name) => {
-                          await updateItem.mutateAsync({ id: item.id, values: { name } })
-                          await Promise.all(clientsOf(item.id).map((c) => updateClient.mutateAsync({ id: c.id, values: { name } })))
-                        }}
-                        onArchive={async (archived) => {
-                          await archiveItem.mutateAsync({ id: item.id, archived })
-                          await Promise.all(clientsOf(item.id).map((c) => archiveClient.mutateAsync({ id: c.id, archived })))
-                        }}
-                      />
-                      {item.kind === 'income' && !item.archived && (
-                        <details className="structure__pricing">
-                          <summary>Tariffa e incasso</summary>
-                          {(() => {
-                            const client = clientsOf(item.id).find((c) => !c.archived)
-                            return client ? (
-                              <IncomePricing clientId={client.id} />
-                            ) : (
-                              <div>
-                                <p className="settings__status">
-                                  Per prevedere gli incassi da tariffa e giorni lavorati, attiva il calcolo su questa voce.
-                                </p>
-                                <Button
-                                  variant="secondary"
-                                  onClick={() =>
-                                    void createClient
-                                      .mutateAsync({ name: item.name, budget_item_id: item.id, sort_order: nextOrder(clients.data ?? []) })
-                                      .catch(() => undefined)
-                                  }
-                                >
-                                  Imposta tariffa
-                                </Button>
-                              </div>
-                            )
-                          })()}
-                        </details>
-                      )}
-                      {visible(itemCats).map((cat) => (
-                        <Row
-                          key={cat.id}
-                          level="category"
-                          name={cat.name}
-                          archived={cat.archived}
-                          onRename={(name) => updateCategory.mutateAsync({ id: cat.id, values: { name } })}
-                          onArchive={(archived) => archiveCategory.mutateAsync({ id: cat.id, archived })}
+                    <details key={item.id} className="structure__item">
+                      <summary>
+                        <span className="structure__name">
+                          {item.name}
+                          {item.archived && <span className="structure__tag">Archiviata</span>}
+                        </span>
+                        <span className="structure__count">{active.length === 1 ? '1 categoria' : `${active.length} categorie`}</span>
+                      </summary>
+                      <div className="structure__body">
+                        <h3 className="structure__sub">Categorie</h3>
+                        {visible(itemCats).map((cat) => (
+                          <Editable
+                            key={cat.id}
+                            name={cat.name}
+                            archived={cat.archived}
+                            onRename={(name) => updateCategory.mutateAsync({ id: cat.id, values: { name } })}
+                            onArchive={(archived) => archiveCategory.mutateAsync({ id: cat.id, archived })}
+                          />
+                        ))}
+                        {!item.archived && (
+                          <AddName
+                            label="Nuova categoria"
+                            onAdd={(name) => createCategory.mutateAsync({ name, budget_item_id: item.id, sort_order: nextOrder(itemCats) })}
+                          />
+                        )}
+                        <h3 className="structure__sub">Questa voce</h3>
+                        <Editable
+                          name={item.name}
+                          showName={false}
+                          archived={item.archived}
+                          onRename={(name) => updateItem.mutateAsync({ id: item.id, values: { name } })}
+                          onArchive={(archived) => archiveItem.mutateAsync({ id: item.id, archived })}
                         />
-                      ))}
-                      {!item.archived && (
-                        <AddForm
-                          label="Nuova categoria"
-                          onAdd={(name) => createCategory.mutateAsync({ name, budget_item_id: item.id, sort_order: nextOrder(itemCats) })}
-                        />
-                      )}
-                    </div>
+                      </div>
+                    </details>
                   )
                 })}
                 {!area.archived && (
-                  <AddForm
-                    label="Nuova voce"
-                    withKind
-                    onAdd={(name, kind) => createItem.mutateAsync({ name, kind, macro_area_id: area.id, sort_order: nextOrder(areaItems) })}
+                  <AddName
+                    label={kind === 'income' ? 'Nuova voce di entrata' : 'Nuova voce di uscita'}
+                    onAdd={(name) => createItem.mutateAsync({ name, kind, macro_area_id: area.id, sort_order: nextOrder(areaItems) })}
                   />
                 )}
+                <Editable
+                  name={area.name}
+                  showName={false}
+                  archived={area.archived}
+                  className="structure__group-actions"
+                  onRename={(name) => updateArea.mutateAsync({ id: area.id, values: { name } })}
+                  onArchive={(archived) => archiveArea.mutateAsync({ id: area.id, archived })}
+                />
               </section>
             )
           })}
-          <AddForm label="Nuovo gruppo" onAdd={(name) => createArea.mutateAsync({ name, sort_order: nextOrder(areas) })} />
+          <label className="structure__toggle">
+            <input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} /> Mostra anche gli archiviati
+          </label>
         </>
       )}
     </main>

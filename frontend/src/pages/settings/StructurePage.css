@@ -1,8 +1,26 @@
-.structure__toggle {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
+.structure__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-sunken);
+}
+
+.structure__tabs button {
   min-height: var(--target-min);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+}
+
+.structure__tabs button[aria-pressed='true'] {
+  background: var(--color-surface);
+  color: var(--color-primary-strong);
+  font-weight: var(--font-weight-semibold);
 }
 
 .structure__group {
@@ -15,16 +33,51 @@
   background: var(--color-surface);
 }
 
+.structure__group-title {
+  align-self: flex-start;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  font-size: var(--font-size-lg);
+}
+
 .structure__item {
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.structure__item > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--target-min);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.structure__count {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.structure__body {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  margin-left: var(--space-6);
-  padding-left: var(--space-6);
-  border-left: 2px solid var(--color-primary-soft);
+  padding: var(--space-4) 0 var(--space-6) var(--space-6);
 }
 
-.structure-row {
+.structure__sub {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.structure__line {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -33,29 +86,7 @@
   min-height: var(--target-min);
 }
 
-.structure-row--group {
-  padding: var(--space-3) var(--space-6);
-  border-radius: var(--radius-md);
-  background: var(--color-primary-soft);
-  color: var(--color-primary-strong);
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-}
-
-.structure-row--item {
-  font-weight: var(--font-weight-semibold);
-}
-
-.structure-row--category {
-  margin-left: var(--space-6);
-  color: var(--color-text-muted);
-}
-
-.structure-row--archived {
-  opacity: 0.7;
-}
-
-.structure-row__name {
+.structure__name {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -64,58 +95,53 @@
   overflow-wrap: anywhere;
 }
 
-.structure-row__tag {
+.structure__tag {
   padding: 0 var(--space-4);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-full);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
 }
 
-.structure-row__actions,
-.structure-row__edit,
-.structure-add--open {
+.structure__actions,
+.structure__edit {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--space-4);
 }
 
-.structure-row__edit,
-.structure-add--open {
+.structure__line:has(> .structure__actions:only-child) {
+  justify-content: flex-end;
+}
+
+.structure__edit {
   width: 100%;
 }
 
-.structure-row__edit input,
-.structure-add--open input {
+.structure__edit input {
   flex: 1;
   min-width: 8rem;
 }
 
-.structure-row .button,
-.structure-add .button {
+.structure__line .button,
+.structure__edit .button,
+.structure__add {
   padding-inline: var(--space-6);
   font-size: var(--font-size-md);
 }
 
-.structure-add {
-  display: flex;
-  justify-content: flex-end;
+.structure__add {
+  align-self: flex-end;
 }
 
-.structure__pricing {
-  margin-left: var(--space-6);
-  padding: var(--space-4) var(--space-6);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-muted);
+.structure__group-actions {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-subtle);
 }
 
-.structure__pricing > summary {
-  min-height: var(--target-min);
+.structure__toggle {
   display: flex;
   align-items: center;
-  color: var(--color-primary-strong);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
+  gap: var(--space-4);
+  min-height: var(--target-min);
 }

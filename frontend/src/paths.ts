@@ -13,11 +13,6 @@ export const paths = {
   taxParameters: '/tax/parameters',
   settings: '/settings',
   settingsStructure: '/settings/structure',
-  settingsMacroAreas: '/settings/macro-areas',
-  settingsBudgetItems: '/settings/budget-items',
-  settingsCategories: '/settings/categories',
   settingsAccounts: '/settings/accounts',
-  settingsWorkedDays: '/settings/worked-days',
-  settingsRevenueDriver: '/settings/revenue-driver',
   settingsRecurrences: '/settings/recurrences',
 } as const

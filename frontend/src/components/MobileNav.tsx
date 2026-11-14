@@ -16,7 +16,10 @@ const icons: Record<string, ReactNode> = {
 // Barra inferiore: pollice destro sul pulsante "nuovo movimento", sempre raggiungibile.
 export default function MobileNav() {
   // Nella schermata del movimento il pulsante "nuovo" non serve e coprirebbe il pulsante di salvataggio.
-  const showFab = useLocation().pathname !== paths.newTransaction
+  // Solo nelle viste dove si registra: non copre impostazioni, tasse e la schermata del movimento stesso.
+  const { pathname } = useLocation()
+  const fabPaths: readonly string[] = [paths.home, paths.transactions, paths.cashFlow, paths.budget]
+  const showFab = fabPaths.includes(pathname)
   return (
     <div className="mobile-nav">
       {showFab && (
