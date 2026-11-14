@@ -6,7 +6,7 @@ import MonthStatusBadge from '../components/MonthStatusBadge.tsx'
 import RecentTransactions from '../components/RecentTransactions.tsx'
 import UpcomingDues from '../components/UpcomingDues.tsx'
 import { buildCashFlow } from '../lib/cash-flow.ts'
-import { summarizeMonthExpenses } from '../lib/home.ts'
+import { summarizeMonthExpenses, summarizeMonthIncome } from '../lib/home.ts'
 import { buildMacroAreaReport } from '../lib/macro-areas.ts'
 import { monthName } from '../lib/months.ts'
 import { useYearInputs } from './use-year-inputs.ts'
@@ -32,7 +32,7 @@ export default function HomePage() {
     )
     const report = buildMacroAreaReport(year, month, inputs.areas, inputs.budgetItems, inputs.entries, inputs.transactions, inputs.closedMonths)
     const current = flow.months[month - 1]!
-    return { endBalance: current.endBalance, isClosed: current.isClosed, expenses: summarizeMonthExpenses(report) }
+    return { endBalance: current.endBalance, isClosed: current.isClosed, expenses: summarizeMonthExpenses(report), income: summarizeMonthIncome(report) }
   }, [inputs, year, month])
 
   const monthLabel = `${monthName(month)} ${year}`
@@ -64,6 +64,39 @@ export default function HomePage() {
               <Amount value={summary.endBalance} />
             </p>
             <p className="home-card__hint">Saldo a fine {monthName(month)}: reale nei mesi chiusi, previsto negli altri.</p>
+          </section>
+
+          <section className="home-card" aria-labelledby="home-income-title">
+            <SectionTitle id="home-income-title" >
+              Entrate del mese
+            </SectionTitle>
+            <dl className="home-card__figures">
+              <div>
+                <dt>Reale</dt>
+                <dd>
+                  <Amount value={summary.income.actual} />
+                </dd>
+              </div>
+              <div>
+                <dt>Previsto</dt>
+                <dd>
+                  <Amount value={summary.income.budgeted} />
+                </dd>
+              </div>
+              <div>
+                <dt>Scostamento</dt>
+                <dd>
+                  <Amount value={summary.income.variance} explicitPlus />
+                </dd>
+              </div>
+            </dl>
+            <p className="home-card__hint">
+              {summary.income.variance > 0
+                ? 'Entrate sopra il previsto.'
+                : summary.income.variance < 0
+                  ? 'Entrate sotto il previsto.'
+                  : 'Entrate in linea con il previsto.'}
+            </p>
           </section>
 
           <section className="home-card" aria-labelledby="home-expenses-title">

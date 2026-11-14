@@ -47,7 +47,7 @@ beforeEach(() => {
 })
 
 describe('NewTransactionPage salvataggio', () => {
-  it('salva con tipo, importo, data, conto, categoria e voce corretti, poi svuota il form e conferma', async () => {
+  it('salva con tipo, importo, data, conto, categoria e voce corretti, poi conferma e torna all\'elenco', async () => {
     const create = vi.spyOn(transactionsService, 'create').mockResolvedValue(row({ id: 1 }))
     setup()
     await fillValidForm()
@@ -65,8 +65,6 @@ describe('NewTransactionPage salvataggio', () => {
       tag: null,
     })
     expect(await screen.findByText(/Spesa salvata\./)).toBeInTheDocument()
-    expect(screen.getByLabelText(/Importo/)).toHaveValue('')
-    expect(screen.getByLabelText('Commento')).toHaveValue('')
   })
 
   it('un doppio tocco su "Salva" crea un solo movimento', async () => {

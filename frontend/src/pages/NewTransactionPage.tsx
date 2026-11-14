@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { Link, useSearchParams } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { useLinkDeadlineToTransaction } from '../api/tax.queries.ts'
 import { useCreateTransaction } from '../api/transactions.queries.ts'
 import { readDeadlineId, readDuePrefill } from '../lib/due-prefill.ts'
@@ -18,9 +17,9 @@ export default function NewTransactionPage() {
   const link = useLinkDeadlineToTransaction()
   const { showSuccess } = useSnackbar()
   // Dopo un salvataggio il form riparte vuoto (nuova chiave = nuovo form), pronto per un altro inserimento.
-  const [formKey, setFormKey] = useState(0)
   // Da "Registra pagamento" (scheda Prossime scadenze) il form parte precompilato; tutti i campi restano modificabili.
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   // Dal calendario F24 (Registra versamento): al salvataggio il movimento si collega alla scadenza.
   const deadlineId = readDeadlineId(searchParams)
   const prefill = options.isPending || options.isError ? null : readDuePrefill(searchParams, options.groups, options.accounts.map((a) => a.id))
@@ -46,7 +45,7 @@ export default function NewTransactionPage() {
         </p>
       ) : (
         <TransactionForm
-          key={`${formKey}-${prefill ? "due" : "blank"}`}
+          key={prefill ? 'due' : 'blank'}
           initial={prefill ?? undefined}
           busy={create.isPending}
           accounts={options.accounts}
@@ -68,9 +67,7 @@ export default function NewTransactionPage() {
                 // Il movimento c'è già: l'errore (snackbar) dice cosa è andato storto, si può collegare dal calendario F24.
               }
             }
-            // Il prossimo inserimento riparte vuoto: si tolgono i valori della scadenza dall'indirizzo.
-            if (prefill || deadlineId !== null) setSearchParams({}, { replace: true })
-            setFormKey((key) => key + 1)
+            navigate(deadlineId !== null ? paths.taxF24 : paths.transactions)
           }}
         />
       )}

@@ -85,3 +85,16 @@ export function BudgetIcon() {
     </Icon>
   )
 }
+
+export function TaxIcon() {
+  return (
+    <Icon>
+      <path d="M6 3h12v18l-3-2-3 2-3-2-3 2z" />
+      <path d="M9 9h6M9 13h6" />
+    </Icon>
+  )
+}
+
+export function ChevronIcon({ direction }: { direction: 'left' | 'right' }) {
+  return <Icon>{direction === 'left' ? <path d="M15 6l-6 6 6 6" /> : <path d="M9 6l6 6-6 6" />}</Icon>
+}
