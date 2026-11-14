@@ -7,7 +7,7 @@ describe('rotte', () => {
     ['/', 'Home'],
     ['/transactions/new', 'Nuovo movimento'],
     ['/cash-flow', 'Flusso di cassa'],
-    ['/macro-areas', 'Macro-aree'],
+    ['/macro-areas', 'Previsto/Reale'],
   ])('%s mostra il titolo "%s"', async (path, title) => {
     renderApp(path)
     expect(await screen.findByRole('heading', { level: 1, name: title })).toBeInTheDocument()

@@ -71,7 +71,7 @@ export default function MacroAreasPage() {
 
   return (
     <main className="macro-areas-page">
-      <h1>Macro-aree</h1>
+      <h1>Previsto/Reale</h1>
       <PeriodSelector period={period} onChange={setPeriod} monthMode="optional" />
       {data.isError || areas.isError || items.isError || categories.isError ? (
         <p role="alert" className="macro-areas-page__note">
