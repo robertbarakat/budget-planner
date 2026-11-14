@@ -85,7 +85,7 @@
 
 .data-grid:hover {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-border-strong) transparent;
+  scrollbar-color: var(--color-border-strong) var(--color-surface-muted);
 }
 
 .data-grid:hover::-webkit-scrollbar {
@@ -93,8 +93,9 @@
   height: var(--space-3);
 }
 
+/* Sfondo della barra: lo stesso grigio delle intestazioni. */
 .data-grid::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--color-surface-muted);
 }
 
 .data-grid::-webkit-scrollbar-thumb {
