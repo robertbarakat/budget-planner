@@ -35,10 +35,6 @@ export default function SideNav() {
 
   return (
     <aside className={collapsed ? 'side-nav side-nav--collapsed' : 'side-nav'}>
-      <div className="side-nav__brand">
-        <span className="side-nav__logo" aria-hidden="true" />
-        <span className="side-nav__title">Budget e cassa</span>
-      </div>
       <nav aria-label="Navigazione principale">
         <ul className="side-nav__list">
           {navItems.map((item) => (

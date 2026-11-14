@@ -92,7 +92,7 @@
     font-size: var(--font-size-lg);
   }
 
-  /* Desktop: due colonne. Cassa e spese in alto, conti e ultime registrazioni sotto, prossime scadenze in fondo a tutta larghezza. */
+  /* Desktop: due colonne. Cassa a tutta riga; entrate e spese affiancate; conti e scadenze affiancati; ultime registrazioni in fondo a tutta riga. */
   .home-page {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -101,8 +101,12 @@
     max-width: none;
   }
 
-  .home-page > :is(.home-page__header, .home-page__note, .upcoming) {
+  .home-page > :is(.home-page__header, .home-page__note, .home-card--wide, .recent) {
     grid-column: 1 / -1;
+  }
+
+  .home-page > .recent {
+    order: 1;
   }
 
   .home-page > :is(.home-card, .recent) {

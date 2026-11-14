@@ -56,7 +56,7 @@ export default function HomePage() {
         </p>
       ) : (
         <>
-          <section className="home-card" aria-labelledby="home-cash-title">
+          <section className="home-card home-card--wide" aria-labelledby="home-cash-title">
             <SectionTitle id="home-cash-title" >
               Cassa prevista a fine mese
             </SectionTitle>
