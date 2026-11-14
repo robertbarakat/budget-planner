@@ -39,11 +39,14 @@
 }
 
 .transactions__item {
-  display: flex;
-  flex-wrap: wrap;
+  /* Descrizione a sinistra, importo in colonna fissa a destra; le azioni sotto (schermo stretto) o in coda (largo). */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'main amount'
+    'actions actions';
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-6);
+  gap: var(--space-5) var(--space-6);
   min-height: var(--target-min);
   padding: var(--space-5) var(--space-7);
 }
@@ -53,6 +56,7 @@
 }
 
 .transactions__main {
+  grid-area: main;
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
@@ -90,13 +94,17 @@
 }
 
 .transactions__item .amount {
-  flex: none;
+  grid-area: amount;
+  justify-self: end;
+  text-align: right;
+  white-space: nowrap;
   font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
 }
 
 .transactions__actions {
+  grid-area: actions;
   display: flex;
-  flex: 1 0 100%;
   gap: var(--space-4);
 }
 
@@ -140,7 +148,8 @@
 }
 
 @media (min-width: 768px) {
-  .transactions__actions {
-    flex: none;
+  .transactions__item {
+    grid-template-columns: minmax(0, 1fr) 8rem auto;
+    grid-template-areas: 'main amount actions';
   }
 }
