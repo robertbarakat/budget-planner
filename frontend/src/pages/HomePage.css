@@ -92,8 +92,21 @@
     font-size: var(--font-size-lg);
   }
 
+  /* Desktop: due colonne. Cassa e spese in alto, conti e ultime registrazioni sotto, prossime scadenze in fondo a tutta larghezza. */
   .home-page {
-    max-width: calc(var(--sidebar-width) * 3);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--space-9);
+    max-width: none;
+  }
+
+  .home-page > :is(.home-page__header, .home-page__note, .upcoming) {
+    grid-column: 1 / -1;
+  }
+
+  .home-page > :is(.home-card, .recent) {
+    height: 100%;
   }
 }
 
