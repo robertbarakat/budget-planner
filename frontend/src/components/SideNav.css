@@ -122,7 +122,8 @@
     padding: 0;
   }
 
-  .side-nav--collapsed .side-nav__new {
+  .side-nav--collapsed .side-nav__new,
+  .side-nav--collapsed .side-nav__sign-out {
     padding: 0;
     min-width: 0;
   }

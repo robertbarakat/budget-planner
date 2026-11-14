@@ -98,3 +98,13 @@ export function TaxIcon() {
 export function ChevronIcon({ direction }: { direction: 'left' | 'right' }) {
   return <Icon>{direction === 'left' ? <path d="M15 6l-6 6 6 6" /> : <path d="M9 6l6 6-6 6" />}</Icon>
 }
+
+export function LogoutIcon() {
+  return (
+    <Icon>
+      <path d="M9 4H5v16h4" />
+      <path d="M16 8l4 4-4 4" />
+      <path d="M20 12H9" />
+    </Icon>
+  )
+}

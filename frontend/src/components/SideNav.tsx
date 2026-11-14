@@ -54,7 +54,7 @@ export default function SideNav() {
       <Link to={paths.newTransaction} className="button button--primary side-nav__new" title="Nuovo movimento">
         {collapsed ? '+' : 'Nuovo movimento'}
       </Link>
-      {!collapsed && <SignOutButton className="side-nav__sign-out" />}
+      <SignOutButton className="side-nav__sign-out" iconOnly={collapsed} />
       <button
         type="button"
         className="side-nav__toggle"
