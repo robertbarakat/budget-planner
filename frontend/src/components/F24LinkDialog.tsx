@@ -60,9 +60,9 @@ export default function F24LinkDialog({ deadlineId, label, candidates }: F24Link
       }}
     >
       <Dialog.Trigger asChild>
-        <Button variant="secondary" aria-label={`Collega un movimento a ${label}`}>
+        <button type="button" className="text-link" aria-label={`Collega un movimento a ${label}`}>
           Collega movimento
-        </Button>
+        </button>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="move-dialog__overlay" />

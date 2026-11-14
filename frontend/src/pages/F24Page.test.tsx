@@ -44,9 +44,9 @@ describe('F24Page', () => {
       </QueryClientProvider>,
     )
     expect(await screen.findByText('Versata')).toBeInTheDocument()
-    expect(screen.getAllByText('Versata')).toHaveLength(1)
-    expect(screen.getByText('Da versare')).toBeInTheDocument()
-    expect(screen.getByText('Scaduta')).toBeInTheDocument()
+    expect(screen.getAllByText('Versata').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Da versare').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Scaduta').length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByRole('button', { name: /Modifica importo/ })).toHaveLength(2)
   })
 })

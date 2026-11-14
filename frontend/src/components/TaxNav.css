@@ -26,3 +26,28 @@
   color: var(--color-primary-strong);
   font-weight: var(--font-weight-semibold);
 }
+
+/* Mobile: le quattro schede in griglia 2×2, senza scorrimento; da desktop in fila. */
+.tax-nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-self: stretch;
+  overflow: visible;
+}
+
+.tax-nav__tab {
+  justify-content: center;
+  padding: 0 var(--space-5);
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .tax-nav {
+    display: flex;
+    align-self: flex-start;
+  }
+
+  .tax-nav__tab {
+    padding: 0 var(--space-8);
+  }
+}

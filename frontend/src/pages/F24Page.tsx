@@ -97,6 +97,7 @@ export default function F24Page() {
   }, [year, rolesComplete, saved.data, installmentById, itemByRole, taxEntries.data, closedMonths.data])
 
   const total = rows.reduce((sum, d) => sum + Number(d.amount), 0)
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({})
   const loading = current.isPending || saved.isPending
   return (
     <main className="f24-page">
@@ -129,12 +130,23 @@ export default function F24Page() {
               {groups.map(([dueDate, group]) => {
                 const unpaid = group.filter((d) => d.transaction_id === null)
                 const groupTotal = group.reduce((sum, d) => sum + Number(d.amount), 0)
+                const isOpen = openGroups[dueDate] ?? unpaid.length > 0
+                const groupStatus = unpaid.length === 0 ? 'paid' : group.some((d) => deadlineStatus(d, today()) === 'overdue') ? 'overdue' : 'due'
                 return (
                   <section key={dueDate} className="f24-page__group" aria-label={`F24 del ${italianDate(dueDate)}`}>
-                    <h3 className="f24-page__group-title">
-                      F24 del {italianDate(dueDate)} · <Amount value={groupTotal} colored={false} />
-                    </h3>
-                    {unpaid.length > 0 && (
+                    <div className="f24-page__group-head">
+                      <button
+                        type="button"
+                        className="f24-page__group-toggle"
+                        aria-expanded={isOpen}
+                        onClick={() => setOpenGroups((current) => ({ ...current, [dueDate]: !isOpen }))}
+                      >
+                        <span aria-hidden="true">{isOpen ? '▾' : '▸'}</span>
+                        <span className="f24-page__group-title">F24 del {italianDate(dueDate)}</span>
+                        <Amount value={groupTotal} colored={false} />
+                        <span className={`f24-page__status f24-page__status--${groupStatus}`}>{statusLabels[groupStatus]}</span>
+                      </button>
+                      {unpaid.length > 0 && (
                       <PayF24Dialog
                         deadlines={unpaid.map<PayableDeadline>((d) => ({ id: d.id, tax_type: d.tax_type, due_date: d.due_date, amount: Number(d.amount), installment_id: d.installment_id }))}
                         installmentById={installmentById}
@@ -142,7 +154,9 @@ export default function F24Page() {
                         categoryOfItem={categoryOfItem}
                         dueDate={dueDate}
                       />
-                    )}
+                      )}
+                    </div>
+                    {isOpen && (
                     <ul className="f24-page__list">
                       {group.map((d) => {
                         const status = deadlineStatus(d, today())
@@ -165,17 +179,18 @@ export default function F24Page() {
                                 </>
                               ) : (
                                 <>
-                                  <Link to={paths.editTransaction(d.transaction_id)} className="f24-page__back">
+                                  <Link to={paths.editTransaction(d.transaction_id)} className="text-link">
                                     Vedi movimento
                                   </Link>
-                                  <Button
-                                    variant="secondary"
-                                    loading={unlink.isPending}
+                                  <button
+                                    type="button"
+                                    className="text-link text-link--quiet"
+                                    disabled={unlink.isPending}
                                     aria-label={`Scollega il movimento da ${label}`}
                                     onClick={() => unlink.mutate({ deadlineId: d.id, transactionId: null }, { onSuccess: () => showSuccess('Movimento scollegato: la scadenza torna da versare.') })}
                                   >
                                     Scollega
-                                  </Button>
+                                  </button>
                                 </>
                               )}
                             </div>
@@ -183,6 +198,7 @@ export default function F24Page() {
                         )
                       })}
                     </ul>
+                    )}
                   </section>
                 )
               })}

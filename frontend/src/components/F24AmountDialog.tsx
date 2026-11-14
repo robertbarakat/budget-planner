@@ -51,9 +51,9 @@ export default function F24AmountDialog({ id, label, amount }: F24AmountDialogPr
       }}
     >
       <Dialog.Trigger asChild>
-        <Button variant="secondary" aria-label={`Modifica importo ${label}`}>
-          Modifica
-        </Button>
+        <button type="button" className="text-link text-link--quiet" aria-label={`Modifica importo ${label}`}>
+          Modifica importo
+        </button>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="move-dialog__overlay" />

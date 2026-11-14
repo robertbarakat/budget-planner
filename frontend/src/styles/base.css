@@ -86,3 +86,27 @@ a {
   white-space: nowrap;
   border: 0;
 }
+
+/* Azione testuale (al posto di un pulsante) nelle righe con più azioni */
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target-min);
+  padding: 0 var(--space-3);
+  border: 0;
+  background: none;
+  color: var(--color-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.text-link--quiet {
+  color: var(--color-text-muted);
+}
+
+.text-link--strong {
+  font-weight: var(--font-weight-semibold);
+}
