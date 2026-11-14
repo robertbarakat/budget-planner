@@ -5,6 +5,7 @@ import { useAccounts } from '../api/accounts.queries.ts'
 import { useCategories } from '../api/classification.queries.ts'
 import { useDeleteTransaction, useTransactions } from '../api/transactions.queries.ts'
 import Amount from '../components/Amount.tsx'
+import PeriodShares from '../components/PeriodShares.tsx'
 import Button from '../components/Button.tsx'
 import Field from '../components/Field.tsx'
 import { useSnackbar } from '../components/Snackbar.tsx'
@@ -83,6 +84,10 @@ export default function TransactionsPage() {
           )}
         </Field>
       </div>
+
+      {!loading && !failed && rows.length > 0 && (
+        <PeriodShares transactions={rows} periodLabel={month === null ? String(year) : `${monthName(month)} ${year}`} />
+      )}
 
       {loading ? (
         <p role="status" className="transactions__status">
