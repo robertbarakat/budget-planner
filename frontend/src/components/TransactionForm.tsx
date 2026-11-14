@@ -10,6 +10,7 @@ import {
 import { todayIso } from '../lib/dates.ts'
 import Button from './Button.tsx'
 import ChoiceChips from './ChoiceChips.tsx'
+import ActionBar from './ActionBar.tsx'
 import CategoryPicker from './CategoryPicker.tsx'
 import Field from './Field.tsx'
 import './TransactionForm.css'
@@ -212,11 +213,11 @@ export default function TransactionForm({ accounts, categoryGroups, initial, sub
         {(p) => <input {...p} type="text" autoComplete="off" value={state.tag} onChange={(e) => update('tag', e.target.value)} />}
       </Field>
 
-      <div className="transaction-form__submit">
+      <ActionBar sticky>
         <Button type="submit" loading={busy}>
           {submitLabel ?? SUBMIT_LABEL[state.type]}
         </Button>
-      </div>
+      </ActionBar>
     </form>
   )
 }

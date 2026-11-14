@@ -28,7 +28,8 @@ const row = <T,>(values: Record<string, unknown>) => ({ created_at: '', ...value
 async function fillValidForm() {
   await userEvent.type(await screen.findByLabelText(/Importo/), '14,90')
   await userEvent.click(screen.getByRole('radio', { name: /Conto B/ }))
-  await userEvent.selectOptions(screen.getByLabelText(/Categoria/), 'Pizza')
+  await userEvent.click(screen.getByLabelText(/Categoria/))
+  await userEvent.click(screen.getByRole('option', { name: /^Pizza/ }))
   await userEvent.type(screen.getByLabelText('Commento'), 'cena')
 }
 
@@ -138,7 +139,7 @@ describe('NewTransactionPage precompilata da una scadenza', () => {
     setup(url)
     expect(await screen.findByLabelText(/Importo/)).toHaveValue('650,00')
     expect(screen.getByRole('radio', { name: /Conto B/ })).toBeChecked()
-    expect(screen.getByLabelText(/Categoria/)).toHaveValue('100')
+    expect(screen.getByLabelText(/Categoria/)).toHaveTextContent('Pizza')
     expect(screen.getByText('Precompilato dalla scadenza: controlla i dati e salva.')).toBeInTheDocument()
   })
 

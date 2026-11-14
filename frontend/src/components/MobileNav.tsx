@@ -1,3 +1,4 @@
+import ActionBar from './ActionBar.tsx'
 import type { ReactNode } from 'react'
 import { Link, NavLink, useLocation } from 'react-router'
 import { paths } from '../paths.ts'
@@ -23,11 +24,11 @@ export default function MobileNav() {
   return (
     <div className="mobile-nav">
       {showFab && (
-        <div className="mobile-nav__action">
+        <ActionBar>
           <Link to={paths.newTransaction} className="mobile-nav__new">
             Nuovo movimento
           </Link>
-        </div>
+        </ActionBar>
       )}
       <nav aria-label="Navigazione principale" className="mobile-nav__bar">
         <ul className="mobile-nav__list">

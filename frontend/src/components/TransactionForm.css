@@ -37,21 +37,3 @@
 .transaction-form__budget-item-value {
   font-weight: var(--font-weight-semibold);
 }
-
-/* Pulsante di salvataggio sempre a portata di pollice: appiccicato sopra la barra inferiore */
-.transaction-form__submit {
-  position: sticky;
-  bottom: 0;
-  padding: var(--space-4) 0;
-  background: var(--color-background);
-}
-
-.transaction-form__submit .button {
-  width: 100%;
-}
-
-@media (min-width: 1024px) {
-  .transaction-form__submit {
-    position: static;
-  }
-}

@@ -56,7 +56,7 @@ describe('EditTransactionPage', () => {
     setup()
     expect(await screen.findByLabelText(/Importo/)).toHaveValue('14,90')
     expect(screen.getByRole('radio', { name: /Conto B/ })).toBeChecked()
-    expect(screen.getByLabelText(/Categoria/)).toHaveValue('100')
+    expect(screen.getByLabelText(/Categoria/)).toHaveTextContent('Pizza')
     expect(screen.getByLabelText(/Data/)).toHaveValue('2026-11-05')
     expect(screen.getByLabelText('Commento')).toHaveValue('cena')
     expect(screen.getByText('Food · Svago')).toBeInTheDocument()
@@ -69,7 +69,8 @@ describe('EditTransactionPage', () => {
     const amount = await screen.findByLabelText(/Importo/)
     await userEvent.clear(amount)
     await userEvent.type(amount, '20')
-    await userEvent.selectOptions(screen.getByLabelText(/Categoria/), 'Bar')
+    await userEvent.click(screen.getByLabelText(/Categoria/))
+  await userEvent.click(screen.getByRole('option', { name: /^Bar/ }))
     await userEvent.click(screen.getByRole('button', { name: 'Salva modifiche' }))
     await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1))
     expect(update).toHaveBeenCalledWith(7, {
