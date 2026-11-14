@@ -12,10 +12,12 @@ export default function App() {
     <div className="app-shell">
       <SideNav />
       <div className="app-content">
-        <OfflineBanner />
-        <UpdateBanner />
         <div className="app-topbar">
           <SignOutButton />
+        </div>
+        <div className="app-notices">
+          <OfflineBanner />
+          <UpdateBanner />
         </div>
         <Outlet />
       </div>
