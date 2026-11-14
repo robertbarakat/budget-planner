@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Dialog } from 'radix-ui'
+import FormDialog from './FormDialog.tsx'
 import { useLinkDeadlineToTransaction } from '../api/tax.queries.ts'
 import Button from './Button.tsx'
 import Field from './Field.tsx'
 import { formatAbsoluteAmount } from '../lib/format-amount.ts'
 import { useSnackbar } from './Snackbar.tsx'
-import './MoveDialog.css'
+import { formatDate } from '../lib/dates.ts'
 
 export interface LinkCandidate {
   id: number
@@ -21,8 +22,6 @@ export interface F24LinkDialogProps {
   /** Spese non ancora collegate a nessuna scadenza. */
   candidates: readonly LinkCandidate[]
 }
-
-const italianDate = (date: string) => date.split('-').reverse().join('/')
 
 /** Collega alla scadenza un movimento già registrato (nessun movimento nuovo). */
 export default function F24LinkDialog({ deadlineId, label, candidates }: F24LinkDialogProps) {
@@ -49,7 +48,7 @@ export default function F24LinkDialog({ deadlineId, label, candidates }: F24Link
   }
 
   return (
-    <Dialog.Root
+    <FormDialog
       open={open}
       onOpenChange={(next) => {
         setOpen(next)
@@ -58,26 +57,21 @@ export default function F24LinkDialog({ deadlineId, label, candidates }: F24Link
           setError(undefined)
         }
       }}
-    >
-      <Dialog.Trigger asChild>
-        <button type="button" className="text-link" aria-label={`Collega un movimento a ${label}`}>
+      trigger={<button type="button" className="text-link" aria-label={`Collega un movimento a ${label}`}>
           Collega movimento
-        </button>
-      </Dialog.Trigger>
-      <Dialog.Portal>
-        <Dialog.Overlay className="move-dialog__overlay" />
-        <Dialog.Content className="move-dialog">
-          <Dialog.Title className="move-dialog__title">Collega un movimento</Dialog.Title>
-          <Dialog.Description className="move-dialog__text">
+        </button>}
+      title={<>Collega un movimento</>}
+      description={<>
             {label}. Il movimento scelto risulta come versamento della scadenza; non se ne crea uno nuovo.
-          </Dialog.Description>
-          <Field label="Movimento (spese non ancora collegate)" error={error} required>
+          </>}
+    >
+      <Field label="Movimento (spese non ancora collegate)" error={error} required>
             {(p) => (
               <select {...p} value={choice} onChange={(e) => setChoice(e.target.value)}>
                 <option value="">Scegli…</option>
                 {candidates.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {italianDate(c.date)} · {formatAbsoluteAmount(c.amount)} · {c.comment || 'senza commento'}
+                    {formatDate(c.date)} · {formatAbsoluteAmount(c.amount)} · {c.comment || 'senza commento'}
                   </option>
                 ))}
               </select>
@@ -91,8 +85,6 @@ export default function F24LinkDialog({ deadlineId, label, candidates }: F24Link
               <Button variant="secondary">Annulla</Button>
             </Dialog.Close>
           </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+    </FormDialog>
   )
 }

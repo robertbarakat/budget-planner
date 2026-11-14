@@ -3,7 +3,6 @@ import { useBudgetEntries, useSetManualBudgetAmount } from '../api/budget.querie
 import { useBudgetItems, useCategories, useMacroAreas, useReorderMacroAreas } from '../api/classification.queries.ts'
 import { useYearData } from '../api/year-data.queries.ts'
 import Amount from '../components/Amount.tsx'
-import BudgetCellDialog from '../components/BudgetCellDialog.tsx'
 import { useSnackbar } from '../components/Snackbar.tsx'
 import YearSelector from '../components/YearSelector.tsx'
 import { buildBudgetGrid, sourceLabel, sourceShortLabel, type GridCell } from '../lib/budget-grid.ts'
@@ -12,6 +11,8 @@ import { monthOptions } from '../lib/months.ts'
 import { useMediaQuery } from '../lib/use-media-query.ts'
 import '../components/DataGrid.css'
 import './BudgetPage.css'
+import DisclosureButton from '../components/DisclosureButton.tsx'
+import EditableBudgetCell from '../components/EditableBudgetCell.tsx'
 
 const MONTHS = monthOptions()
 const COLLAPSED_KEY = 'budget.collapsedAreas'
@@ -90,6 +91,10 @@ export default function BudgetPage() {
     reorder.mutate({ orderedIds: ids, currentOrder: Object.fromEntries(rows.map((r) => [r.id, r.sort_order])) })
   }
   const { showSuccess } = useSnackbar()
+  const saveCell = (budgetItemId: number, month: number, categoryId: number | null = null) => async (amount: number | null) => {
+    await setManual.mutateAsync({ budgetItemId, year, month, amount, categoryId })
+    showSuccess(amount === null ? 'Riga manuale eliminata.' : 'Budget salvato.')
+  }
 
   const queries = [macroAreas, budgetItems, entries, categoriesQuery]
   const yearError = data.isError
@@ -202,7 +207,7 @@ export default function BudgetPage() {
           </div>
           <button
             type="button"
-            className="budget-mobile__switch"
+            className="text-link budget-mobile__switch"
             onClick={() => setMonth(month === null ? new Date().getMonth() + 1 : null)}
           >
             {month === null ? 'Vedi un mese' : 'Vedi anno intero'}
@@ -237,10 +242,10 @@ export default function BudgetPage() {
                       return (
                         <li key={item.budgetItemId} className="budget-mobile__item">
                           {item.categories.length > 0 ? (
-                            <button type="button" className="budget-mobile__item-toggle" aria-expanded={expandedItems.has(item.budgetItemId)} onClick={() => toggleItem(item.budgetItemId)}>
-                              <span aria-hidden="true">{expandedItems.has(item.budgetItemId) ? '▾' : '▸'}</span> {item.archived ? `${item.name} (archiviata)` : item.name}
+                            <DisclosureButton className="budget-mobile__item-toggle" expanded={expandedItems.has(item.budgetItemId)} onToggle={() => toggleItem(item.budgetItemId)}>
+                          {item.archived ? `${item.name} (archiviata)` : item.name}
                               <span className="budget-mobile__item-count">{item.categories.length} categorie</span>
-                            </button>
+                            </DisclosureButton>
                           ) : (
                             <span className="budget-mobile__item-name">{item.archived ? `${item.name} (archiviata)` : item.name}</span>
                           )}
@@ -251,20 +256,9 @@ export default function BudgetPage() {
                               <BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
                             </span>
                           ) : (
-                            <BudgetCellDialog
-                              title={`${item.name}, ${MONTHS[index]!.label} ${year}`}
-                              kind={item.kind}
-                              entries={cell.entries}
-                              onSave={async (amount) => {
-                                await setManual.mutateAsync({ budgetItemId: item.budgetItemId, year, month, amount })
-                                showSuccess(amount === null ? 'Riga manuale eliminata.' : 'Budget salvato.')
-                              }}
-                              trigger={
-                                <button type="button" className="budget-cell__button" aria-label={`Modifica ${item.name}, ${MONTHS[index]!.label} ${year}`}>
-                                  <BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
-                                </button>
-                              }
-                            />
+                            <EditableBudgetCell title={`${item.name}, ${MONTHS[index]!.label} ${year}`} ariaLabel={`Modifica ${item.name}, ${MONTHS[index]!.label} ${year}`} kind={item.kind} entries={cell.entries} onSave={saveCell(item.budgetItemId, month)}>
+<BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
+</EditableBudgetCell>
                           )}
                           {item.categories.length > 0 && expandedItems.has(item.budgetItemId) && (
                             <ul className="budget-mobile__categories">
@@ -276,20 +270,9 @@ export default function BudgetPage() {
                                     {month === null ? (
                                       <Amount value={cat.yearCents / 100} />
                                     ) : (
-                                      <BudgetCellDialog
-                                        title={`${item.name} · ${cat.name}, ${MONTHS[index]!.label} ${year}`}
-                                        kind={item.kind}
-                                        entries={catCell.entries}
-                                        onSave={async (amount) => {
-                                          await setManual.mutateAsync({ budgetItemId: item.budgetItemId, year, month, amount, categoryId: cat.categoryId })
-                                          showSuccess(amount === null ? 'Riga manuale eliminata.' : 'Budget salvato.')
-                                        }}
-                                        trigger={
-                                          <button type="button" className="budget-cell__button" aria-label={`Modifica ${item.name} ${cat.name}, ${MONTHS[index]!.label} ${year}`}>
-                                            <BudgetCell cell={catCell} actual={categoryActual(item.budgetItemId, cat.categoryId, index)} />
-                                          </button>
-                                        }
-                                      />
+                                      <EditableBudgetCell title={`${item.name} · ${cat.name}, ${MONTHS[index]!.label} ${year}`} ariaLabel={`Modifica ${item.name} ${cat.name}, ${MONTHS[index]!.label} ${year}`} kind={item.kind} entries={catCell.entries} onSave={saveCell(item.budgetItemId, month, cat.categoryId)}>
+<BudgetCell cell={catCell} actual={categoryActual(item.budgetItemId, cat.categoryId, index)} />
+</EditableBudgetCell>
                                     )}
                                   </li>
                                 )
@@ -405,10 +388,10 @@ export default function BudgetPage() {
                   <tr className={item.categories.length > 0 ? 'budget-page__voice budget-page__voice--parent' : 'budget-page__voice'}>
                     <th scope="row" className="data-grid__label budget-page__item">
                       {item.categories.length > 0 ? (
-                        <button type="button" className="budget-page__item-toggle" aria-expanded={expandedItems.has(item.budgetItemId)} onClick={() => toggleItem(item.budgetItemId)}>
-                          <span aria-hidden="true">{expandedItems.has(item.budgetItemId) ? '▾' : '▸'}</span> {item.archived ? `${item.name} (archiviata)` : item.name}
+                        <DisclosureButton className="budget-page__item-toggle" expanded={expandedItems.has(item.budgetItemId)} onToggle={() => toggleItem(item.budgetItemId)}>
+                          {item.archived ? `${item.name} (archiviata)` : item.name}
                           <span className="budget-page__item-count">{item.categories.length} categorie</span>
-                        </button>
+                        </DisclosureButton>
                       ) : item.archived ? `${item.name} (archiviata)` : item.name}
                     </th>
                     {item.months.map((cell, index) => (
@@ -418,20 +401,9 @@ export default function BudgetPage() {
                             <BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
                           </span>
                         ) : (
-                        <BudgetCellDialog
-                          title={`${item.name}, ${MONTHS[index]!.label} ${year}`}
-                          kind={item.kind}
-                          entries={cell.entries}
-                          onSave={async (amount) => {
-                            await setManual.mutateAsync({ budgetItemId: item.budgetItemId, year, month: index + 1, amount })
-                            showSuccess(amount === null ? 'Riga manuale eliminata.' : 'Budget salvato.')
-                          }}
-                          trigger={
-                            <button type="button" className="budget-cell__button" aria-label={`Modifica ${item.name}, ${MONTHS[index]!.label} ${year}`}>
-                              <BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
-                            </button>
-                          }
-                        />
+                        <EditableBudgetCell title={`${item.name}, ${MONTHS[index]!.label} ${year}`} ariaLabel={`Modifica ${item.name}, ${MONTHS[index]!.label} ${year}`} kind={item.kind} entries={cell.entries} onSave={saveCell(item.budgetItemId, index + 1)}>
+<BudgetCell cell={cell} actual={closed[index] ? itemCells.get(item.budgetItemId)?.[index]?.actual : undefined} />
+</EditableBudgetCell>
                         )}
                       </td>
                     ))}
@@ -447,20 +419,9 @@ export default function BudgetPage() {
                       </th>
                       {cat.months.map((cell, index) => (
                         <td key={index}>
-                          <BudgetCellDialog
-                            title={`${item.name} · ${cat.name}, ${MONTHS[index]!.label} ${year}`}
-                            kind={item.kind}
-                            entries={cell.entries}
-                            onSave={async (amount) => {
-                              await setManual.mutateAsync({ budgetItemId: item.budgetItemId, year, month: index + 1, amount, categoryId: cat.categoryId })
-                              showSuccess(amount === null ? 'Riga manuale eliminata.' : 'Budget salvato.')
-                            }}
-                            trigger={
-                              <button type="button" className="budget-cell__button" aria-label={`Modifica ${item.name} ${cat.name}, ${MONTHS[index]!.label} ${year}`}>
-                                <BudgetCell cell={cell} actual={categoryActual(item.budgetItemId, cat.categoryId, index)} />
-                              </button>
-                            }
-                          />
+                          <EditableBudgetCell title={`${item.name} · ${cat.name}, ${MONTHS[index]!.label} ${year}`} ariaLabel={`Modifica ${item.name} ${cat.name}, ${MONTHS[index]!.label} ${year}`} kind={item.kind} entries={cell.entries} onSave={saveCell(item.budgetItemId, index + 1, cat.categoryId)}>
+<BudgetCell cell={cell} actual={categoryActual(item.budgetItemId, cat.categoryId, index)} />
+</EditableBudgetCell>
                         </td>
                       ))}
                       <td className="data-grid__sum">

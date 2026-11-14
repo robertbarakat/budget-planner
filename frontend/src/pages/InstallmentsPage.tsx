@@ -107,7 +107,7 @@ export default function InstallmentsPage() {
                 )}
                 <button
                   type="button"
-                  className="installments__link"
+                  className="text-link text-link--quiet"
                   disabled={update.isPending}
                   aria-label={`${plan.archived ? 'Ripristina' : 'Archivia'} ${plan.description}`}
                   onClick={() =>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { applyUpdate, onUpdateAvailable } from '../lib/register-sw.ts'
 import Button from './Button.tsx'
-import './UpdateBanner.css'
+import Banner from './Banner.tsx'
 
 // Avviso "nuova versione disponibile": l'utente decide quando aggiornare.
 export default function UpdateBanner() {
@@ -9,11 +9,11 @@ export default function UpdateBanner() {
   useEffect(() => onUpdateAvailable((worker) => setAvailable(worker !== null)), [])
   if (!available) return null
   return (
-    <div className="update-banner" role="status">
+    <Banner>
       <span>Nuova versione disponibile.</span>
       <Button variant="secondary" onClick={applyUpdate}>
         Aggiorna
       </Button>
-    </div>
+    </Banner>
   )
 }

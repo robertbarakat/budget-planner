@@ -1,8 +1,0 @@
-.offline-banner {
-  padding: var(--space-5) var(--space-7);
-  background: var(--color-warning);
-  color: var(--color-on-primary);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
-  text-align: center;
-}

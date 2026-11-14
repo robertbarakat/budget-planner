@@ -17,6 +17,8 @@ import {
 import { paths } from '../../paths.ts'
 import './settings.css'
 import './StructurePage.css'
+import SectionTitle from '../../components/SectionTitle.tsx'
+import StatusBadge from '../../components/StatusBadge.tsx'
 
 type Kind = 'income' | 'expense'
 
@@ -50,10 +52,10 @@ function Editable({
     return (
       <form className="structure__edit" onSubmit={save}>
         <input aria-label={`Nome di ${name}`} value={draft} onChange={(e) => setDraft(e.target.value)} autoFocus />
-        <button type="submit" className="structure__link">
+        <button type="submit" className="text-link">
           Salva
         </button>
-        <button type="button" className="structure__link structure__link--quiet" onClick={() => setEditing(false)}>
+        <button type="button" className="text-link text-link--quiet" onClick={() => setEditing(false)}>
           Annulla
         </button>
       </form>
@@ -64,13 +66,13 @@ function Editable({
       {showName && (
         <span className="structure__name">
           {name}
-          {archived && <span className="structure__tag">Archiviata</span>}
+          {archived && <StatusBadge>Archiviata</StatusBadge>}
         </span>
       )}
       <span className="structure__actions">
         <button
           type="button"
-          className="structure__link"
+          className="text-link"
           aria-label={`Rinomina ${name}`}
           onClick={() => {
             setDraft(name)
@@ -79,7 +81,7 @@ function Editable({
         >
           Rinomina
         </button>
-        <button type="button" className="structure__link structure__link--quiet" aria-label={`${archived ? 'Ripristina' : 'Archivia'} ${name}`} onClick={() => void onArchive(!archived)}>
+        <button type="button" className="text-link text-link--quiet" aria-label={`${archived ? 'Ripristina' : 'Archivia'} ${name}`} onClick={() => void onArchive(!archived)}>
           {archived ? 'Ripristina' : 'Archivia'}
         </button>
       </span>
@@ -93,7 +95,7 @@ function AddName({ label, onAdd }: { label: string; onAdd: (name: string) => Pro
   const [name, setName] = useState('')
   if (!open) {
     return (
-      <button type="button" className="structure__link structure__add" onClick={() => setOpen(true)}>
+      <button type="button" className="text-link structure__add" onClick={() => setOpen(true)}>
         + {label}
       </button>
     )
@@ -111,10 +113,10 @@ function AddName({ label, onAdd }: { label: string; onAdd: (name: string) => Pro
   return (
     <form className="structure__edit" onSubmit={submit}>
       <input aria-label={label} placeholder="Nome" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
-      <button type="submit" className="structure__link">
+      <button type="submit" className="text-link">
         Aggiungi
       </button>
-      <button type="button" className="structure__link structure__link--quiet" onClick={() => setOpen(false)}>
+      <button type="button" className="text-link text-link--quiet" onClick={() => setOpen(false)}>
         Annulla
       </button>
     </form>
@@ -184,7 +186,7 @@ export default function StructurePage() {
             if (shown.length === 0 && areaItems.length > 0) return null
             return (
               <section key={area.id} className="structure__group" aria-label={`Gruppo ${area.name}`}>
-                <h2 className="structure__group-title">{area.name}</h2>
+                <SectionTitle>{area.name}</SectionTitle>
                 {shown.map((item) => {
                   const itemCats = cats.filter((c) => c.budget_item_id === item.id)
                   const active = itemCats.filter((c) => !c.archived)
@@ -193,7 +195,7 @@ export default function StructurePage() {
                       <summary>
                         <span className="structure__name">
                           {item.name}
-                          {item.archived && <span className="structure__tag">Archiviata</span>}
+                          {item.archived && <StatusBadge>Archiviata</StatusBadge>}
                         </span>
                         <span className="structure__count">{active.length === 1 ? '1 categoria' : `${active.length} categorie`}</span>
                       </summary>

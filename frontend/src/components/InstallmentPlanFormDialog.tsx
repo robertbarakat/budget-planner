@@ -112,7 +112,7 @@ export default function InstallmentPlanFormDialog({ edit }: { edit?: EditablePla
     >
       <Dialog.Trigger asChild>
         {edit ? (
-          <button type="button" className="installment-form__link" aria-label={`Modifica ${edit.description}`}>
+          <button type="button" className="text-link" aria-label={`Modifica ${edit.description}`}>
             Modifica
           </button>
         ) : (
@@ -159,14 +159,14 @@ export default function InstallmentPlanFormDialog({ edit }: { edit?: EditablePla
                     {(p) => <input {...p} inputMode="numeric" value={line.lastNumberText} onChange={(e) => setLine(index, { lastNumberText: e.target.value })} />}
                   </Field>
                   {draft.lines.length > 1 && (
-                    <button type="button" className="installment-form__link installment-form__link--quiet" onClick={() => setDraft((d) => ({ ...d, lines: d.lines.filter((_, i) => i !== index) }))}>
+                    <button type="button" className="text-link text-link--quiet" onClick={() => setDraft((d) => ({ ...d, lines: d.lines.filter((_, i) => i !== index) }))}>
                       Togli riga {index + 1}
                     </button>
                   )}
                 </div>
               ))}
               {showError('lines') && <p role="alert" className="installment-form__error">{showError('lines')}</p>}
-              <button type="button" className="installment-form__link" onClick={() => setDraft((d) => ({ ...d, lines: [...d.lines, { ...emptyLineDraft, referenceYearText: d.lines.at(-1)?.referenceYearText ?? '' }] }))}>
+              <button type="button" className="text-link" onClick={() => setDraft((d) => ({ ...d, lines: [...d.lines, { ...emptyLineDraft, referenceYearText: d.lines.at(-1)?.referenceYearText ?? '' }] }))}>
                 + Aggiungi riga
               </button>
             </fieldset>

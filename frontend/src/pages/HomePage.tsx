@@ -11,6 +11,7 @@ import { buildMacroAreaReport } from '../lib/macro-areas.ts'
 import { monthName } from '../lib/months.ts'
 import { useYearInputs } from './use-year-inputs.ts'
 import './HomePage.css'
+import SectionTitle from '../components/SectionTitle.tsx'
 
 export default function HomePage() {
   const now = new Date()
@@ -56,9 +57,9 @@ export default function HomePage() {
       ) : (
         <>
           <section className="home-card" aria-labelledby="home-cash-title">
-            <h2 id="home-cash-title" className="home-card__title">
+            <SectionTitle id="home-cash-title" >
               Cassa prevista a fine mese
-            </h2>
+            </SectionTitle>
             <p className="home-card__big">
               <Amount value={summary.endBalance} />
             </p>
@@ -66,9 +67,9 @@ export default function HomePage() {
           </section>
 
           <section className="home-card" aria-labelledby="home-expenses-title">
-            <h2 id="home-expenses-title" className="home-card__title">
+            <SectionTitle id="home-expenses-title" >
               Spese del mese
-            </h2>
+            </SectionTitle>
             <dl className="home-card__figures">
               <div>
                 <dt>Reale</dt>

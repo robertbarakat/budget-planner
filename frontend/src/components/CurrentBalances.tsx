@@ -3,6 +3,7 @@ import Amount from './Amount.tsx'
 import AmountRow from './AmountRow.tsx'
 import { todayIso } from '../lib/dates.ts'
 import './CurrentBalances.css'
+import SectionTitle from './SectionTitle.tsx'
 
 interface AccountLike {
   id: number
@@ -31,9 +32,9 @@ export default function CurrentBalances({ accounts, title = 'Saldo corrente', hi
 
   return (
     <section className="current-balances" aria-labelledby="current-balances-title">
-      <h2 id="current-balances-title" className="current-balances__title">
+      <SectionTitle id="current-balances-title" >
         {title}
-      </h2>
+      </SectionTitle>
       {!hideNote && (
         <p className="current-balances__note">
           Saldo iniziale {year} più i movimenti dell&apos;anno fino a oggi. Se un conto non ha il saldo iniziale, parte da zero.

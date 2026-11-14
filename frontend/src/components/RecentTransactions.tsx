@@ -6,6 +6,7 @@ import { formatShortDay } from '../lib/months.ts'
 import { paths } from '../paths.ts'
 import AmountRow from './AmountRow.tsx'
 import './RecentTransactions.css'
+import SectionTitle from './SectionTitle.tsx'
 
 const COUNT = 5
 const TYPE_LABEL = { expense: 'Spesa', income: 'Entrata', transfer: 'Trasferimento' } as const
@@ -24,9 +25,9 @@ export default function RecentTransactions() {
 
   return (
     <section className="recent" aria-labelledby="recent-title">
-      <h2 id="recent-title" className="recent__title">
+      <SectionTitle id="recent-title" >
         Ultime registrazioni
-      </h2>
+      </SectionTitle>
       {loading ? (
         <p role="status" className="recent__note">
           Caricamento…

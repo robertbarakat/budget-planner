@@ -95,13 +95,6 @@
   overflow-wrap: anywhere;
 }
 
-.structure__tag {
-  padding: 0 var(--space-4);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-sm);
-}
-
 .structure__actions,
 .structure__edit {
   display: flex;

@@ -1,15 +1,24 @@
-.update-banner {
+.banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-7);
   padding: var(--space-5) var(--space-7);
-  background: var(--color-primary);
   color: var(--color-on-primary);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
 }
 
-.update-banner .button {
+.banner--info {
+  background: var(--color-primary);
+}
+
+.banner--warning {
+  background: var(--color-warning);
+  justify-content: center;
+  text-align: center;
+}
+
+.banner .button {
   flex: none;
 }

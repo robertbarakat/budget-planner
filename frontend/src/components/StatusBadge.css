@@ -1,0 +1,22 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-4);
+  border: 1px solid currentcolor;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.status-badge--positive {
+  color: var(--color-positive);
+}
+
+.status-badge--negative {
+  color: var(--color-negative);
+}
+
+.status-badge--muted {
+  color: var(--color-text-muted);
+}

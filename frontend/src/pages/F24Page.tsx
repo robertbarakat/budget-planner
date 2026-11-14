@@ -19,8 +19,11 @@ import { deadlineStatus, planDeadlines, statusLabels, taxTypeLabels } from '../l
 import { paths } from '../paths.ts'
 import { useTaxSummary } from './use-tax-summary.ts'
 import './F24Page.css'
+import { formatDate } from '../lib/dates.ts'
+import StatusBadge from '../components/StatusBadge.tsx'
+import DisclosureButton from '../components/DisclosureButton.tsx'
 
-const italianDate = (date: string) => date.split('-').reverse().join('/')
+const statusTone = { paid: 'positive', overdue: 'negative', due: 'muted' } as const
 const today = () => new Date().toISOString().slice(0, 10)
 
 export default function F24Page() {
@@ -133,20 +136,15 @@ export default function F24Page() {
                 const isOpen = openGroups[dueDate] ?? unpaid.length > 0
                 const groupStatus = unpaid.length === 0 ? 'paid' : group.some((d) => deadlineStatus(d, today()) === 'overdue') ? 'overdue' : 'due'
                 return (
-                  <section key={dueDate} className="f24-page__group" aria-label={`F24 del ${italianDate(dueDate)}`}>
+                  <section key={dueDate} className="f24-page__group" aria-label={`F24 del ${formatDate(dueDate)}`}>
                     <div className="f24-page__group-head">
-                      <button
-                        type="button"
-                        className="f24-page__group-toggle"
-                        aria-expanded={isOpen}
-                        onClick={() => setOpenGroups((current) => ({ ...current, [dueDate]: !isOpen }))}
-                      >
+                      <DisclosureButton className="f24-page__group-toggle" expanded={isOpen} onToggle={() => setOpenGroups((current) => ({ ...current, [dueDate]: !isOpen }))}>
                         <span className="f24-page__group-title">
-                          <span aria-hidden="true">{isOpen ? '▾' : '▸'}</span> F24 {italianDate(dueDate)}
-                          <span className={`f24-page__status f24-page__status--${groupStatus}`}>{statusLabels[groupStatus]}</span>
+                          F24 {formatDate(dueDate)}
+                          <StatusBadge tone={statusTone[groupStatus]}>{statusLabels[groupStatus]}</StatusBadge>
                         </span>
                         <Amount value={groupTotal} colored={false} />
-                      </button>
+                      </DisclosureButton>
                     </div>
                     {isOpen && (
                     <>
@@ -165,13 +163,13 @@ export default function F24Page() {
                       {group.map((d) => {
                         const status = deadlineStatus(d, today())
                         const rate = d.installment_id === null ? undefined : installmentById.get(d.installment_id)
-                        const label = `${taxTypeLabels[d.tax_type]} ${italianDate(d.due_date)}`
+                        const label = `${taxTypeLabels[d.tax_type]} ${formatDate(d.due_date)}`
                         return (
                           <li key={d.id} className="f24-page__row">
                             <div className="f24-page__row-main">
                               <strong>{taxTypeLabels[d.tax_type]}</strong>
                               <span className="f24-page__row-sub">
-                                <span className={`f24-page__status f24-page__status--${status}`}>{statusLabels[status]}</span>
+                                <StatusBadge tone={statusTone[status]}>{statusLabels[status]}</StatusBadge>
                                 <span className="f24-page__meta">
                                   Anno {d.reference_year}
                                   {rate ? ` · Rata ${rate.number}` : ''}

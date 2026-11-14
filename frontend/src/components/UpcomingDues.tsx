@@ -6,6 +6,7 @@ import { formatShortDay } from '../lib/months.ts'
 import { buildUpcomingDues, upcomingRange, UPCOMING_WINDOW_DAYS } from '../lib/upcoming-dues.ts'
 import AmountRow from './AmountRow.tsx'
 import './UpcomingDues.css'
+import SectionTitle from './SectionTitle.tsx'
 
 /** Scheda "Prossime scadenze" della Home: scadenze delle ricorrenze nei prossimi giorni, più le scadute non registrate. */
 export default function UpcomingDues() {
@@ -38,9 +39,9 @@ export default function UpcomingDues() {
 
   return (
     <section className="upcoming" aria-labelledby="upcoming-title">
-      <h2 id="upcoming-title" className="upcoming__title">
+      <SectionTitle id="upcoming-title" >
         Prossime scadenze
-      </h2>
+      </SectionTitle>
       {loading ? (
         <p role="status" className="upcoming__note">Caricamento…</p>
       ) : failed ? (

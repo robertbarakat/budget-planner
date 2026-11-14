@@ -7,8 +7,7 @@ import type { TaxLine } from '../lib/tax-summary.ts'
 import { paths } from '../paths.ts'
 import { useTaxSummary } from './use-tax-summary.ts'
 import './TaxPage.css'
-
-const italianDate = (date: string) => date.split('-').reverse().join('/')
+import { formatDate } from '../lib/dates.ts'
 
 function LineAmount({ line }: { line: TaxLine }) {
   return (
@@ -56,7 +55,7 @@ export default function TaxPage() {
           {summary.advances.map((a) => (
             <section key={a.position} className="tax-page__advance">
               <h3>
-                {a.position === 'first' ? 'Primo acconto' : 'Secondo acconto'} · {italianDate(a.dueDate)} · {a.method === 'historic' ? 'Storico' : 'Previsionale'}
+                {a.position === 'first' ? 'Primo acconto' : 'Secondo acconto'} · {formatDate(a.dueDate)} · {a.method === 'historic' ? 'Storico' : 'Previsionale'}
               </h3>
               <h4>Imposta sostitutiva</h4>
               <LineAmount line={a.substituteTax} />

@@ -1,17 +1,15 @@
 import { useState } from 'react'
 import { Dialog } from 'radix-ui'
+import FormDialog from './FormDialog.tsx'
 import { useAccounts } from '../api/accounts.queries.ts'
 import { useLinkDeadlineToTransaction } from '../api/tax.queries.ts'
 import { useCreateTransaction } from '../api/transactions.queries.ts'
 import { planPayment, type PayableDeadline, type TaxRole } from '../lib/f24-pay.ts'
-import { todayIso } from '../lib/dates.ts'
+import { formatDate, todayIso } from '../lib/dates.ts'
 import Amount from './Amount.tsx'
 import Button from './Button.tsx'
 import Field from './Field.tsx'
 import { useSnackbar } from './Snackbar.tsx'
-import './MoveDialog.css'
-
-const italianDate = (date: string) => date.split('-').reverse().join('/')
 
 export interface PayF24DialogProps {
   /** Righe dell'F24 ancora da versare (stessa scadenza). */
@@ -47,12 +45,12 @@ export default function PayF24Dialog({ deadlines, installmentById, itemByRole, c
           account_id: Number(accountId),
           category_id: movement.categoryId,
           budget_item_id: movement.budgetItemId,
-          comment: `F24 ${italianDate(dueDate)}`,
+          comment: `F24 ${formatDate(dueDate)}`,
         })
         if (movement.deadlineId !== null) await link.mutateAsync({ deadlineId: movement.deadlineId, transactionId: created.id })
       }
       setOpen(false)
-      showSuccess(`F24 del ${italianDate(dueDate)} registrato: ${plan.movements.length} movimenti.`)
+      showSuccess(`F24 del ${formatDate(dueDate)} registrato: ${plan.movements.length} movimenti.`)
     } catch {
       // L'errore arriva dalla snackbar; i movimenti già creati restano e la scadenza si può ricollegare dal calendario.
     } finally {
@@ -61,23 +59,17 @@ export default function PayF24Dialog({ deadlines, installmentById, itemByRole, c
   }
 
   return (
-    <Dialog.Root
+    <FormDialog
       open={open}
       onOpenChange={(next) => {
         setOpen(next)
         if (next) setDate(dueDate <= todayIso() ? dueDate : todayIso())
       }}
-    >
-      <Dialog.Trigger asChild>
-        <button type="button" className="text-link text-link--strong" aria-label={`Pago l'F24 del ${italianDate(dueDate)}`}>
+      trigger={<button type="button" className="text-link text-link--strong" aria-label={`Pago l'F24 del ${formatDate(dueDate)}`}>
           Pago
-        </button>
-      </Dialog.Trigger>
-      <Dialog.Portal>
-        <Dialog.Overlay className="move-dialog__overlay" />
-        <Dialog.Content className="move-dialog">
-          <Dialog.Title className="move-dialog__title">Pago l'F24 del {italianDate(dueDate)}</Dialog.Title>
-          <Dialog.Description className="move-dialog__text">
+        </button>}
+      title={<>Pago l'F24 del {formatDate(dueDate)}</>}
+      description={<>
             {'error' in plan ? (
               plan.error
             ) : (
@@ -85,8 +77,9 @@ export default function PayF24Dialog({ deadlines, installmentById, itemByRole, c
                 Registro {plan.movements.length} movimenti per <Amount value={total} colored={false} />: capitale di ogni riga e interessi, sulle voci imposta, INPS e interessi. Le righe risultano versate.
               </>
             )}
-          </Dialog.Description>
-          <Field label="Data del versamento" required>
+          </>}
+    >
+      <Field label="Data del versamento" required>
             {(p) => <input {...p} type="date" value={date} onChange={(e) => setDate(e.target.value)} />}
           </Field>
           <Field label="Conto" required>
@@ -109,8 +102,6 @@ export default function PayF24Dialog({ deadlines, installmentById, itemByRole, c
               <Button variant="secondary">Annulla</Button>
             </Dialog.Close>
           </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+    </FormDialog>
   )
 }

@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { Dialog } from 'radix-ui'
+import FormDialog from './FormDialog.tsx'
 import { useUpdateF24Deadline } from '../api/tax.queries.ts'
 import { parseAmount } from '../lib/parse-amount.ts'
 import Button from './Button.tsx'
 import Field from './Field.tsx'
 import { useSnackbar } from './Snackbar.tsx'
-import './MoveDialog.css'
 
 export interface F24AmountDialogProps {
   id: number
@@ -42,7 +42,7 @@ export default function F24AmountDialog({ id, label, amount, manual = false }: F
   }
 
   return (
-    <Dialog.Root
+    <FormDialog
       open={open}
       onOpenChange={(next) => {
         setOpen(next)
@@ -51,18 +51,13 @@ export default function F24AmountDialog({ id, label, amount, manual = false }: F
           setError(undefined)
         }
       }}
-    >
-      <Dialog.Trigger asChild>
-        <button type="button" className="text-link text-link--quiet" aria-label={`Modifica importo ${label}`}>
+      trigger={<button type="button" className="text-link text-link--quiet" aria-label={`Modifica importo ${label}`}>
           Modifica importo
-        </button>
-      </Dialog.Trigger>
-      <Dialog.Portal>
-        <Dialog.Overlay className="move-dialog__overlay" />
-        <Dialog.Content className="move-dialog">
-          <Dialog.Title className="move-dialog__title">Importo della scadenza</Dialog.Title>
-          <Dialog.Description className="move-dialog__text">{label}. Il nuovo importo vale al posto del calcolo e il ricalcolo non lo cambia.</Dialog.Description>
-          <Field label="Importo (EUR)" error={error} required>
+        </button>}
+      title={<>Importo della scadenza</>}
+      description={<>{label}. Il nuovo importo vale al posto del calcolo e il ricalcolo non lo cambia.</>}
+    >
+      <Field label="Importo (EUR)" error={error} required>
             {(p) => <input {...p} inputMode="decimal" value={text} onChange={(e) => setText(e.target.value)} />}
           </Field>
           {manual && (
@@ -85,8 +80,6 @@ export default function F24AmountDialog({ id, label, amount, manual = false }: F
               <Button variant="secondary">Annulla</Button>
             </Dialog.Close>
           </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+    </FormDialog>
   )
 }
