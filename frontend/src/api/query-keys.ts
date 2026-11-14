@@ -30,6 +30,7 @@ export const queryKeys = {
     clients: ['revenue', 'clients'] as const,
     rates: ['revenue', 'client_rates'] as const,
     workedDays: ['revenue', 'worked_days'] as const,
+    forecasts: ['revenue', 'forecasts'] as const,
   },
   tax: {
     all: ['tax'] as const,

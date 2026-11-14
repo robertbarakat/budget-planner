@@ -15,4 +15,5 @@ export const paths = {
   settingsStructure: '/settings/structure',
   settingsAccounts: '/settings/accounts',
   settingsRecurrences: '/settings/recurrences',
+  settingsClients: '/settings/clients',
 } as const

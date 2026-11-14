@@ -7,6 +7,7 @@ const sections = [
   { to: paths.settingsStructure, title: 'Voci e categorie', description: 'Le tue uscite e le tue entrate, divise per gruppo.' },
   { to: paths.settingsAccounts, title: 'Conti', description: 'Dove stanno i soldi: aggiungi, riordina, archivia.' },
   { to: paths.settingsRecurrences, title: 'Ricorrenze', description: 'Pagamenti periodici (mutuo, abbonamenti): generano le righe di budget.' },
+  { to: paths.settingsClients, title: 'Clienti', description: 'Previsioni dei ricavi: giorni, tariffa, mese di competenza e di incasso.' },
   { to: paths.tax, title: 'Tasse e contributi', description: 'Riepilogo, calendario F24, rateizzazioni e parametri fiscali, tutto in un posto.', mobileOnly: true },
 ] as { to: string; title: string; description: string; mobileOnly?: boolean }[]
 

@@ -375,6 +375,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"revenue_forecasts": {
+                  Row: {
+                    "budget_item_id": number,"collection_month": number,"collection_year": number,"created_at": string,"daily_rate": number,"days": number,"id": number,"work_month": number,"work_year": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "budget_item_id": number,"collection_month": number,"collection_year": number,"created_at"?: string,"daily_rate": number,"days": number,"id"?: never,"work_month": number,"work_year": number
+                  }
+                  Update: {
+                    "budget_item_id"?: number,"collection_month"?: number,"collection_year"?: number,"created_at"?: string,"daily_rate"?: number,"days"?: number,"id"?: never,"work_month"?: number,"work_year"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "revenue_forecasts_budget_item_id_fkey"
+      columns: ["budget_item_id"]
+isOneToOne: false
+      referencedRelation: "budget_items"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"worked_days": {
                   Row: {
                     "client_id": number,"created_at": string,"days": number,"id": number,"month": number,"year": number

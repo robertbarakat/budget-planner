@@ -14,6 +14,7 @@ import TransactionsPage from './pages/TransactionsPage.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
 import SettingsPage from './pages/settings/SettingsPage.tsx'
 import AccountsSettingsPage from './pages/settings/AccountsSettingsPage.tsx'
+import ClientsSettingsPage from './pages/settings/ClientsSettingsPage.tsx'
 import RecurrencesSettingsPage from './pages/settings/RecurrencesSettingsPage.tsx'
 import TaxParametersPage from './pages/settings/TaxParametersPage.tsx'
 import StructurePage from './pages/settings/StructurePage.tsx'
@@ -42,6 +43,7 @@ export const routes: RouteObject[] = [
           { path: 'settings/structure', element: <StructurePage /> },
           { path: 'settings/accounts', element: <AccountsSettingsPage /> },
           { path: 'settings/recurrences', element: <RecurrencesSettingsPage /> },
+          { path: 'settings/clients', element: <ClientsSettingsPage /> },
                     { path: '*', element: <NotFoundPage /> },
         ],
       },

@@ -15,6 +15,7 @@ export type ClosedMonth = Tables<'closed_months'>
 export type Client = Tables<'clients'>
 export type ClientRate = Tables<'client_rates'>
 export type WorkedDays = Tables<'worked_days'>
+export type RevenueForecast = Tables<'revenue_forecasts'>
 
 export type NewTransaction = TablesInsert<'transactions'>
 export type TransactionUpdate = TablesUpdate<'transactions'>

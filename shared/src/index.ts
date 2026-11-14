@@ -78,6 +78,7 @@ export type {
   TransactionType,
   TransactionUpdate,
   WorkedDays,
+  RevenueForecast,
 } from './domain.ts'
 export { buildF24Calendar } from './f24-calendar.ts'
 export type {
