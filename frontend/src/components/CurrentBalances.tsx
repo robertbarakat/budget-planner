@@ -26,6 +26,7 @@ export default function CurrentBalances({ accounts, title = 'Saldo corrente', hi
   const data = balances.data
   // Conti archiviati solo se hanno un saldo diverso da zero: così il totale coincide con le righe mostrate.
   const shown = accounts.filter((account) => !account.archived || (data?.balances[account.id] ?? 0) !== 0)
+    .sort((x, y) => (data?.balances[y.id] ?? 0) - (data?.balances[x.id] ?? 0))
 
   return (
     <section className="current-balances" aria-labelledby="current-balances-title">
