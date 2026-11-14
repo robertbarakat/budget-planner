@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import Amount from '../components/Amount.tsx'
+import TaxNav from '../components/TaxNav.tsx'
 import YearSelector from '../components/YearSelector.tsx'
 import type { TaxLine } from '../lib/tax-summary.ts'
 import { paths } from '../paths.ts'
@@ -25,17 +26,22 @@ export default function TaxPage() {
   return (
     <main className="tax-page">
       <h1>Tasse e contributi</h1>
-      <Link to={paths.taxF24} className="tax-page__link">Calendario F24 →</Link>
-      <Link to={paths.taxInstallments} className="tax-page__link">Rateizzazioni →</Link>
+      <TaxNav />
       <YearSelector year={year} onChange={setYear} />
       {failed ? (
         <p role="alert" className="tax-page__note">Non riesco a leggere i dati fiscali. Riprova più tardi.</p>
       ) : loading ? (
         <p role="status" className="tax-page__note">Caricamento…</p>
       ) : !summary ? (
-        <p className="tax-page__note">
-          Mancano i parametri fiscali del {year}: inseriscili in <Link to={paths.settingsTaxParameters}>Parametri fiscali</Link>.
-        </p>
+        <section className="tax-page__empty">
+          <h2>Mancano i parametri fiscali del {year}</h2>
+          <p>
+            Servono per calcolare imposta sostitutiva, INPS, acconti e saldo: aliquote, coefficiente di redditività e contributi dell'anno.
+          </p>
+          <Link to={paths.settingsTaxParameters} className="tax-page__cta">
+            Inserisci i parametri del {year}
+          </Link>
+        </section>
       ) : (
         <>
           <dl className="tax-page__grid">

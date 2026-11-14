@@ -1,5 +1,5 @@
+import TaxNav from '../components/TaxNav.tsx'
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router'
 import { useAllInstallments, useF24Deadlines, useInstallmentPlans, useUpdateInstallmentPlan } from '../api/tax.queries.ts'
 import Amount from '../components/Amount.tsx'
 import Button from '../components/Button.tsx'
@@ -7,7 +7,6 @@ import InstallmentPlanFormDialog from '../components/InstallmentPlanFormDialog.t
 import { useSnackbar } from '../components/Snackbar.tsx'
 import { taxTypeLabels } from '../lib/f24-plan.ts'
 import { summarizePlan } from '../lib/installments.ts'
-import { paths } from '../paths.ts'
 import './InstallmentsPage.css'
 
 const italianDate = (date: string) => date.split('-').reverse().join('/')
@@ -29,7 +28,7 @@ export default function InstallmentsPage() {
 
   return (
     <main className="installments">
-      <Link to={paths.tax} className="installments__back">← Tasse e contributi</Link>
+      <TaxNav />
       <h1>Rateizzazioni</h1>
       <InstallmentPlanFormDialog />
       <label className="installments__check">

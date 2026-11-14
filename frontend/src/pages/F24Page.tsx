@@ -1,3 +1,4 @@
+import TaxNav from '../components/TaxNav.tsx'
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { useBudgetEntries, useClosedMonths } from '../api/budget.queries.ts'
@@ -94,7 +95,7 @@ export default function F24Page() {
   const loading = current.isPending || saved.isPending
   return (
     <main className="f24-page">
-      <Link to={paths.tax} className="f24-page__back">← Tasse e contributi</Link>
+      <TaxNav />
       <h1>Calendario F24</h1>
       <YearSelector year={year} onChange={setYear} />
       {current.isError || saved.isError ? (
