@@ -12,10 +12,12 @@ export interface F24AmountDialogProps {
   /** Descrizione della scadenza, per il nome accessibile. */
   label: string
   amount: number
+  /** L'importo è fissato a mano: il ricalcolo non lo cambia. */
+  manual?: boolean
 }
 
 /** Modifica a mano l'importo di una scadenza F24 non ancora versata. */
-export default function F24AmountDialog({ id, label, amount }: F24AmountDialogProps) {
+export default function F24AmountDialog({ id, label, amount, manual = false }: F24AmountDialogProps) {
   const [open, setOpen] = useState(false)
   const [text, setText] = useState('')
   const [error, setError] = useState<string | undefined>()
@@ -63,6 +65,20 @@ export default function F24AmountDialog({ id, label, amount }: F24AmountDialogPr
           <Field label="Importo (EUR)" error={error} required>
             {(p) => <input {...p} inputMode="decimal" value={text} onChange={(e) => setText(e.target.value)} />}
           </Field>
+          {manual && (
+            <button
+              type="button"
+              className="text-link"
+              onClick={() =>
+                update.mutate(
+                  { id, values: { is_amount_manual: false } },
+                  { onSuccess: () => { setOpen(false); showSuccess('Torna al calcolo: si aggiorna con «Genera dal calcolo».') } },
+                )
+              }
+            >
+              Torna al calcolo
+            </button>
+          )}
           <div className="move-dialog__actions">
             <Button onClick={confirm} loading={update.isPending}>Salva</Button>
             <Dialog.Close asChild>

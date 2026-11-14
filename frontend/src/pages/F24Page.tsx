@@ -175,7 +175,7 @@ export default function F24Page() {
                                 <span className="f24-page__meta">
                                   Anno {d.reference_year}
                                   {rate ? ` · Rata ${rate.number}` : ''}
-                                  {d.is_amount_manual ? ' · importo modificato a mano' : ''}
+                                  {d.is_amount_manual ? ' · importo manuale' : ''}
                                 </span>
                               </span>
                             </div>
@@ -186,7 +186,7 @@ export default function F24Page() {
                               {d.transaction_id === null ? (
                                 <>
                                   <F24LinkDialog deadlineId={d.id} label={label} candidates={candidates} />
-                                  <F24AmountDialog id={d.id} label={label} amount={Number(d.amount)} />
+                                  <F24AmountDialog id={d.id} label={label} amount={Number(d.amount)} manual={d.is_amount_manual} />
                                 </>
                               ) : (
                                 <>
