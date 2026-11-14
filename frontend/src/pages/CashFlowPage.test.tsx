@@ -57,7 +57,7 @@ const rowOf = async (name: string) => {
 describe('CashFlowPage: saldo progressivo', () => {
   it('mostra saldo iniziale, mesi con stato a parole e saldo a fine anno', async () => {
     setup()
-    expect(await screen.findByText(/Saldo iniziale 2026/)).toHaveTextContent('1.000,00')
+    expect(await screen.findByText(/Saldo iniziale/)).toHaveTextContent('1.000,00')
     const january = await rowOf('gennaio')
     expect(within(january).getByText('Chiuso')).toBeInTheDocument()
     expect(within(january).getByText('Reale', { selector: '.cash-month__basis' })).toBeInTheDocument()
@@ -67,7 +67,7 @@ describe('CashFlowPage: saldo progressivo', () => {
     expect(within(february).getByText('Aperto')).toBeInTheDocument()
     expect(within(february).getByText('Previsto', { selector: '.cash-month__basis' })).toBeInTheDocument()
     expect(within(february).getByText('Saldo a fine mese').nextElementSibling).toHaveTextContent('1.650,00')
-    expect(screen.getByText(/Saldo previsto fine 2026/)).toHaveTextContent('1.650,00')
+    expect(screen.getByText(/Saldo finale previsto/)).toHaveTextContent('1.650,00')
   })
 })
 

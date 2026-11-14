@@ -65,10 +65,10 @@ export default function CashFlowPage() {
         <>
           <div className="cash-flow-page__balances">
             <p className="cash-flow-page__opening">
-              Saldo iniziale {year}: <Amount value={view.flow.openingBalance} />
+              Saldo iniziale <Amount value={view.flow.openingBalance} />
             </p>
             <p className="cash-flow-page__opening">
-              {view.flow.months.every((m) => m.isClosed) ? `Saldo finale ${year}` : `Saldo previsto fine ${year}`}:{' '}
+              {view.flow.months.every((m) => m.isClosed) ? 'Saldo finale' : 'Saldo finale previsto'}{' '}
               <Amount value={view.flow.closingBalance} />
             </p>
           </div>
