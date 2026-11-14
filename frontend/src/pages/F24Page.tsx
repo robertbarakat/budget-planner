@@ -141,8 +141,9 @@ export default function F24Page() {
                         aria-expanded={isOpen}
                         onClick={() => setOpenGroups((current) => ({ ...current, [dueDate]: !isOpen }))}
                       >
-                        <span aria-hidden="true">{isOpen ? '▾' : '▸'}</span>
-                        <span className="f24-page__group-title">F24 del {italianDate(dueDate)}</span>
+                        <span className="f24-page__group-title">
+                          <span aria-hidden="true">{isOpen ? '▾' : '▸'}</span> F24 del {italianDate(dueDate)}
+                        </span>
                         <Amount value={groupTotal} colored={false} />
                         <span className={`f24-page__status f24-page__status--${groupStatus}`}>{statusLabels[groupStatus]}</span>
                       </button>
@@ -167,13 +168,18 @@ export default function F24Page() {
                         const label = `${taxTypeLabels[d.tax_type]} ${italianDate(d.due_date)}`
                         return (
                           <li key={d.id} className="f24-page__row">
-                            <div>
-                              <strong>{taxTypeLabels[d.tax_type]}</strong> · anno {d.reference_year}
-                              {rate ? ` · rata ${rate.number}` : ''}
-                              <div className="f24-page__meta">{d.is_amount_manual ? 'importo modificato a mano' : ''}</div>
+                            <div className="f24-page__row-main">
+                              <strong>{taxTypeLabels[d.tax_type]}</strong>
+                              <span className="f24-page__meta">
+                                Anno {d.reference_year}
+                                {rate ? ` · Rata ${rate.number}` : ''}
+                                {d.is_amount_manual ? ' · importo modificato a mano' : ''}
+                              </span>
                             </div>
-                            <Amount value={Number(d.amount)} colored={false} />
-                            <span className={`f24-page__status f24-page__status--${status}`}>{statusLabels[status]}</span>
+                            <div className="f24-page__row-side">
+                              <Amount value={Number(d.amount)} colored={false} />
+                              <span className={`f24-page__status f24-page__status--${status}`}>{statusLabels[status]}</span>
+                            </div>
                             <div className="f24-page__actions">
                               {d.transaction_id === null ? (
                                 <>

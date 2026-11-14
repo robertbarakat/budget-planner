@@ -69,9 +69,9 @@ export default function PayF24Dialog({ deadlines, installmentById, itemByRole, c
       }}
     >
       <Dialog.Trigger asChild>
-        <button type="button" className="text-link text-link--strong" aria-label={`Pago l'F24 del ${italianDate(dueDate)}`}>
+        <Button className="button--compact" aria-label={`Pago l'F24 del ${italianDate(dueDate)}`}>
           Pago
-        </button>
+        </Button>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="move-dialog__overlay" />
