@@ -169,14 +169,14 @@ export default function F24Page() {
                         return (
                           <li key={d.id} className="f24-page__row">
                             <div className="f24-page__row-main">
-                              <span className="f24-page__row-title">
-                                <strong>{taxTypeLabels[d.tax_type]}</strong>
+                              <strong>{taxTypeLabels[d.tax_type]}</strong>
+                              <span className="f24-page__row-sub">
                                 <span className={`f24-page__status f24-page__status--${status}`}>{statusLabels[status]}</span>
-                              </span>
-                              <span className="f24-page__meta">
-                                Anno {d.reference_year}
-                                {rate ? ` · Rata ${rate.number}` : ''}
-                                {d.is_amount_manual ? ' · importo modificato a mano' : ''}
+                                <span className="f24-page__meta">
+                                  Anno {d.reference_year}
+                                  {rate ? ` · Rata ${rate.number}` : ''}
+                                  {d.is_amount_manual ? ' · importo modificato a mano' : ''}
+                                </span>
                               </span>
                             </div>
                             <div className="f24-page__row-side">
