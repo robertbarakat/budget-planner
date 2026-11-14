@@ -10,6 +10,7 @@ import {
 import { todayIso } from '../lib/dates.ts'
 import Button from './Button.tsx'
 import ChoiceChips from './ChoiceChips.tsx'
+import CategoryPicker from './CategoryPicker.tsx'
 import Field from './Field.tsx'
 import './TransactionForm.css'
 
@@ -177,18 +178,14 @@ export default function TransactionForm({ accounts, categoryGroups, initial, sub
         <>
       <Field label="Categoria" required error={errors.category}>
         {(p) => (
-          <select {...p} value={state.categoryId} onChange={(e) => update('categoryId', e.target.value)}>
-            <option value="">Scegli…</option>
-            {groups.map((group) => (
-              <optgroup key={group.budgetItemId} label={group.budgetItemName}>
-                {group.categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
+          <CategoryPicker
+            id={p.id}
+            groups={groups}
+            value={state.categoryId}
+            onChange={(value) => update('categoryId', value)}
+            invalid={!!errors.category}
+            describedBy={p['aria-describedby']}
+          />
         )}
       </Field>
 

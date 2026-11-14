@@ -13,6 +13,12 @@ const groups: CategoryGroup[] = [
   { budgetItemId: 20, budgetItemName: 'Stipendio', macroAreaName: 'Ricavi', kind: 'income', categories: [{ id: 200, name: 'Cliente X' }] },
 ]
 
+async function pick(name: string) {
+  await userEvent.click(screen.getByLabelText(/Categoria/))
+  await userEvent.click(screen.getByRole('option', { name: new RegExp(`^${name}`) }))
+}
+const optionNames = () => screen.getAllByRole('option').map((o) => o.firstChild?.textContent ?? '')
+
 function setup(onSubmit = vi.fn()) {
   render(<TransactionForm accounts={accounts} categoryGroups={groups} onSubmit={onSubmit} />)
   return onSubmit
@@ -41,7 +47,7 @@ describe('TransactionForm', () => {
     const onSubmit = setup()
     await userEvent.type(screen.getByLabelText(/Importo/), amount)
     await userEvent.click(screen.getByRole('radio', { name: /Conto A/ }))
-    await userEvent.selectOptions(screen.getByLabelText(/Categoria/), 'Pizza')
+    await pick('Pizza')
     await userEvent.click(screen.getByRole('button', { name: 'Salva spesa' }))
     expect(screen.getByText("L'importo deve essere maggiore di zero.")).toBeInTheDocument()
     expect(onSubmit).not.toHaveBeenCalled()
@@ -56,28 +62,32 @@ describe('TransactionForm', () => {
 
   it('cambiando categoria cambia la voce di budget mostrata', async () => {
     setup()
-    const category = screen.getByLabelText(/Categoria/)
-    await userEvent.selectOptions(category, 'Pizza')
+    await pick('Pizza')
     expect(screen.getByText('Food · Svago')).toBeInTheDocument()
-    await userEvent.selectOptions(category, 'Luce')
+    await pick('Luce')
     expect(screen.getByText('Utenze · Casa')).toBeInTheDocument()
     expect(screen.queryByText('Food · Svago')).not.toBeInTheDocument()
   })
 
   it('le categorie sono raggruppate per voce e filtrate per tipo: spesa e entrata non si mescolano', async () => {
     setup()
-    const category = screen.getByLabelText(/Categoria/)
-    expect(within(category).getAllByRole('option').map((o) => o.textContent)).toEqual(['Scegli…', 'Pizza', 'Bar', 'Luce'])
+    await userEvent.click(screen.getByLabelText(/Categoria/))
+    expect(optionNames()).toEqual(expect.arrayContaining(['Pizza', 'Bar', 'Luce']))
+    expect(optionNames()).not.toContain('Cliente X')
+    await userEvent.type(screen.getByLabelText('Cerca categoria'), 'luc')
+    expect(optionNames()).toEqual(['Luce'])
+    await userEvent.keyboard('{Escape}')
     await userEvent.click(screen.getByRole('radio', { name: /Entrata/ }))
-    expect(within(category).getAllByRole('option').map((o) => o.textContent)).toEqual(['Scegli…', 'Cliente X'])
+    await userEvent.click(screen.getByLabelText(/Categoria/))
+    expect(optionNames()).toEqual(['Cliente X'])
     expect(screen.getByRole('button', { name: 'Salva entrata' })).toBeInTheDocument()
   })
 
   it('cambiando tipo la categoria non più valida si azzera', async () => {
     setup()
-    await userEvent.selectOptions(screen.getByLabelText(/Categoria/), 'Pizza')
+    await pick('Pizza')
     await userEvent.click(screen.getByRole('radio', { name: /Entrata/ }))
-    expect(screen.getByLabelText(/Categoria/)).toHaveValue('')
+    expect(screen.getByLabelText(/Categoria/)).toHaveTextContent('Scegli…')
     expect(screen.getByText('Si sceglie con la categoria')).toBeInTheDocument()
   })
 
@@ -85,7 +95,7 @@ describe('TransactionForm', () => {
     const onSubmit = setup()
     await userEvent.type(screen.getByLabelText(/Importo/), '14,90')
     await userEvent.click(screen.getByRole('radio', { name: /Conto B/ }))
-    await userEvent.selectOptions(screen.getByLabelText(/Categoria/), 'Bar')
+    await pick('Bar')
     await userEvent.type(screen.getByLabelText('Commento'), 'caffè')
     await userEvent.click(screen.getByRole('button', { name: 'Salva spesa' }))
     expect(onSubmit).toHaveBeenCalledTimes(1)
