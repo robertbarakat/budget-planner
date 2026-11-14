@@ -99,3 +99,15 @@
 .installment-form__paid {
   color: var(--color-text-muted);
 }
+
+.installment-form__date {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.installment-form__date input {
+  min-height: var(--target-min);
+  padding: 0 var(--space-3);
+  font-size: var(--font-size-sm);
+}

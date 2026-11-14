@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Dialog } from 'radix-ui'
 import { useCreateInstallmentPlanFromSchedule, useRebuildInstallmentPlan } from '../api/tax.queries.ts'
+import { addMonthsIso } from 'budget-planner-shared'
 import { formatDate } from '../lib/dates.ts'
 import { formatAbsoluteAmount } from '../lib/format-amount.ts'
 import { taxTypeLabels } from '../lib/f24-plan.ts'
@@ -31,6 +32,7 @@ export interface EditablePlan {
 
 function draftFromPlan(plan: EditablePlan): InstallmentPlanDraft {
   const count = plan.installments.reduce((m, i) => Math.max(m, i.number), 0)
+  const first = plan.installments.find((i) => i.number === 1)?.due_date ?? ''
   return {
     description: plan.description,
     lines: plan.lines.map((l) => ({
@@ -40,7 +42,11 @@ function draftFromPlan(plan: EditablePlan): InstallmentPlanDraft {
       lastNumberText: l.last_number === null ? '' : String(l.last_number),
     })),
     countText: String(count),
-    firstDueDate: plan.installments.find((i) => i.number === 1)?.due_date ?? '',
+    firstDueDate: first,
+    // Date diverse da quelle mensili dalla prima: scelte a mano.
+    dateOverrides: Object.fromEntries(
+      plan.installments.filter((i) => first && i.due_date !== addMonthsIso(first, i.number - 1)).map((i) => [i.number, i.due_date]),
+    ),
   }
 }
 
@@ -187,8 +193,29 @@ export default function InstallmentPlanFormDialog({ edit }: { edit?: EditablePla
                   {preview.map((r) => (
                     <tr key={r.number}>
                       <th scope="row">
-                        {r.number} · {formatDate(r.date)}
-                        {frozenNumbers.has(r.number) && <span className="installment-form__paid"> versata</span>}
+                        {frozenNumbers.has(r.number) ? (
+                          <>
+                            {r.number} · {formatDate(r.date)}
+                            <span className="installment-form__paid"> versata</span>
+                          </>
+                        ) : (
+                          <label className="installment-form__date">
+                            {r.number} ·
+                            <input
+                              type="date"
+                              aria-label={`Data della rata ${r.number}`}
+                              value={r.date}
+                              onChange={(e) =>
+                                setDraft((d) => {
+                                  const next = { ...d.dateOverrides }
+                                  if (e.target.value) next[r.number] = e.target.value
+                                  else delete next[r.number]
+                                  return { ...d, dateOverrides: next }
+                                })
+                              }
+                            />
+                          </label>
+                        )}
                       </th>
                       <td>{formatAbsoluteAmount(r.principal)}</td>
                       <td>{formatAbsoluteAmount(r.interest)}</td>

@@ -21,6 +21,8 @@ export interface InstallmentPlanDraft {
   lines: InstallmentLineDraft[]
   countText: string
   firstDueDate: string
+  /** Date scelte a mano per singole rate (numero della rata → `YYYY-MM-DD`); le altre sono mensili dalla prima. */
+  dateOverrides?: Record<number, string>
 }
 
 export interface InstallmentPlanValues {
@@ -78,7 +80,7 @@ export function validateInstallmentPlan(draft: InstallmentPlanDraft): { values: 
       firstDueDate: draft.firstDueDate,
       rows: schedule.map((r) => ({
         number: r.number,
-        dueDate: r.dueDate,
+        dueDate: draft.dateOverrides?.[r.number] && isValidIsoDate(draft.dateOverrides[r.number]!) ? draft.dateOverrides[r.number]! : r.dueDate,
         taxType: r.taxType,
         referenceYear: r.referenceYear,
         principal: r.principalCents / 100,

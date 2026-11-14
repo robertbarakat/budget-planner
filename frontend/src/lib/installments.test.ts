@@ -24,6 +24,12 @@ describe('validateInstallmentPlan', () => {
     if (!('values' in result)) throw new Error('attesi valori')
     expect(result.values.rows.filter((r) => r.number === 6).map((r) => r.taxType)).toEqual(['substitute_tax_balance'])
   })
+  it('una data scelta a mano vale al posto di quella mensile', () => {
+    const result = validateInstallmentPlan({ ...draft, dateOverrides: { 3: '2027-03-05' } })
+    if (!('values' in result)) throw new Error('attesi valori')
+    expect([...new Set(result.values.rows.filter((r) => r.number === 3).map((r) => r.dueDate))]).toEqual(['2027-03-05'])
+    expect(result.values.rows.find((r) => r.number === 2)?.dueDate).toBe('2027-01-16')
+  })
   it('chiede i campi obbligatori', () => {
     const result = validateInstallmentPlan(emptyInstallmentPlanDraft)
     expect('errors' in result && Object.keys(result.errors).sort()).toEqual(['count', 'description', 'firstDueDate', 'lines'])
