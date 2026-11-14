@@ -9,16 +9,3 @@
 .action-bar > .button {
   width: 100%;
 }
-
-.action-bar--sticky {
-  position: sticky;
-  bottom: 0;
-}
-
-@media (min-width: 1024px) {
-  .action-bar--sticky {
-    position: static;
-    padding-inline: 0;
-    border-top: 0;
-  }
-}

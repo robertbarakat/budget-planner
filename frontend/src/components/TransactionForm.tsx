@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react'
+import { useId, useRef, useState, type FormEvent } from 'react'
 import {
   validateTransactionForm,
   type CategorizedValues,
@@ -72,6 +72,7 @@ export default function TransactionForm({ accounts, categoryGroups, initial, sub
     tag: '',
     ...initial,
   }))
+  const formId = useId()
   const [errors, setErrors] = useState<TransactionFormErrors>({})
   // Blocca il secondo invio anche nello stesso istante del primo, prima che `busy` si aggiorni.
   const submitting = useRef(false)
@@ -129,7 +130,7 @@ export default function TransactionForm({ accounts, categoryGroups, initial, sub
   }
 
   return (
-    <form className="transaction-form" onSubmit={submit} noValidate>
+    <form id={formId} className="transaction-form" onSubmit={submit} noValidate>
       <ChoiceChips
         label="Tipo di movimento"
         segmented
@@ -213,8 +214,8 @@ export default function TransactionForm({ accounts, categoryGroups, initial, sub
         {(p) => <input {...p} type="text" autoComplete="off" value={state.tag} onChange={(e) => update('tag', e.target.value)} />}
       </Field>
 
-      <ActionBar sticky>
-        <Button type="submit" loading={busy}>
+      <ActionBar>
+        <Button type="submit" form={formId} loading={busy}>
           {submitLabel ?? SUBMIT_LABEL[state.type]}
         </Button>
       </ActionBar>

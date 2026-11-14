@@ -30,6 +30,7 @@ export default function MobileNav() {
           </Link>
         </ActionBar>
       )}
+      <div id="action-bar-slot" />
       <nav aria-label="Navigazione principale" className="mobile-nav__bar">
         <ul className="mobile-nav__list">
           {navItems
