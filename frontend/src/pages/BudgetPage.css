@@ -140,6 +140,9 @@
 .budget-area {
   display: flex;
   align-items: center;
+  align-self: stretch;
+  justify-content: space-between;
+  width: 100%;
   gap: var(--space-3);
 }
 
