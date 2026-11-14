@@ -30,14 +30,3 @@
   color: var(--color-negative);
   font-weight: var(--font-weight-semibold);
 }
-
-
-.upcoming__register {
-  width: 100%;
-}
-
-@media (min-width: 768px) {
-  .upcoming__register {
-    width: auto;
-  }
-}
