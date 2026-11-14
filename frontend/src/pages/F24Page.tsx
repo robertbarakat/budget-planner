@@ -142,7 +142,7 @@ export default function F24Page() {
                         onClick={() => setOpenGroups((current) => ({ ...current, [dueDate]: !isOpen }))}
                       >
                         <span className="f24-page__group-title">
-                          <span aria-hidden="true">{isOpen ? '▾' : '▸'}</span> F24 del {italianDate(dueDate)}
+                          <span aria-hidden="true">{isOpen ? '▾' : '▸'}</span> F24 {italianDate(dueDate)}
                         </span>
                         <span className={`f24-page__status f24-page__status--${groupStatus}`}>{statusLabels[groupStatus]}</span>
                         <Amount value={groupTotal} colored={false} />

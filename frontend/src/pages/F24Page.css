@@ -109,6 +109,7 @@
 
 .f24-page__group-title {
   margin: 0;
+  white-space: nowrap;
 }
 
 .f24-page__group .f24-page__list {
@@ -150,7 +151,6 @@
 }
 
 .f24-page__group-toggle > .amount {
-  min-width: 6.5rem;
   text-align: right;
 }
 
