@@ -1,5 +1,6 @@
 import { useCurrentBalances } from '../api/accounts.queries.ts'
 import Amount from './Amount.tsx'
+import AmountRow from './AmountRow.tsx'
 import { todayIso } from '../lib/dates.ts'
 import './CurrentBalances.css'
 
@@ -52,10 +53,7 @@ export default function CurrentBalances({ accounts, title = 'Saldo corrente', hi
         <>
           <ul className="current-balances__list">
             {shown.map((account) => (
-              <li key={account.id} className="current-balances__row">
-                <span>{account.name}</span>
-                <Amount value={data.balances[account.id] ?? 0} />
-              </li>
+              <AmountRow key={account.id} title={account.name} amount={data.balances[account.id] ?? 0} />
             ))}
           </ul>
           <p className="current-balances__total">

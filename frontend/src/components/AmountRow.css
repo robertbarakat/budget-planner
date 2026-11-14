@@ -1,0 +1,36 @@
+.amount-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--amount-column-width);
+  align-items: center;
+  column-gap: var(--space-6);
+  row-gap: var(--space-4);
+  min-height: var(--target-min);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.amount-row__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.amount-row__title {
+  overflow: hidden;
+  font-weight: var(--font-weight-medium);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.amount-row__meta {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.amount-row__amount {
+  text-align: right;
+}
+
+.amount-row__action {
+  grid-column: 1 / -1;
+}

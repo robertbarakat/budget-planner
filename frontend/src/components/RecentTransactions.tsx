@@ -4,7 +4,7 @@ import { useCategories } from '../api/classification.queries.ts'
 import { useTransactions } from '../api/transactions.queries.ts'
 import { formatShortDay } from '../lib/months.ts'
 import { paths } from '../paths.ts'
-import Amount from './Amount.tsx'
+import AmountRow from './AmountRow.tsx'
 import './RecentTransactions.css'
 
 const COUNT = 5
@@ -47,17 +47,15 @@ export default function RecentTransactions() {
               : (categoryName.get(row.category_id ?? -1) ?? 'Senza categoria')
             const amount = Number(row.amount)
             return (
-              <li key={row.id} className="recent__item">
-                <div className="recent__main">
-                  <span className="recent__name">{title}</span>
-                  <span className="recent__meta">
-                    {formatShortDay(row.transaction_date)} · {TYPE_LABEL[row.type]}
-                    {!isTransfer && ` · ${origin}`}
-                  </span>
-                </div>
-                {/* Spesa col segno meno, entrata col più; il trasferimento non ha segno né colore. */}
-                <Amount value={row.type === 'expense' ? -amount : amount} explicitPlus={row.type === 'income'} colored={!isTransfer} />
-              </li>
+              <AmountRow
+                key={row.id}
+                title={title}
+                meta={`${formatShortDay(row.transaction_date)} · ${TYPE_LABEL[row.type]}${!isTransfer ? ` · ${origin}` : ''}`}
+                // Spesa col segno meno, entrata col più; il trasferimento non ha segno né colore.
+                amount={row.type === 'expense' ? -amount : amount}
+                explicitPlus={row.type === 'income'}
+                colored={!isTransfer}
+              />
             )
           })}
         </ul>

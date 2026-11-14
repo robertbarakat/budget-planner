@@ -26,50 +26,18 @@
   list-style: none;
 }
 
-.upcoming__item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-6);
-  min-height: var(--target-min);
-  padding: var(--space-4) 0;
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.upcoming__main {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.upcoming__name {
-  overflow: hidden;
-  font-weight: var(--font-weight-medium);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.upcoming__meta {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-}
-
 .upcoming__overdue {
   color: var(--color-negative);
   font-weight: var(--font-weight-semibold);
 }
 
-/* Su mobile l'azione va a capo sotto nome e importo; da tablet sta sulla stessa riga. */
-.upcoming__item {
-  flex-wrap: wrap;
-}
 
 .upcoming__register {
-  flex-basis: 100%;
+  width: 100%;
 }
 
 @media (min-width: 768px) {
   .upcoming__register {
-    flex-basis: auto;
+    width: auto;
   }
 }

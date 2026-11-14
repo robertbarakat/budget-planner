@@ -6,7 +6,7 @@ import { paths } from '../paths.ts'
 import { todayIso } from '../lib/dates.ts'
 import { formatShortDay } from '../lib/months.ts'
 import { buildUpcomingDues, upcomingRange, UPCOMING_WINDOW_DAYS } from '../lib/upcoming-dues.ts'
-import Amount from './Amount.tsx'
+import AmountRow from './AmountRow.tsx'
 import './Button.css'
 import './UpcomingDues.css'
 
@@ -43,27 +43,31 @@ export default function UpcomingDues() {
       ) : (
         <ul className="upcoming__list">
           {rows.map((row) => (
-            <li key={row.occurrenceId} className="upcoming__item">
-              <div className="upcoming__main">
-                <span className="upcoming__name">{row.name}</span>
-                <span className="upcoming__meta">
+            <AmountRow
+              key={row.occurrenceId}
+              title={row.name}
+              meta={
+                <>
                   {formatShortDay(row.dueDate)}
                   {row.overdue && <span className="upcoming__overdue"> · Scaduta</span>}
-                </span>
-              </div>
-              <Amount value={row.amount} explicitPlus={row.amount > 0} />
-              <Link
-                className="button button--secondary upcoming__register"
-                aria-label={`Registra pagamento di ${row.name} del ${row.dueDate}`}
-                to={newTransactionFromDuePath(paths.newTransaction, {
-                  amount: Math.abs(row.amount),
-                  accountId: row.accountId,
-                  budgetItemId: row.budgetItemId,
-                })}
-              >
-                Registra pagamento
-              </Link>
-            </li>
+                </>
+              }
+              amount={row.amount}
+              explicitPlus={row.amount > 0}
+              action={
+                <Link
+                  className="button button--secondary upcoming__register"
+                  aria-label={`Registra pagamento di ${row.name} del ${row.dueDate}`}
+                  to={newTransactionFromDuePath(paths.newTransaction, {
+                    amount: Math.abs(row.amount),
+                    accountId: row.accountId,
+                    budgetItemId: row.budgetItemId,
+                  })}
+                >
+                  Registra pagamento
+                </Link>
+              }
+            />
           ))}
         </ul>
       )}

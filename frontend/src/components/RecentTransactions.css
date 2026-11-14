@@ -26,34 +26,6 @@
   list-style: none;
 }
 
-.recent__item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-6);
-  min-height: var(--target-min);
-  padding: var(--space-4) 0;
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.recent__main {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.recent__name {
-  overflow: hidden;
-  font-weight: var(--font-weight-medium);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.recent__meta {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-}
-
 .recent__all {
   display: inline-flex;
   align-items: center;
