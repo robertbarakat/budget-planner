@@ -62,3 +62,45 @@
   font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-regular, 400);
 }
+
+/* Macro-area: riga colorata e ben distinta; voci rientrate sotto di essa. */
+.budget-page__area th,
+.budget-page__area td,
+.budget-page__area .data-grid__label {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  border-top: 2px solid var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.budget-page__area .data-grid__label {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: var(--font-size-sm);
+}
+
+.budget-page__item {
+  padding-left: var(--space-10) !important;
+  font-weight: var(--font-weight-regular, 400) !important;
+  white-space: normal !important;
+  text-overflow: clip !important;
+}
+
+.budget-page__month-state {
+  display: block;
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-regular, 400);
+}
+
+.budget-cell__forecast {
+  font-style: italic;
+}
+
+.budget-cell__actual {
+  font-weight: inherit;
+}
+
+.budget-page__area .data-grid__label {
+  white-space: normal;
+  text-overflow: clip;
+}

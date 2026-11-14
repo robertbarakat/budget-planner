@@ -84,11 +84,12 @@ export default function BudgetPage() {
             <thead>
               <tr>
                 <th scope="col" className="data-grid__label">
-                  Voce
+                  Macro-area e voci
                 </th>
                 {MONTHS.map((month) => (
                   <th key={month.value} scope="col">
                     {month.label}
+                    <span className="budget-page__month-state">{closed[month.value - 1] ? '✓ reale' : '○ previsto'}</span>
                   </th>
                 ))}
                 <th scope="col" className="data-grid__sum">
@@ -102,7 +103,7 @@ export default function BudgetPage() {
             </thead>
             {grid.groups.map((group) => (
               <tbody key={group.macroAreaId}>
-                <tr className="data-grid__group">
+                <tr className="data-grid__group budget-page__area">
                   <th scope="rowgroup" className="data-grid__label">
                     {group.archived ? `${group.name} (archiviata)` : group.name}
                   </th>
@@ -112,13 +113,13 @@ export default function BudgetPage() {
                     </td>
                   ))}
                   <td className="data-grid__sum">
-                    <Amount value={group.yearCents / 100} colored={false} />
+                    <Amount value={group.yearCents / 100} />
                   </td>
                   <VarianceCell cells={groupCells.get(group.macroAreaId)} closed={closed} />
                 </tr>
                 {group.items.map((item) => (
                   <tr key={item.budgetItemId}>
-                    <th scope="row" className="data-grid__label">
+                    <th scope="row" className="data-grid__label budget-page__item">
                       {item.archived ? `${item.name} (archiviata)` : item.name}
                     </th>
                     {item.months.map((cell, index) => (
@@ -140,7 +141,7 @@ export default function BudgetPage() {
                       </td>
                     ))}
                     <td className="data-grid__sum">
-                      <Amount value={item.yearCents / 100} colored={false} />
+                      <Amount value={item.yearCents / 100} />
                     </td>
                     <VarianceCell cells={itemCells.get(item.budgetItemId)} closed={closed} />
                   </tr>
@@ -158,7 +159,7 @@ export default function BudgetPage() {
                   </td>
                 ))}
                 <td className="data-grid__sum">
-                  <Amount value={grid.yearCents / 100} colored={false} />
+                  <Amount value={grid.yearCents / 100} />
                 </td>
                 <VarianceCell cells={matrix?.months} closed={closed} />
               </tr>
@@ -167,7 +168,7 @@ export default function BudgetPage() {
         </div>
       )}
       <p className="budget-page__status">
-        Nei mesi chiusi la cella mostra il reale in grassetto e il previsto sotto. «Reale − previsto» somma i soli mesi chiusi:
+        Le righe colorate sono le macro-area (con i totali), sotto ci sono le loro voci. Nei mesi chiusi (✓) la cella mostra il reale, e sotto il previsto solo se è diverso; nei mesi aperti (○) il previsto, in corsivo. «Reale − previsto» somma i soli mesi chiusi:
         verde con + è meglio del previsto (più entrate o meno spese), rosso con − è peggio.
       </p>
     </main>
@@ -176,14 +177,16 @@ export default function BudgetPage() {
 
 /** Previsto, e per i mesi chiusi il reale in evidenza con il previsto più piccolo sotto. */
 function ClosedAmount({ budgeted, actual }: { budgeted: number; actual: number | undefined }) {
-  if (actual === undefined) return <Amount value={budgeted} colored={false} />
+  if (actual === undefined) return <Amount value={budgeted} className="budget-cell__forecast" />
+  const differs = Math.abs(actual - budgeted) >= 0.005
   return (
     <span className="budget-cell">
-      <Amount value={actual} colored={false} className="budget-cell__actual" />
-      <span className="budget-cell__planned">
-        <span className="visually-hidden">previsto </span>
-        <Amount value={budgeted} colored={false} />
-      </span>
+      <Amount value={actual} />
+      {differs && (
+        <span className="budget-cell__planned">
+          previsto <Amount value={budgeted} />
+        </span>
+      )}
     </span>
   )
 }
@@ -198,7 +201,7 @@ function BudgetCell({ cell, actual }: { cell: GridCell; actual: number | undefin
   if (cell.entries.length === 0) return <span className="budget-page__empty" aria-label="vuoto">–</span>
   return (
     <span className="budget-cell">
-      <Amount value={cell.cents / 100} colored={false} />
+      <Amount value={cell.cents / 100} />
       {cell.otherSources.map((source) => (
         <span key={source} className="budget-cell__source" title={sourceLabel(source)}>
           {sourceShortLabel(source)}
