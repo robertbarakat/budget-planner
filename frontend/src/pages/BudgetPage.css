@@ -140,7 +140,7 @@
   align-self: stretch;
   justify-content: space-between;
   width: 100%;
-  gap: var(--space-3);
+  gap: calc(var(--space-3) + 2px);
 }
 
 .budget-area__grip {
