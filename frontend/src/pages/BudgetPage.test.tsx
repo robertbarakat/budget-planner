@@ -64,6 +64,16 @@ describe('BudgetPage', () => {
     expect(within(row).getAllByText(/20,00/).length).toBeGreaterThan(0)
   })
 
+  it('chiude e riapre una macro-area nascondendo le sue voci', async () => {
+    setup()
+    await screen.findByRole('region', { name: `Budget previsto ${year}` })
+    expect(screen.getByRole('button', { name: `Modifica Affitto, Gennaio ${year}` })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Casa' }))
+    expect(screen.queryByRole('button', { name: `Modifica Affitto, Gennaio ${year}` })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Espandi tutto' }))
+    expect(screen.getByRole('button', { name: `Modifica Affitto, Gennaio ${year}` })).toBeInTheDocument()
+  })
+
   it('cambia anno e rilegge le righe di quell\'anno', async () => {
     setup()
     await screen.findByRole('region', { name: `Budget previsto ${year}` })

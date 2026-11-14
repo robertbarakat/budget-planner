@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useBudgetEntries, useSetManualBudgetAmount } from '../api/budget.queries.ts'
-import { useBudgetItems, useMacroAreas } from '../api/classification.queries.ts'
+import { useBudgetItems, useMacroAreas, useReorderMacroAreas } from '../api/classification.queries.ts'
 import { useYearData } from '../api/year-data.queries.ts'
 import Amount from '../components/Amount.tsx'
 import BudgetCellDialog from '../components/BudgetCellDialog.tsx'
@@ -13,6 +13,16 @@ import '../components/DataGrid.css'
 import './BudgetPage.css'
 
 const MONTHS = monthOptions()
+const COLLAPSED_KEY = 'budget.collapsedAreas'
+
+function readCollapsed(): Set<number> {
+  try {
+    const raw = JSON.parse(localStorage.getItem(COLLAPSED_KEY) ?? '[]') as unknown
+    return new Set(Array.isArray(raw) ? raw.filter((v): v is number => typeof v === 'number') : [])
+  } catch {
+    return new Set()
+  }
+}
 
 export default function BudgetPage() {
   const [year, setYear] = useState(() => new Date().getFullYear())
@@ -21,6 +31,35 @@ export default function BudgetPage() {
   const entries = useBudgetEntries({ year })
   const data = useYearData(year)
   const setManual = useSetManualBudgetAmount()
+  const reorder = useReorderMacroAreas()
+  const [collapsed, setCollapsed] = useState<Set<number>>(readCollapsed)
+  const [dragId, setDragId] = useState<number | null>(null)
+
+  function updateCollapsed(next: Set<number>) {
+    setCollapsed(next)
+    try {
+      localStorage.setItem(COLLAPSED_KEY, JSON.stringify([...next]))
+    } catch {
+      // senza storage la preferenza vale solo per la sessione
+    }
+  }
+  function toggleArea(id: number) {
+    const next = new Set(collapsed)
+    if (!next.delete(id)) next.add(id)
+    updateCollapsed(next)
+  }
+  /** Sposta una macro-area prima di un'altra (o di `offset` posti), mantenendo l'ordine di quelle non visibili. */
+  function moveArea(id: number, target: { before: number } | { offset: number }) {
+    const rows = [...(macroAreas.data ?? [])].sort((a, b) => a.sort_order - b.sort_order || a.id - b.id)
+    const ids = rows.map((r) => r.id)
+    const from = ids.indexOf(id)
+    if (from < 0) return
+    ids.splice(from, 1)
+    const to = 'before' in target ? ids.indexOf(target.before) : Math.max(0, Math.min(ids.length, from + target.offset))
+    if (to < 0) return
+    ids.splice(to, 0, id)
+    reorder.mutate({ orderedIds: ids, currentOrder: Object.fromEntries(rows.map((r) => [r.id, r.sort_order])) })
+  }
   const { showSuccess } = useSnackbar()
 
   const queries = [macroAreas, budgetItems, entries]
@@ -67,7 +106,19 @@ export default function BudgetPage() {
   return (
     <main className="budget-page">
       <h1>Budget</h1>
-      <YearSelector year={year} onChange={setYear} />
+      <div className="budget-page__toolbar">
+        <YearSelector year={year} onChange={setYear} />
+        {grid && grid.groups.length > 0 && (
+          <span className="budget-page__bulk">
+            <button type="button" onClick={() => updateCollapsed(new Set())}>
+              Espandi tutto
+            </button>
+            <button type="button" onClick={() => updateCollapsed(new Set(grid.groups.map((g) => g.macroAreaId)))}>
+              Comprimi tutto
+            </button>
+          </span>
+        )}
+      </div>
       {queries.some((q) => q.isError) || yearError ? (
         <p role="alert" className="budget-page__status">
           Non riesco a leggere il budget. Riprova più tardi.
@@ -101,11 +152,57 @@ export default function BudgetPage() {
                 </th>
               </tr>
             </thead>
-            {grid.groups.map((group) => (
-              <tbody key={group.macroAreaId}>
+            {grid.groups.map((group, groupIndex) => (
+              <tbody
+                key={group.macroAreaId}
+                onDragOver={(event) => dragId !== null && event.preventDefault()}
+                onDrop={(event) => {
+                  event.preventDefault()
+                  if (dragId !== null && dragId !== group.macroAreaId) moveArea(dragId, { before: group.macroAreaId })
+                  setDragId(null)
+                }}
+                className={dragId === group.macroAreaId ? 'budget-page__dragging' : undefined}
+              >
                 <tr className="data-grid__group budget-page__area">
                   <th scope="rowgroup" className="data-grid__label">
-                    {group.archived ? `${group.name} (archiviata)` : group.name}
+                    <span className="budget-area">
+                      <span
+                        className="budget-area__grip"
+                        role="img"
+                        aria-label={`Trascina per spostare ${group.name}`}
+                        title="Trascina per riordinare"
+                        draggable
+                        onDragStart={(event) => {
+                          event.dataTransfer.effectAllowed = 'move'
+                          setDragId(group.macroAreaId)
+                        }}
+                        onDragEnd={() => setDragId(null)}
+                      >
+                        ⋮⋮
+                      </span>
+                      <button
+                        type="button"
+                        className="budget-area__toggle"
+                        aria-expanded={!collapsed.has(group.macroAreaId)}
+                        onClick={() => toggleArea(group.macroAreaId)}
+                      >
+                        <span aria-hidden="true">{collapsed.has(group.macroAreaId) ? '▸' : '▾'}</span>{' '}
+                        {group.archived ? `${group.name} (archiviata)` : group.name}
+                      </button>
+                      <span className="budget-area__move">
+                        <button type="button" aria-label={`Sposta su ${group.name}`} disabled={groupIndex === 0} onClick={() => moveArea(group.macroAreaId, { offset: -1 })}>
+                          ↑
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`Sposta giù ${group.name}`}
+                          disabled={groupIndex === grid.groups.length - 1}
+                          onClick={() => moveArea(group.macroAreaId, { offset: 1 })}
+                        >
+                          ↓
+                        </button>
+                      </span>
+                    </span>
                   </th>
                   {group.monthCents.map((cents, index) => (
                     <td key={index}>
@@ -117,7 +214,7 @@ export default function BudgetPage() {
                   </td>
                   <VarianceCell cells={groupCells.get(group.macroAreaId)} closed={closed} />
                 </tr>
-                {group.items.map((item) => (
+                {!collapsed.has(group.macroAreaId) && group.items.map((item) => (
                   <tr key={item.budgetItemId}>
                     <th scope="row" className="data-grid__label budget-page__item">
                       {item.archived ? `${item.name} (archiviata)` : item.name}
@@ -168,7 +265,7 @@ export default function BudgetPage() {
         </div>
       )}
       <p className="budget-page__status">
-        Le righe colorate sono le macro-area (con i totali), sotto ci sono le loro voci. Nei mesi chiusi (✓) la cella mostra il reale, e sotto il previsto solo se è diverso; nei mesi aperti (○) il previsto, in corsivo. «Reale − previsto» somma i soli mesi chiusi:
+        Le righe colorate sono le macro-area (con i totali): ▾/▸ apre e chiude le voci, ⋮⋮ le trascina, ↑↓ le spostano. Nei mesi chiusi (✓) la cella mostra il reale, e sotto il previsto solo se è diverso; nei mesi aperti (○) il previsto, in corsivo. «Reale − previsto» somma i soli mesi chiusi:
         verde con + è meglio del previsto (più entrate o meno spese), rosso con − è peggio.
       </p>
     </main>
