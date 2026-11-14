@@ -451,3 +451,26 @@
   border-top: 1px solid var(--color-border-strong);
   font-weight: var(--font-weight-semibold);
 }
+
+/* Desktop: titolo, anno e pulsanti restano fermi; scorre solo la griglia, con l'intestazione dei mesi fissa in alto. */
+@media (min-width: 1024px) {
+  .budget-page {
+    height: calc(100dvh - var(--space-10) - var(--space-12));
+  }
+
+  .budget-page > .data-grid {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+
+  .budget-grid__head {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+  }
+
+  .budget-grid__head .budget-grid__label {
+    z-index: 4;
+  }
+}

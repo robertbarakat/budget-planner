@@ -301,7 +301,7 @@ export default function BudgetPage() {
       ) : (
         <div className="data-grid" tabIndex={0} role="region" aria-label={`Budget previsto ${year}`}>
           <div role="table" className="budget-grid">
-            <div role="rowgroup">
+            <div role="rowgroup" className="budget-grid__head">
               <div role="row" className="budget-grid__row">
                 <div role="columnheader" className="budget-grid__cell budget-grid__label">
                   Macro-area e voci
