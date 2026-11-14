@@ -45,11 +45,12 @@ export default function TaxPage() {
       ) : (
         <>
           <dl className="tax-page__grid">
-            <div><dt>Incassi professionali</dt><dd><Amount value={summary.collections} colored={false} /></dd></div>
-            <div><dt>Base imponibile</dt><dd><Amount value={summary.taxableBase} colored={false} /></dd></div>
-            <div><dt>INPS dovuta</dt><dd><Amount value={summary.inpsDue} colored={false} /></dd></div>
-            <div><dt>INPS versata nell'anno</dt><dd><Amount value={summary.inpsPaid} colored={false} /></dd></div>
-            <div><dt>Imposta sostitutiva</dt><dd><Amount value={summary.substituteTax} colored={false} /></dd></div>
+            <div><dt>Incassi professionali a oggi</dt><dd><Amount value={summary.collectionsToDate} colored={false} /></dd></div>
+            <div><dt>Incassi stimati a fine anno</dt><dd><Amount value={summary.collections} colored={false} /></dd></div>
+            <div><dt>Base imponibile stimata</dt><dd><Amount value={summary.taxableBase} colored={false} /></dd></div>
+            <div><dt>INPS dovuta stimata</dt><dd><Amount value={summary.inpsDue} colored={false} /></dd></div>
+            <div><dt>INPS pagata nell'anno (saldo + acconti)</dt><dd><Amount value={summary.inpsPaid} colored={false} /></dd></div>
+            <div><dt>Imposta sostitutiva stimata</dt><dd><Amount value={summary.substituteTax} colored={false} /></dd></div>
           </dl>
           <h2>Acconti e saldo</h2>
           {summary.advances.map((a) => (

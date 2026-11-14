@@ -4,7 +4,7 @@ import type { TaxSummary } from './tax-summary.ts'
 
 const line = (amount: number | null) => ({ amount, explanation: '' })
 const summary = (adv: [number, number], inps: [number, number], taxBalance: number, inpsBalance: number): TaxSummary => ({
-  collections: 0, taxableBase: 0, inpsDue: 0, inpsPaid: 0, substituteTax: 0,
+  collectionsToDate: 0, collections: 0, taxableBase: 0, inpsDue: 0, inpsPaid: 0, substituteTax: 0,
   advances: [
     { position: 'first', dueDate: '2026-06-30', method: 'historic', substituteTax: line(adv[0]), inps: line(inps[0]) },
     { position: 'second', dueDate: '2026-11-30', method: 'forecast', substituteTax: line(adv[1]), inps: line(inps[1]) },

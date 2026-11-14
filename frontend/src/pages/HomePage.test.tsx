@@ -6,6 +6,7 @@ import { accountsService } from '../api/accounts.service.ts'
 import { budgetService } from '../api/budget.service.ts'
 import { classificationService } from '../api/classification.service.ts'
 import { recurrencesService } from '../api/recurrences.service.ts'
+import { taxService } from '../api/tax.service.ts'
 import { transactionsService } from '../api/transactions.service.ts'
 import { SnackbarProvider } from '../components/Snackbar.tsx'
 import { AppError } from '../api/api-error.ts'
@@ -16,6 +17,7 @@ import HomePage from './HomePage.tsx'
 // Data fissa: 15 marzo 2026 (mese corrente = marzo, aperto).
 beforeEach(() => {
   vi.restoreAllMocks()
+  vi.spyOn(taxService.f24Deadlines, 'list').mockResolvedValue([])
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date(2026, 2, 15))
   vi.spyOn(classificationService.macroAreas, 'list').mockResolvedValue([

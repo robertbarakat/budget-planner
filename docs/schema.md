@@ -122,7 +122,9 @@ Scelta (proposta dal ticket, da confermare): le scadenze con importo modificato 
 - `security invoker`, `search_path` vuoto; `execute` revocato a `public` e `anon`, concesso ad `authenticated`.
 
 ## Parametri fiscali (BP-98)
-`tax_parameters`: id, year, profitability_coefficient, inps_rate, substitute_tax_rate, is_startup, has_other_pension_coverage, activity_start_year.
+`tax_parameters`: id, year, profitability_coefficient, inps_rate, substitute_tax_rate, is_startup, has_other_pension_coverage, activity_start_year, first/second_advance_due_date, first/second_advance_method (`historic`/`forecast`), first/second_advance_percent (default 50 e 50, li decide l'utente).
+
+`budget_items.tax_role` (enum `tax_role`: `substitute_tax`, `inps`, `substitute_tax_interest`, `inps_interest`, nullable, unico per valore): marca le 4 voci fiscali. "Pago" nel Calendario F24 crea i movimenti (capitale per riga collegato alla scadenza, interessi per tributo) e "Applica al budget" scrive le righe `tax` su queste voci.
 
 - `unique (year)`: una riga per anno. Percentuali in punti percentuali (`26.07` = 26,07%), `numeric(5,2)`, da 0 a 100 (`check`).
 - `is_startup` e `has_other_pension_coverage` `not null default false`; `activity_start_year` tra 2000 e 2100 e non successivo a `year`.

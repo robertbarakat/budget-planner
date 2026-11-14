@@ -2,6 +2,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { accountsService } from '../api/accounts.service.ts'
+import { budgetService } from '../api/budget.service.ts'
 import { classificationService } from '../api/classification.service.ts'
 import { taxService } from '../api/tax.service.ts'
 import { transactionsService } from '../api/transactions.service.ts'
@@ -13,6 +15,11 @@ const row = (id: number, o: object) => ({ id, reference_year: year, tax_type: 'i
 
 beforeEach(() => {
   vi.restoreAllMocks()
+  vi.spyOn(taxService.installments, 'list').mockResolvedValue([])
+  vi.spyOn(taxService.installmentPlans, 'list').mockResolvedValue([])
+  vi.spyOn(budgetService.entries, 'list').mockResolvedValue([])
+  vi.spyOn(budgetService.closedMonths, 'list').mockResolvedValue([])
+  vi.spyOn(accountsService.openingBalances, 'list').mockResolvedValue([])
   vi.spyOn(taxService, 'getParametersForYear').mockResolvedValue(null)
   vi.spyOn(transactionsService, 'listForYear').mockResolvedValue([])
   vi.spyOn(classificationService.categories, 'list').mockResolvedValue([])

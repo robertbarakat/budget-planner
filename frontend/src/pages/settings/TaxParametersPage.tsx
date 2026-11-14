@@ -110,6 +110,12 @@ function TaxParametersForm({ year, initial, exists }: { year: number; initial: T
           </select>
         )}
       </Field>
+      <Field label="Percentuale del primo acconto (%)" error={errors.firstAdvancePercent} help="Quota del dovuto: 50 e 50 di norma, 40 e 40 se lo decidi tu.">
+        {(control) => <input {...control} inputMode="decimal" value={draft.firstAdvancePercent} onChange={(e) => set('firstAdvancePercent', e.target.value)} />}
+      </Field>
+      <Field label="Percentuale del secondo acconto (%)" error={errors.secondAdvancePercent}>
+        {(control) => <input {...control} inputMode="decimal" value={draft.secondAdvancePercent} onChange={(e) => set('secondAdvancePercent', e.target.value)} />}
+      </Field>
       <label className="tax-parameters__check">
         <input type="checkbox" checked={draft.isStartup} onChange={(e) => set('isStartup', e.target.checked)} />
         Start-up

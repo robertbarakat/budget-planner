@@ -12,12 +12,14 @@ export interface TaxParametersDraft {
   secondAdvanceDueDate: string
   firstAdvanceMethod: AdvanceMethod
   secondAdvanceMethod: AdvanceMethod
+  firstAdvancePercent: string
+  secondAdvancePercent: string
 }
 
 export type AdvanceMethod = 'historic' | 'forecast'
 
 export type TaxParametersErrors = Partial<
-  Record<'profitabilityCoefficient' | 'inpsRate' | 'substituteTaxRate' | 'activityStartYear' | 'firstAdvanceDueDate' | 'secondAdvanceDueDate', string>
+  Record<'profitabilityCoefficient' | 'inpsRate' | 'substituteTaxRate' | 'activityStartYear' | 'firstAdvanceDueDate' | 'secondAdvanceDueDate' | 'firstAdvancePercent' | 'secondAdvancePercent', string>
 >
 
 export const emptyTaxParametersDraft: TaxParametersDraft = {
@@ -31,6 +33,8 @@ export const emptyTaxParametersDraft: TaxParametersDraft = {
   secondAdvanceDueDate: '',
   firstAdvanceMethod: 'historic',
   secondAdvanceMethod: 'forecast',
+  firstAdvancePercent: '50',
+  secondAdvancePercent: '50',
 }
 
 /** Scadenze di partenza della prima volta (30 giugno e 30 novembre): poi si ripropone l'ultimo anno salvato. */
@@ -80,6 +84,13 @@ export function validateTaxParameters(
     else if (value > 100) errors[field] = `${percents[field]} deve essere tra 0 e 100.`
     else parsed[field] = value
   }
+  const advancePercents = { firstAdvancePercent: 'La percentuale del primo acconto', secondAdvancePercent: 'La percentuale del secondo acconto' } as const
+  const parsedAdvance = { firstAdvancePercent: 0, secondAdvancePercent: 0 }
+  for (const field of Object.keys(advancePercents) as (keyof typeof advancePercents)[]) {
+    const value = parsePercent(draft[field])
+    if (value === null || value > 100) errors[field] = `${advancePercents[field]} deve essere un numero tra 0 e 100 con al massimo 2 decimali.`
+    else parsedAdvance[field] = value
+  }
   const startText = draft.activityStartYear.trim()
   const startYear = Number(startText)
   if (startText === '') errors.activityStartYear = 'L\'anno di inizio attività è obbligatorio.'
@@ -107,6 +118,8 @@ export function validateTaxParameters(
       second_advance_due_date: second,
       first_advance_method: draft.firstAdvanceMethod,
       second_advance_method: draft.secondAdvanceMethod,
+      first_advance_percent: parsedAdvance.firstAdvancePercent,
+      second_advance_percent: parsedAdvance.secondAdvancePercent,
     },
   }
 }
@@ -123,6 +136,8 @@ export function draftFromTaxParameters(row: {
   second_advance_due_date: string | null
   first_advance_method: AdvanceMethod
   second_advance_method: AdvanceMethod
+  first_advance_percent: number
+  second_advance_percent: number
 }): TaxParametersDraft {
   const percent = (n: number) => String(n).replace('.', ',')
   return {
@@ -136,5 +151,7 @@ export function draftFromTaxParameters(row: {
     secondAdvanceDueDate: row.second_advance_due_date ?? '',
     firstAdvanceMethod: row.first_advance_method,
     secondAdvanceMethod: row.second_advance_method,
+    firstAdvancePercent: percent(row.first_advance_percent),
+    secondAdvancePercent: percent(row.second_advance_percent),
   }
 }

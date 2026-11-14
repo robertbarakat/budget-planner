@@ -29,7 +29,7 @@ describe('TaxParametersPage', () => {
     vi.spyOn(taxService, 'getParametersForYear').mockResolvedValue({
       id: 1, year: 2026, profitability_coefficient: 67, inps_rate: 26.07, substitute_tax_rate: 15,
       is_startup: false, has_other_pension_coverage: false, activity_start_year: 2025, created_at: '',
-      first_advance_due_date: null, second_advance_due_date: null, first_advance_method: 'historic', second_advance_method: 'forecast',
+      first_advance_due_date: null, second_advance_due_date: null, first_advance_method: 'historic', second_advance_method: 'forecast', first_advance_percent: 50, second_advance_percent: 50,
     })
     setup()
     expect(await screen.findByLabelText(/Aliquota INPS/)).toHaveValue('26,07')

@@ -17,7 +17,7 @@ describe('validateTaxParameters', () => {
   it('restituisce i valori da salvare', () => {
     expect(validateTaxParameters(draft, 2026)).toEqual({
       values: { profitability_coefficient: 10.5, inps_rate: 20, substitute_tax_rate: 5, is_startup: false, has_other_pension_coverage: false, activity_start_year: 2020,
-      first_advance_due_date: '2026-06-30', second_advance_due_date: '2026-11-30', first_advance_method: 'historic', second_advance_method: 'forecast' },
+      first_advance_due_date: '2026-06-30', second_advance_due_date: '2026-11-30', first_advance_method: 'historic', second_advance_method: 'forecast', first_advance_percent: 50, second_advance_percent: 50 },
     })
   })
   it('rifiuta percentuali fuori da 0–100', () => {
@@ -35,7 +35,7 @@ describe('validateTaxParameters', () => {
 
 describe('draftFromTaxParameters', () => {
   it('mostra le percentuali con la virgola', () => {
-    const result = draftFromTaxParameters({ profitability_coefficient: 67, inps_rate: 26.07, substitute_tax_rate: 15, is_startup: true, has_other_pension_coverage: false, activity_start_year: 2025, first_advance_due_date: '2025-06-30', second_advance_due_date: null, first_advance_method: 'historic', second_advance_method: 'forecast' })
+    const result = draftFromTaxParameters({ profitability_coefficient: 67, inps_rate: 26.07, substitute_tax_rate: 15, is_startup: true, has_other_pension_coverage: false, activity_start_year: 2025, first_advance_due_date: '2025-06-30', second_advance_due_date: null, first_advance_method: 'historic', second_advance_method: 'forecast', first_advance_percent: 50, second_advance_percent: 50 })
     expect(result).toMatchObject({ profitabilityCoefficient: '67', inpsRate: '26,07', isStartup: true, activityStartYear: '2025' })
   })
 })

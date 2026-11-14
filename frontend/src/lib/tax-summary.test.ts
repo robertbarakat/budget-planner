@@ -1,69 +1,84 @@
 import { describe, expect, it } from 'vitest'
-import { buildTaxSummary, confirmedAdvanceAmounts, previousAdvancesAndInps, selectProfessionalIncomes, type TaxSummaryParameters } from './tax-summary.ts'
+import { buildTaxSummary, confirmedAdvanceAmounts, estimateCollections, priorBalances, selectProfessionalIncomes, type TaxSummaryParameters } from './tax-summary.ts'
 
 const parameters: TaxSummaryParameters = {
   profitabilityCoefficient: 67, inpsRate: 26.07, substituteTaxRate: 15, activityStartYear: 2025,
   firstAdvanceDueDate: '2026-06-30', secondAdvanceDueDate: '2026-11-30', firstAdvanceMethod: 'historic', secondAdvanceMethod: 'forecast',
+  firstAdvancePercent: 50, secondAdvancePercent: 50,
 }
-// Incassi: 1.000 (5/1) + 500 (20/6) = 1.500 fino al 30/6; 2.000 (1/8) fino al 30/11; 1.000 (1/12). Totale 4.500.
-const incomes = [
-  { date: '2026-01-05', amount: 1000 }, { date: '2026-06-20', amount: 500 },
-  { date: '2026-08-01', amount: 2000 }, { date: '2026-12-01', amount: 1000 },
-]
+const base = { year: 2026, parameters, incomes: [], estimatedCollections: 100000, priorBalances: { substituteTax: 8377, inps: 14560 }, previous: { substituteTax: 8377, inpsDue: 14560 } }
 
-describe('buildTaxSummary (calcolo manuale annotato)', () => {
-  const summary = buildTaxSummary({
-    year: 2026, parameters, incomes,
-    inpsPayments: [{ date: '2026-03-01', amount: 100, isInstalment: false }, { date: '2025-12-01', amount: 999, isInstalment: false }],
-    previousAdvances: { substituteTax: [120, 130], inps: [80, 90] },
+describe('buildTaxSummary: 2026 con rate e secondo acconto che chiude l\'anno', () => {
+  const summary = buildTaxSummary({ ...base, confirmedAdvances: { substituteTax: [2991.8], inps: [4159.9] } })
+  it('base 67.000, INPS dovuta 17.466,90', () => {
+    expect(summary).toMatchObject({ taxableBase: 67000, inpsDue: 17466.9 })
   })
-  it('anno: base 4.500 x 67% = 3.015; INPS dovuta 3.015 x 26,07% = 786,01; INPS versata 2026 = 100 (quella del 2025 non conta)', () => {
-    expect(summary).toMatchObject({ collections: 4500, taxableBase: 3015, inpsDue: 786.01, inpsPaid: 100 })
+  it('INPS secondo acconto = 100% del dovuto - primo acconto = 13.307', () => {
+    expect(summary.advances[0].inps.amount).toBe(4159.9)
+    expect(summary.advances[1].inps.amount).toBe(13307)
   })
-  it('imposta = 15% x (3.015 - 100) = 437,25', () => {
-    expect(summary.substituteTax).toBe(437.25)
+  it('INPS pagata nell\'anno = saldo 2025 + acconti = 32.026,90; imposta = 15% x (67.000 - 32.026,90) = 5.245,97', () => {
+    expect(summary.inpsPaid).toBe(32026.9)
+    expect(summary.substituteTax).toBe(5245.97)
   })
-  it('primo acconto storico: importi dell\'anno scorso', () => {
-    expect(summary.advances[0].substituteTax.amount).toBe(120)
-    expect(summary.advances[0].inps.amount).toBe(80)
-  })
-  it('secondo acconto previsionale sugli incassi 1/7–30/11 (2.000): base 1.340, imposta 201,00, INPS 349,34', () => {
-    expect(summary.advances[1].substituteTax.amount).toBe(201)
-    expect(summary.advances[1].inps.amount).toBe(349.34)
-    expect(summary.advances[1].substituteTax.explanation).toContain('dal 01/07/2026 al 30/11/2026')
-  })
-  it('saldo = dovuto - acconti: 437,25 - (120 + 201) = 116,25; INPS 786,01 - (80 + 349,34) = 356,67', () => {
-    expect(summary.substituteTaxBalance).toBe(116.25)
-    expect(summary.inpsBalance).toBe(356.67)
-  })
-  it('primo acconto previsionale: 1.500 -> base 1.005, imposta 150,75, INPS 262,00', () => {
-    const forecast = buildTaxSummary({ year: 2026, parameters: { ...parameters, firstAdvanceMethod: 'forecast' }, incomes, inpsPayments: [], previousAdvances: { substituteTax: [], inps: [] } })
-    expect(forecast.advances[0].substituteTax.amount).toBe(150.75)
-    expect(forecast.advances[0].inps.amount).toBe(262)
-  })
-  it('storico senza dati dell\'anno scorso: importo non calcolabile, nessun saldo inventato', () => {
-    const none = buildTaxSummary({ year: 2026, parameters, incomes, inpsPayments: [], previousAdvances: { substituteTax: [], inps: [] } })
-    expect(none.advances[0].substituteTax.amount).toBeNull()
-    expect(none.substituteTaxBalance).toBeNull()
-  })
-  it('primo anno di attività: nessun acconto, saldo = dovuto', () => {
-    const first = buildTaxSummary({ year: 2025, parameters: { ...parameters, firstAdvanceDueDate: '2025-06-30', secondAdvanceDueDate: '2025-11-30' }, incomes: [{ date: '2025-05-01', amount: 10000 }], inpsPayments: [], previousAdvances: { substituteTax: [], inps: [] } })
-    expect(first.substituteTax).toBe(1005)
-    expect(first.substituteTaxBalance).toBe(1005)
-    expect(first.inpsBalance).toBe(1746.69)
+  it('imposta: secondo acconto 5.245,97 - 2.991,80 = 2.254,17 e saldo 0 (nessuna eccedenza)', () => {
+    expect(summary.advances[1].substituteTax.amount).toBe(2254.17)
+    expect(summary.substituteTaxBalance).toBe(0)
+    expect(summary.inpsBalance).toBe(0)
   })
 })
 
-describe('importi salvati nel calendario', () => {
-  it('hanno la precedenza sul metodo e cambiano il saldo (dovuto 437,25 - (150 + 201) = 86,25)', () => {
-    const result = buildTaxSummary({
-      year: 2026, parameters, incomes, inpsPayments: [{ date: '2026-03-01', amount: 100, isInstalment: false }],
-      previousAdvances: { substituteTax: [120, 130], inps: [80, 90] }, confirmedAdvances: { substituteTax: [150, undefined], inps: [] },
-    })
-    expect(result.advances[0].substituteTax.amount).toBe(150)
-    expect(result.advances[0].substituteTax.explanation).toContain('calendario F24')
-    expect(result.advances[1].substituteTax.amount).toBe(201)
-    expect(result.substituteTaxBalance).toBe(86.25)
+describe('buildTaxSummary: metodi e percentuali', () => {
+  it('storico: 50% del dovuto dell\'anno scorso (8.377 -> 4.188,50; INPS 14.560 -> 7.280)', () => {
+    const s = buildTaxSummary(base)
+    expect(s.advances[0].substituteTax.amount).toBe(4188.5)
+    expect(s.advances[0].inps.amount).toBe(7280)
+  })
+  it('la percentuale la decide l\'utente: 40% del primo acconto', () => {
+    const s = buildTaxSummary({ ...base, parameters: { ...parameters, firstAdvancePercent: 40 } })
+    expect(s.advances[0].inps.amount).toBe(5824)
+  })
+  it('previsionale anche sul primo acconto: 50% del dovuto stimato', () => {
+    const s = buildTaxSummary({ ...base, parameters: { ...parameters, firstAdvanceMethod: 'forecast' } })
+    expect(s.advances[0].inps.amount).toBe(8733.45)
+  })
+  it('storico senza il dovuto dell\'anno scorso: non calcolabile, nessun saldo inventato', () => {
+    const s = buildTaxSummary({ ...base, previous: null })
+    expect(s.advances[0].substituteTax.amount).toBeNull()
+    expect(s.substituteTaxBalance).toBeNull()
+  })
+  it('primo anno 2025: niente acconti, imposta senza deduzione INPS, saldo = dovuto', () => {
+    const s = buildTaxSummary({ ...base, year: 2025, parameters: { ...parameters, firstAdvanceDueDate: '2025-06-30', secondAdvanceDueDate: '2025-11-30' }, estimatedCollections: 83355, priorBalances: { substituteTax: 0, inps: 0 }, previous: null })
+    expect(s).toMatchObject({ taxableBase: 55847.85, substituteTax: 8377.18, substituteTaxBalance: 8377.18, inpsBalance: 14559.53 })
+  })
+})
+
+describe('estimateCollections', () => {
+  const incomes = [{ date: '2026-01-10', amount: 1000 }, { date: '2026-02-10', amount: 500 }]
+  const forecast = [{ month: 1, amount: 900 }, { month: 2, amount: 700 }, { month: 3, amount: 300 }]
+  it('anno in corso: mesi chiusi reali + mesi aperti dal budget', () => {
+    expect(estimateCollections(2026, 2026, incomes, forecast, [1])).toBe(2000)
+  })
+  it('anno passato: solo i reali', () => {
+    expect(estimateCollections(2025, 2026, incomes, forecast, [])).toBe(1500)
+  })
+})
+
+describe('priorBalances e confirmedAdvanceAmounts', () => {
+  const inst = [
+    { tax_type: 'inps_balance', due_date: '2026-06-30', principal: 2080, reference_year: 2025 },
+    { tax_type: 'inps_balance', due_date: '2026-07-16', principal: 2080, reference_year: 2025 },
+    { tax_type: 'inps_advance', due_date: '2026-06-30', principal: 831.98, reference_year: 2026 },
+    { tax_type: 'inps_advance', due_date: '2026-07-16', principal: 831.98, reference_year: 2026 },
+  ]
+  const d = (o: object) => ({ reference_year: 2026, tax_type: 'inps_advance', due_date: '2026-11-30', amount: 8887, transaction_id: null, installment_id: null, is_amount_manual: false, ...o })
+  it('saldo dell\'anno prima pagato nell\'anno = capitale delle rate', () => {
+    expect(priorBalances([], inst, 2026).inps).toBe(4160)
+  })
+  it('primo acconto = capitale delle rate; secondo = scadenza manuale o versata; il calcolo non conta', () => {
+    const dates = { first: '2026-06-30', second: '2026-11-30' }
+    expect(confirmedAdvanceAmounts([d({ is_amount_manual: true })], inst, dates, 2026).inps).toEqual([1663.96, 8887])
+    expect(confirmedAdvanceAmounts([d({})], inst, dates, 2026).inps).toEqual([1663.96, undefined])
   })
 })
 
@@ -77,26 +92,5 @@ describe('selectProfessionalIncomes', () => {
       [{ id: 10, is_professional: true }, { id: 11, is_professional: false }],
     )
     expect(result).toHaveLength(2)
-  })
-})
-
-describe('previousAdvancesAndInps', () => {
-  it('acconti dell\'anno scorso in ordine di data e versamenti INPS con la data del movimento', () => {
-    const d = (o: object) => ({ reference_year: 2025, tax_type: 'inps_advance', due_date: '2025-06-30', amount: 80, transaction_id: null, installment_id: null, ...o })
-    const result = previousAdvancesAndInps(
-      [d({ due_date: '2025-11-30', amount: 90 }), d({}), d({ reference_year: 2026, tax_type: 'inps_balance', transaction_id: 7, installment_id: 3 })],
-      [{ id: 7, transaction_date: '2026-06-30', amount: -55 }], 2026,
-    )
-    expect(result.previousAdvances.inps).toEqual([80, 90])
-    expect(result.inpsPayments).toEqual([{ date: '2026-06-30', amount: 55, isInstalment: true }])
-  })
-})
-
-describe('confirmedAdvanceAmounts', () => {
-  it('conta solo scadenze versate o modificate a mano, per posizione', () => {
-    const d = (o: object) => ({ reference_year: 2026, tax_type: 'inps_advance', due_date: '2026-06-30', amount: 100, transaction_id: null, installment_id: null, is_amount_manual: false, ...o })
-    expect(confirmedAdvanceAmounts([d({}), d({ due_date: '2026-11-30', is_amount_manual: true, amount: 250 })], 2026).inps).toEqual([undefined, 250])
-    expect(confirmedAdvanceAmounts([d({ transaction_id: 3 })], 2026).inps).toEqual([100])
-    expect(confirmedAdvanceAmounts([d({ transaction_id: 3, installment_id: 8 })], 2026).inps).toEqual([])
   })
 })

@@ -59,14 +59,14 @@ isOneToOne: false
                   ]
                 },"budget_items": {
                   Row: {
-                    "archived": boolean,"created_at": string,"id": number,"kind": Database["public"]['Enums']["budget_item_kind"],"macro_area_id": number,"name": string,"sort_order": number
+                    "archived": boolean,"created_at": string,"id": number,"kind": Database["public"]['Enums']["budget_item_kind"],"macro_area_id": number,"name": string,"sort_order": number,"tax_role": Database["public"]['Enums']["tax_role"] | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "archived"?: boolean,"created_at"?: string,"id"?: never,"kind": Database["public"]['Enums']["budget_item_kind"],"macro_area_id": number,"name": string,"sort_order"?: number
+                    "archived"?: boolean,"created_at"?: string,"id"?: never,"kind": Database["public"]['Enums']["budget_item_kind"],"macro_area_id": number,"name": string,"sort_order"?: number,"tax_role"?: Database["public"]['Enums']["tax_role"] | null
                   }
                   Update: {
-                    "archived"?: boolean,"created_at"?: string,"id"?: never,"kind"?: Database["public"]['Enums']["budget_item_kind"],"macro_area_id"?: number,"name"?: string,"sort_order"?: number
+                    "archived"?: boolean,"created_at"?: string,"id"?: never,"kind"?: Database["public"]['Enums']["budget_item_kind"],"macro_area_id"?: number,"name"?: string,"sort_order"?: number,"tax_role"?: Database["public"]['Enums']["tax_role"] | null
                   }
                   Relationships: [
                     {
@@ -325,14 +325,14 @@ isOneToOne: false
                   ]
                 },"tax_parameters": {
                   Row: {
-                    "activity_start_year": number,"created_at": string,"first_advance_due_date": string | null,"first_advance_method": Database["public"]['Enums']["advance_method"],"has_other_pension_coverage": boolean,"id": number,"inps_rate": number,"is_startup": boolean,"profitability_coefficient": number,"second_advance_due_date": string | null,"second_advance_method": Database["public"]['Enums']["advance_method"],"substitute_tax_rate": number,"year": number
+                    "activity_start_year": number,"created_at": string,"first_advance_due_date": string | null,"first_advance_percent": number,"first_advance_method": Database["public"]['Enums']["advance_method"],"has_other_pension_coverage": boolean,"id": number,"inps_rate": number,"is_startup": boolean,"profitability_coefficient": number,"second_advance_due_date": string | null,"second_advance_percent": number,"second_advance_method": Database["public"]['Enums']["advance_method"],"substitute_tax_rate": number,"year": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "activity_start_year": number,"created_at"?: string,"first_advance_due_date"?: string | null,"first_advance_method"?: Database["public"]['Enums']["advance_method"],"has_other_pension_coverage"?: boolean,"id"?: never,"inps_rate": number,"is_startup"?: boolean,"profitability_coefficient": number,"second_advance_due_date"?: string | null,"second_advance_method"?: Database["public"]['Enums']["advance_method"],"substitute_tax_rate": number,"year": number
+                    "activity_start_year": number,"created_at"?: string,"first_advance_due_date"?: string | null,"first_advance_percent"?: number,"first_advance_method"?: Database["public"]['Enums']["advance_method"],"has_other_pension_coverage"?: boolean,"id"?: never,"inps_rate": number,"is_startup"?: boolean,"profitability_coefficient": number,"second_advance_due_date"?: string | null,"second_advance_percent"?: number,"second_advance_method"?: Database["public"]['Enums']["advance_method"],"substitute_tax_rate": number,"year": number
                   }
                   Update: {
-                    "activity_start_year"?: number,"created_at"?: string,"first_advance_due_date"?: string | null,"first_advance_method"?: Database["public"]['Enums']["advance_method"],"has_other_pension_coverage"?: boolean,"id"?: never,"inps_rate"?: number,"is_startup"?: boolean,"profitability_coefficient"?: number,"second_advance_due_date"?: string | null,"second_advance_method"?: Database["public"]['Enums']["advance_method"],"substitute_tax_rate"?: number,"year"?: number
+                    "activity_start_year"?: number,"created_at"?: string,"first_advance_due_date"?: string | null,"first_advance_percent"?: number,"first_advance_method"?: Database["public"]['Enums']["advance_method"],"has_other_pension_coverage"?: boolean,"id"?: never,"inps_rate"?: number,"is_startup"?: boolean,"profitability_coefficient"?: number,"second_advance_due_date"?: string | null,"second_advance_percent"?: number,"second_advance_method"?: Database["public"]['Enums']["advance_method"],"substitute_tax_rate"?: number,"year"?: number
                   }
                   Relationships: [
                     
@@ -435,7 +435,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "advance_method": "historic"|"forecast","balance_source": "manual"|"carried_over","budget_entry_source": "manual"|"revenue_driver"|"recurrence"|"tax","budget_item_kind": "income"|"expense","recurrence_frequency": "monthly"|"bimonthly"|"quarterly"|"semiannual"|"annual","tax_type": "substitute_tax"|"substitute_tax_advance"|"substitute_tax_balance"|"inps"|"inps_advance"|"inps_balance","transaction_type": "expense"|"income"|"transfer"
+            "advance_method": "historic"|"forecast","balance_source": "manual"|"carried_over","budget_entry_source": "manual"|"revenue_driver"|"recurrence"|"tax","budget_item_kind": "income"|"expense","recurrence_frequency": "monthly"|"bimonthly"|"quarterly"|"semiannual"|"annual","tax_role": "substitute_tax"|"inps"|"substitute_tax_interest"|"inps_interest","tax_type": "substitute_tax"|"substitute_tax_advance"|"substitute_tax_balance"|"inps"|"inps_advance"|"inps_balance","transaction_type": "expense"|"income"|"transfer"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -555,7 +555,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "advance_method": ["historic", "forecast"],"balance_source": ["manual", "carried_over"],"budget_entry_source": ["manual", "revenue_driver", "recurrence", "tax"],"budget_item_kind": ["income", "expense"],"recurrence_frequency": ["monthly", "bimonthly", "quarterly", "semiannual", "annual"],"tax_type": ["substitute_tax", "substitute_tax_advance", "substitute_tax_balance", "inps", "inps_advance", "inps_balance"],"transaction_type": ["expense", "income", "transfer"]
+            "advance_method": ["historic", "forecast"],"balance_source": ["manual", "carried_over"],"budget_entry_source": ["manual", "revenue_driver", "recurrence", "tax"],"budget_item_kind": ["income", "expense"],"recurrence_frequency": ["monthly", "bimonthly", "quarterly", "semiannual", "annual"],"tax_role": ["substitute_tax", "inps", "substitute_tax_interest", "inps_interest"],"tax_type": ["substitute_tax", "substitute_tax_advance", "substitute_tax_balance", "inps", "inps_advance", "inps_balance"],"transaction_type": ["expense", "income", "transfer"]
           }
         }
 } as const

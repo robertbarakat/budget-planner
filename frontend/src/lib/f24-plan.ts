@@ -32,15 +32,22 @@ export function planDeadlines(
   installments: readonly { id: number; referenceYear: number; taxType: F24TaxType; number: number; dueDate: string; amount: number }[] = [],
 ): { deadlines: (F24Deadline & { installmentId?: number })[]; totalCents: number } {
   const cents = (value: number | null) => eurosToCents(value ?? 0)
+  // Ciò che è già nelle rate non si ripete come scadenza singola: saldo dell'anno prima e primo acconto.
+  const covered = (taxType: F24TaxType, referenceYear: number) => installments.some((i) => i.taxType === taxType && i.referenceYear === referenceYear)
   const monthDay = current.firstAdvanceDueDate.slice(4)
   const source = (referenceYear: number, tax: 'substitute_tax' | 'inps', summary: TaxSummary, balanceDate: string, withAdvances: boolean): F24TaxSource => ({
     referenceYear,
     tax,
     result: {
       advances: withAdvances
-        ? summary.advances.map((a) => ({ amountCents: cents((tax === 'inps' ? a.inps : a.substituteTax).amount), dueDate: a.dueDate }))
+        ? summary.advances
+            .filter((_, index) => !(index === 0 && covered(`${tax}_advance`, referenceYear)))
+            .map((a) => ({ amountCents: cents((tax === 'inps' ? a.inps : a.substituteTax).amount), dueDate: a.dueDate }))
         : [],
-      balance: { amountCents: cents(tax === 'inps' ? summary.inpsBalance : summary.substituteTaxBalance), dueDate: balanceDate },
+      balance: {
+        amountCents: covered(`${tax}_balance`, referenceYear) ? 0 : cents(tax === 'inps' ? summary.inpsBalance : summary.substituteTaxBalance),
+        dueDate: balanceDate,
+      },
     },
   })
   const sources: F24TaxSource[] = (['substitute_tax', 'inps'] as const).flatMap((tax) => [
