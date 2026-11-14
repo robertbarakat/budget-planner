@@ -25,13 +25,20 @@ export function shouldRetry(failureCount: number, error: unknown): boolean {
   return failureCount < 2 && toAppError(error).kind === 'network'
 }
 
+/** Senza rete i salvataggi sono bloccati: nessuna scrittura parte né resta in coda. */
+export function assertOnline(): void {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    throw new AppError('network', 'offline', undefined, 'Sei offline: non puoi salvare. Riprova quando torni online.')
+  }
+}
+
 export function createQueryClient(): QueryClient {
   return new QueryClient({
     queryCache: new QueryCache({ onError: notify }),
-    mutationCache: new MutationCache({ onError: notify }),
+    mutationCache: new MutationCache({ onMutate: assertOnline, onError: notify }),
     defaultOptions: {
       queries: { staleTime: 30_000, retry: shouldRetry, refetchOnWindowFocus: true },
-      mutations: { retry: false },
+      mutations: { retry: false, networkMode: 'always' },
     },
   })
 }
