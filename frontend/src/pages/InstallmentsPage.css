@@ -26,8 +26,7 @@
   color: var(--color-text-muted);
 }
 
-.installments__list,
-.installments__rows {
+.installments__list {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -48,9 +47,69 @@
 }
 
 .installments__summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: var(--space-4);
+  width: 100%;
+  margin: 0;
+}
+
+.installments__summary > div {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-6);
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+}
+
+.installments__summary dd {
+  margin: 0;
+}
+
+.installments__plan {
+  width: 100%;
+}
+
+.installments__block {
+  width: 100%;
+}
+
+.installments__block h3 {
+  margin-bottom: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.installments__rows {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.installments__rows th,
+.installments__rows td {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-subtle);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.installments__rows thead th {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.installments__rows th:first-child,
+.installments__rows td:nth-child(2),
+.installments__rows th:last-child,
+.installments__rows td:last-child {
+  text-align: left;
+}
+
+.installments__rows tbody th {
+  font-weight: var(--font-weight-semibold);
 }
 
 .installments__summary dt {
@@ -63,11 +122,20 @@
 }
 
 .installments__lines {
+  display: flex;
+  flex-direction: column;
   margin: 0;
   padding: 0;
   list-style: none;
-  color: var(--color-text-muted);
   font-size: var(--font-size-md);
+}
+
+.installments__lines li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .installments__interest {

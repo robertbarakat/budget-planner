@@ -2,6 +2,7 @@ import TaxNav from '../components/TaxNav.tsx'
 import { useMemo, useState } from 'react'
 import { useAllInstallments, useF24Deadlines, useInstallmentLines, useInstallmentPlans, useUpdateInstallmentPlan } from '../api/tax.queries.ts'
 import Amount from '../components/Amount.tsx'
+import StatusBadge from '../components/StatusBadge.tsx'
 import { formatDate } from '../lib/dates.ts'
 import InstallmentPlanFormDialog from '../components/InstallmentPlanFormDialog.tsx'
 import { useSnackbar } from '../components/Snackbar.tsx'
@@ -63,17 +64,23 @@ export default function InstallmentsPage() {
                   {plan.description}
                   {plan.archived ? ' (archiviata)' : ''}
                 </h2>
-                <ul className="installments__lines" aria-label="Cosa è rateizzato">
-                  {lines.map((l) => (
-                    <li key={l.id}>
-                      {taxTypeLabels[l.tax_type]} {l.reference_year} · quota <Amount value={Number(l.quota)} colored={false} />
-                      {l.last_number !== null ? ` · fino alla rata ${l.last_number}` : ''}
-                    </li>
-                  ))}
-                </ul>
+                <div className="installments__block">
+                  <h3>Cosa è rateizzato</h3>
+                  <ul className="installments__lines" aria-label="Cosa è rateizzato">
+                    {lines.map((l) => (
+                      <li key={l.id}>
+                        <span>
+                          {taxTypeLabels[l.tax_type]} {l.reference_year}
+                          {l.last_number !== null && <span className="installments__interest"> · fino alla rata {l.last_number}</span>}
+                        </span>
+                        <Amount value={Number(l.quota)} colored={false} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
                 {summary ? (
                   <dl className="installments__summary">
-                    <div><dt>Interessi</dt><dd><Amount value={summary.interest} colored={false} /></dd></div>
+                    <div><dt>Interessi totali</dt><dd><Amount value={summary.interest} colored={false} /></dd></div>
                     <div><dt>Residuo</dt><dd><Amount value={summary.remaining} colored={false} /></dd></div>
                     <div>
                       <dt>Rata successiva</dt>
@@ -83,16 +90,28 @@ export default function InstallmentsPage() {
                 ) : (
                   <p role="alert" className="installments__note">Le rate non tornano con l'importo rateizzato: controlla i dati.</p>
                 )}
-                <ul className="installments__rows">
-                  {byNumber.map((r) => (
-                    <li key={r.number}>
-                      Rata {r.number} · {formatDate(r.dueDate)} · <Amount value={r.principal + r.interest} colored={false} />
-                      {r.interest > 0 && <span className="installments__interest"> (di cui interessi <Amount value={r.interest} colored={false} />)</span>}
-                      {' · '}
-                      <strong>{r.paid ? 'Versata' : 'Da versare'}</strong>
-                    </li>
-                  ))}
-                </ul>
+                <table className="installments__rows">
+                  <thead>
+                    <tr>
+                      <th scope="col">Rata</th>
+                      <th scope="col">Scadenza</th>
+                      <th scope="col">Importo</th>
+                      <th scope="col">di cui interessi</th>
+                      <th scope="col">Stato</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {byNumber.map((r) => (
+                      <tr key={r.number}>
+                        <th scope="row">{r.number}</th>
+                        <td>{formatDate(r.dueDate)}</td>
+                        <td><Amount value={r.principal + r.interest} colored={false} /></td>
+                        <td>{r.interest > 0 ? <Amount value={r.interest} colored={false} /> : '–'}</td>
+                        <td><StatusBadge tone={r.paid ? 'positive' : 'muted'}>{r.paid ? 'Versata' : 'Da versare'}</StatusBadge></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
                 <div className="installments__actions">
                 {lines.length > 0 && (
                   <InstallmentPlanFormDialog
