@@ -86,7 +86,7 @@ export default function PayF24Dialog({ deadlines, installmentById, itemByRole, c
             {(p) => (
               <select {...p} value={accountId} onChange={(e) => setAccountId(e.target.value)}>
                 <option value="">Scegli…</option>
-                {(accounts.data ?? []).filter((a) => !a.archived).map((a) => (
+                {(accounts.data ?? []).filter((a) => !a.archived).sort((x, y) => x.name.localeCompare(y.name, 'it')).map((a) => (
                   <option key={a.id} value={a.id}>
                     {a.name}
                   </option>
