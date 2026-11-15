@@ -23,7 +23,7 @@ export interface PayF24DialogProps {
 /** "Pago": registra in un colpo i movimenti dell'F24 (capitale per riga, interessi per tributo) e li collega alle scadenze. */
 export default function PayF24Dialog({ deadlines, installmentById, itemByRole, categoryOfItem, dueDate }: PayF24DialogProps) {
   const [open, setOpen] = useState(false)
-  const [date, setDate] = useState(dueDate)
+  const [date, setDate] = useState(todayIso())
   const [accountId, setAccountId] = useState('')
   const [busy, setBusy] = useState(false)
   const accounts = useAccounts()
@@ -63,7 +63,7 @@ export default function PayF24Dialog({ deadlines, installmentById, itemByRole, c
       open={open}
       onOpenChange={(next) => {
         setOpen(next)
-        if (next) setDate(dueDate <= todayIso() ? dueDate : todayIso())
+        if (next) setDate(todayIso())
       }}
       trigger={<button type="button" className="text-link text-link--strong" aria-label={`Pago l'F24 del ${formatDate(dueDate)}`}>
           Pago
