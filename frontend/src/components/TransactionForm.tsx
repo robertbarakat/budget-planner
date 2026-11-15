@@ -79,7 +79,7 @@ export default function TransactionForm({ accounts, categoryGroups, initial, sub
 
   const isTransfer = state.type === 'transfer'
   const groups = categoryGroups.filter((group) => group.kind === state.type)
-  const accountOptions = accounts.map((account) => ({ value: String(account.id), label: account.name }))
+  const accountOptions = [...accounts].sort((x, y) => x.name.localeCompare(y.name, 'it')).map((account) => ({ value: String(account.id), label: account.name }))
   const selectedGroup = groups.find((group) => group.categories.some((c) => String(c.id) === state.categoryId))
 
   function update<K extends keyof TransactionFormState>(key: K, value: TransactionFormState[K]) {

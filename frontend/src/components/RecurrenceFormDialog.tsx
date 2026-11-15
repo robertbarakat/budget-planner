@@ -105,7 +105,7 @@ export default function RecurrenceFormDialog({
               {(p) => (
                 <select {...p} value={state.accountId} onChange={(e) => update('accountId', e.target.value)}>
                   <option value="">Scegli…</option>
-                  {accounts.map((account) => (
+                  {[...accounts].sort((x, y) => x.name.localeCompare(y.name, 'it')).map((account) => (
                     <option key={account.id} value={account.id}>{account.name}</option>
                   ))}
                 </select>
