@@ -82,35 +82,7 @@
   font-weight: var(--font-weight-semibold);
 }
 
-.installments__rows {
-  width: 100%;
-  border-collapse: collapse;
-}
 
-.installments__rows th,
-.installments__rows td {
-  padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--color-border-subtle);
-  text-align: right;
-  white-space: nowrap;
-}
-
-.installments__rows thead th {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-}
-
-.installments__rows th:first-child,
-.installments__rows td:nth-child(2),
-.installments__rows th:last-child,
-.installments__rows td:last-child {
-  text-align: left;
-}
-
-.installments__rows tbody th {
-  font-weight: var(--font-weight-semibold);
-}
 
 .installments__summary dt {
   color: var(--color-text-muted);
@@ -159,4 +131,55 @@
   text-decoration: underline;
   text-underline-offset: 0.2em;
   cursor: pointer;
+}
+
+/* Più aria tra i blocchi della scheda. */
+.installments {
+  gap: var(--space-9);
+}
+
+.installments__plan {
+  gap: var(--space-9);
+  padding: var(--space-9);
+}
+
+.installments__lines {
+  font-size: var(--font-size-lg);
+}
+
+.installments__lines li {
+  padding: var(--space-4) 0;
+}
+
+.installments__block h3 {
+  margin-bottom: var(--space-4);
+}
+
+/* Rate: griglia a 5 colonne, intestazioni e dati centrati. */
+.installments__rows {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.installments__row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: center;
+  justify-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+  text-align: center;
+}
+
+.installments__row--head {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.installments__actions {
+  width: 100%;
+  justify-content: flex-end;
 }

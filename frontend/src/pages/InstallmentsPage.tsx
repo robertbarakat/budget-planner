@@ -90,28 +90,24 @@ export default function InstallmentsPage() {
                 ) : (
                   <p role="alert" className="installments__note">Le rate non tornano con l'importo rateizzato: controlla i dati.</p>
                 )}
-                <table className="installments__rows">
-                  <thead>
-                    <tr>
-                      <th scope="col">Rata</th>
-                      <th scope="col">Scadenza</th>
-                      <th scope="col">Importo</th>
-                      <th scope="col">di cui interessi</th>
-                      <th scope="col">Stato</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {byNumber.map((r) => (
-                      <tr key={r.number}>
-                        <th scope="row">{r.number}</th>
-                        <td>{formatDate(r.dueDate)}</td>
-                        <td><Amount value={r.principal + r.interest} colored={false} /></td>
-                        <td>{r.interest > 0 ? <Amount value={r.interest} colored={false} /> : '–'}</td>
-                        <td><StatusBadge tone={r.paid ? 'positive' : 'muted'}>{r.paid ? 'Versata' : 'Da versare'}</StatusBadge></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div className="installments__rows" role="table" aria-label="Rate">
+                  <div className="installments__row installments__row--head" role="row">
+                    <span role="columnheader">Rata</span>
+                    <span role="columnheader">Scadenza</span>
+                    <span role="columnheader">Importo</span>
+                    <span role="columnheader">di cui interessi</span>
+                    <span role="columnheader">Stato</span>
+                  </div>
+                  {byNumber.map((r) => (
+                    <div key={r.number} className="installments__row" role="row">
+                      <strong role="cell">{r.number}</strong>
+                      <span role="cell">{formatDate(r.dueDate)}</span>
+                      <span role="cell"><Amount value={r.principal + r.interest} colored={false} /></span>
+                      <span role="cell">{r.interest > 0 ? <Amount value={r.interest} colored={false} /> : '–'}</span>
+                      <span role="cell"><StatusBadge tone={r.paid ? 'positive' : 'muted'}>{r.paid ? 'Versata' : 'Da versare'}</StatusBadge></span>
+                    </div>
+                  ))}
+                </div>
                 <div className="installments__actions">
                 {lines.length > 0 && (
                   <InstallmentPlanFormDialog
