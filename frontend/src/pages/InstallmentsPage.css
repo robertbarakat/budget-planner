@@ -183,3 +183,37 @@
   width: 100%;
   justify-content: flex-end;
 }
+
+/* Ritocchi: gerarchia dei titoli, più aria, colonne Rata e Stato strette. */
+.installments {
+  gap: var(--space-11);
+}
+
+.installments__plan {
+  gap: var(--space-11);
+  padding: var(--space-10);
+}
+
+.installments__block h3 {
+  margin-bottom: var(--space-6);
+  color: var(--color-text);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.installments__lines {
+  font-size: var(--font-size-md);
+}
+
+.installments__lines li {
+  padding: var(--space-5) 0;
+}
+
+.installments__row {
+  grid-template-columns: var(--target-min) repeat(3, minmax(0, 1fr)) var(--grid-cell-width);
+  padding: var(--space-6) var(--space-4);
+}
+
+.installments__actions {
+  padding-top: var(--space-4);
+}
