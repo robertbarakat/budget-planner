@@ -95,7 +95,7 @@ Aggiornato a ogni migrazione (vedi `database/CLAUDE.md`). Importi `numeric(12,2)
 `public.import_transactions(p_transactions jsonb) returns table (inserted_count, expense_total, income_total, transfer_total)`: scrittura dell'import storico (specifica sez. 8), da eseguire **una sola volta**.
 
 - `p_transactions`: array di `{type, transaction_date, amount, account, destination_account, category, budget_item, comment, tag}`. Conti, categorie e voci si cercano per nome (senza maiuscole né spazi ai lati) tra gli elementi non archiviati; non se ne creano (lo script di BP-122). La categoria deve appartenere alla voce indicata.
-- Rifiuta di partire se `transactions` contiene già dati (errore `55000`, tabella bloccata in `share row exclusive`). Input non valido (non array, tipo/importo/data non validi, importo <= 0): `22023` con la posizione del movimento; conto, categoria o voce inesistenti: `23503`; i vincoli della tabella (es. origine = destinazione) valgono come sempre. Un errore su qualunque riga annulla tutto.
+- Rifiuta di partire se `transactions` contiene già movimenti con data tra la prima e l'ultima dei movimenti passati (errore `55000`, tabella bloccata in `share row exclusive`; migrazione 20261119120000: prima chiedeva la tabella vuota). Input non valido (non array, tipo/importo/data non validi, importo <= 0): `22023` con la posizione del movimento; conto, categoria o voce inesistenti: `23503`; i vincoli della tabella (es. origine = destinazione) valgono come sempre. Un errore su qualunque riga annulla tutto.
 - Restituisce movimenti inseriti e totali per tipo (somma degli importi, sempre positivi).
 - `security invoker`, `search_path` vuoto; `execute` revocato a `public` e `anon`, concesso ad `authenticated` e `service_role`.
 

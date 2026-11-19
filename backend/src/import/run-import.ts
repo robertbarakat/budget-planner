@@ -3,7 +3,7 @@ import type { ImportPreview } from './preview.ts'
 import { renderTerminalSummary } from './preview.ts'
 
 // Import storico completo (BP-125): controlli, anteprima, conferma digitata, scrittura con la funzione SQL.
-// Lo store è iniettato: nei test è finto, nel comando reale è Supabase. Niente deduplica: l'import si fa una volta sola.
+// Lo store è iniettato: nei test è finto, nel comando reale è Supabase. Niente deduplica: ogni intervallo di date si importa una volta sola (se contiene già movimenti, l'import si ferma).
 
 export interface ImportPayloadRow {
   type: 'expense' | 'income' | 'transfer'
@@ -26,7 +26,8 @@ export interface ImportTotals {
 }
 
 export interface ImportStore {
-  countTransactions(): Promise<number>
+  /** Movimenti già presenti con data tra `from` e `to` (estremi inclusi, formato YYYY-MM-DD). */
+  countTransactions(from: string, to: string): Promise<number>
   importTransactions(rows: ImportPayloadRow[]): Promise<ImportTotals>
 }
 
@@ -69,9 +70,14 @@ export async function runImport(options: RunImportOptions): Promise<RunImportRes
     return { status: 'stopped', reason }
   }
 
-  const existing = await store.countTransactions()
-  if (existing > 0) {
-    return stop(`Import annullato: il database contiene già ${existing} movimenti. L'import richiede il database vuoto.`)
+  if (preview.transactions.length > 0) {
+    const dates = preview.transactions.map((t) => t.transactionDate).sort()
+    const from = dates[0]!
+    const to = dates[dates.length - 1]!
+    const existing = await store.countTransactions(from, to)
+    if (existing > 0) {
+      return stop(`Import annullato: il database contiene già ${existing} movimenti tra ${from} e ${to}. L'import richiede l'intervallo vuoto.`)
+    }
   }
 
   log(renderTerminalSummary(preview))

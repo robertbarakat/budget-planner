@@ -70,6 +70,20 @@ describe('runImport', () => {
     expect(calls).toEqual([])
   })
 
+  it("controlla solo l'intervallo di date dei movimenti da importare", async () => {
+    const ranges: Array<[string, string]> = []
+    const store: ImportStore = {
+      countTransactions: async (from, to) => {
+        ranges.push([from, to])
+        return 0
+      },
+      importTransactions: async (rows) => ({ inserted_count: rows.length, expense_total: 0, income_total: 0, transfer_total: 0 }),
+    }
+    await runImport(base(store, 'importa'))
+    expect(ranges).toHaveLength(1)
+    expect(ranges[0]![0] <= ranges[0]![1]).toBe(true)
+  })
+
   it('si ferma se gli scarti superano la soglia', async () => {
     const bad = row('Spese', { defaultAmount: 0 })
     const { store, calls } = fakeStore()

@@ -11,8 +11,12 @@ export const isLocalUrl = (url: string): boolean => LOCAL_HOSTS.has(new URL(url)
 export function createSupabaseImportStore(url: string, serviceRoleKey: string): { store: ImportStore; host: string } {
   const client = createClient<Database>(url, serviceRoleKey, { auth: { persistSession: false } })
   const store: ImportStore = {
-    async countTransactions() {
-      const { count, error } = await client.from('transactions').select('id', { count: 'exact', head: true })
+    async countTransactions(from, to) {
+      const { count, error } = await client
+        .from('transactions')
+        .select('id', { count: 'exact', head: true })
+        .gte('transaction_date', from)
+        .lte('transaction_date', to)
       if (error) throw new Error(`Controllo del database non riuscito: ${error.message}`)
       return count ?? 0
     },
